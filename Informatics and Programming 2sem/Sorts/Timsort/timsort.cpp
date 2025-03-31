@@ -1,5 +1,5 @@
 #include <algorithm>
-// #include <chrono>
+#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -155,13 +155,14 @@ void merge(std::vector<int> &vec, std::pair<int, int> pair1,
 
 void timsort(std::vector<int> &vec) {
   int n = vec.size();
-  int minrun = getMinrun(n);
   if (n == 1) {
     return;
   }
+  int minrun = getMinrun(n);
+
   int i = 0;
   std::stack<std::pair<int, int>> subArrays;
-  while (i < n - 2) {
+  while (i < n - 1) {
     int j = i + 1;
     bool isReverse = vec[j - 1] > vec[j];
 
@@ -174,12 +175,12 @@ void timsort(std::vector<int> &vec) {
       }
     }
 
-    j = std::min(n - 1, std::max(i + minrun - 1, n - 1));
-
     if (isReverse) {
       // Not including vec.begin()
       std::reverse(vec.begin() + i, vec.begin() + j);
     }
+
+    j = std::min(std::max(j, i + minrun - 1), n - 1);
 
     insertSort(vec, i, j);
     subArrays.push({i, j});
@@ -253,7 +254,27 @@ void timsort(std::vector<int> &vec) {
   }
 }
 
+int randFromRange(int start, int end) {
+  return rand() % (end - start + 1) + start;
+}
+
+void test() {
+  srand(time(0));
+  for (int i = 1; i < 10000000; i += 1000) {
+    std::vector<int> vec1(i);
+    for (int j = 0; j < i; ++j) {
+      vec1[j] = (randFromRange(-100000, 100000));
+    }
+    std::clock_t c_start = std::clock();
+    timsort(vec1);
+    std::clock_t c_end = std::clock();
+
+    out << "A = (" << i << ", " << c_end - c_start << ")" << std::endl;
+  }
+}
+
 int main() {
+  srand(time(0));
   std::vector<int> vec;
   std::string line;
   getline(in, line);
@@ -263,7 +284,6 @@ int main() {
   while (ss >> tmp) {
     vec.push_back(tmp);
   }
-  timsort(vec);
-  printVector(vec);
+  test();
   in.close();
 }
