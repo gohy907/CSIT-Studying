@@ -81,7 +81,8 @@ struct Employee {
 bool operator<(Date date1, Date date2) {
   return date1.year < date2.year ||
          (date1.year == date2.year && date1.month < date2.month) ||
-         (date1.month == date2.month && date1.day < date2.day);
+         (date1.year == date2.year && date1.month == date2.month &&
+          date1.day < date2.day);
 }
 
 bool operator==(Employee emp1, Employee emp2) {
@@ -91,7 +92,8 @@ bool operator==(Employee emp1, Employee emp2) {
 bool operator>(Date date1, Date date2) {
   return date1.year > date2.year ||
          (date1.year == date2.year && date1.month > date2.month) ||
-         (date1.month == date2.month && date1.day > date2.day);
+         (date1.year == date2.year && date1.month == date2.month &&
+          date1.day > date2.day);
 }
 
 const std::string SURNAME = "SURNAME";
@@ -105,45 +107,61 @@ const std::vector<std::string> categories = {SURNAME, JOB, DATE_OF_BIRTH,
 std::vector<std::string> readfrom(std::string file) {
   std::ifstream in(file);
   std::vector<std::string> lines;
+  std::string line;
 
-  while (in.peek() != EOF) {
-    std::string line;
-    getline(in, line, '\n');
+  while (getline(in, line)) {
     lines.push_back(line);
   }
   return lines;
 }
 
 std::vector<Employee> countingSortDates(std::vector<Employee> employees) {
-  std::vector<Employee> sorted = employees;
+  std::vector<Employee> sorted;
 
   Date max_date = {0, 0, 0};
-  Date min_date = {31, 12, 9999};
-  int n = sorted.size();
+  Date min_date = {31, 12, INT_MAX};
+  int n = employees.size();
+  if (n <= 1) {
+    return employees;
+  }
   for (int i = 0; i < n; ++i) {
-    Employee emp = sorted[i];
+    Employee emp = employees[i];
     if (emp.date < min_date)
       min_date = emp.date;
     if (emp.date > max_date)
       max_date = emp.date;
   }
-  int range = dateToDays(max_date) - dateToDays(min_date) + 1;
-  std::vector<int> count(range, 0);
-  for (int i = 0; i < n; ++i) {
-    Employee emp = sorted[i];
-    count[dateToDays(emp.date) - dateToDays(min_date)]++;
-  }
-  std::vector<int> position(range, 0);
-  for (int i = 1; i < range; ++i) {
-    position[i] = position[i - 1] + count[i - 1];
-  }
-  for (int i = 0; i < n; ++i) {
-    Employee emp = sorted[i];
-    int index = dateToDays(emp.date) - dateToDays(min_date);
-    sorted[position[index]] = emp;
-    position[index]++;
-  }
 
+  int min_days = dateToDays(min_date);
+  int max_days = dateToDays(max_date);
+  int range = max_days - min_days + 1;
+  std::vector<int> count(range);
+
+  int temp = min_days;
+  while (temp <= max_days) {
+    for (int i = 0; i < n; i++) {
+      if (dateToDays(employees[i].date) == temp) {
+        count[temp - min_days]++;
+      }
+    }
+    temp++;
+  }
+  for (int i = min_days; i <= max_days; ++i) {
+    if (i == max_days) {
+      int b = 0;
+    }
+    if (count[i - min_days]) {
+      for (int j = count[i - min_days]; j > 0; --j) {
+        for (int k = 0; k < employees.size(); ++k) {
+          if (dateToDays(employees[k].date) == i) {
+            sorted.push_back(employees[k]);
+            employees.erase(employees.begin() + k);
+            break;
+          }
+        }
+      }
+    }
+  }
   return sorted;
 }
 
