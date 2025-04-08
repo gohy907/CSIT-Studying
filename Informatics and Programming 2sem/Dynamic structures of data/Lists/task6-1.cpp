@@ -10,9 +10,10 @@ struct list {
 void push(list *&h, list *&t, int x) {
   list *r = new list;
   r->inf = x;
-  r->next = nullptr;
+  r->next = NULL;
+
   if (!h && !t) {
-    r->prev = nullptr;
+    r->prev = NULL;
     h = r;
   } else {
     t->next = r;
@@ -21,31 +22,21 @@ void push(list *&h, list *&t, int x) {
   t = r;
 }
 
-void print(list *h, list *t) {
-  list *p = h;
-  while (p) {
-    std::cout << p->inf << " ";
-    p = p->next;
-  }
-  std::cout << std::endl;
-}
-
 list *find(list *h, list *t, int x) {
   list *p = h;
   while (p) {
-    if (p->inf == x) {
+    if (p->inf == x)
       break;
-    }
     p = p->next;
   }
   return p;
 }
 
-void insert_after(list *&h, list *&t, list *r, int x) {
+void insert_after(list *&h, list *&t, list *r, int y) {
   list *p = new list;
-  p->inf = x;
+  p->inf = y;
   if (r == t) {
-    p->next = nullptr;
+    p->next = NULL;
     p->prev = r;
     r->next = p;
     t = p;
@@ -58,38 +49,38 @@ void insert_after(list *&h, list *&t, list *r, int x) {
 }
 
 void del_node(list *&h, list *&t, list *r) {
-  if (r == h && r == t) {
-    h = t = nullptr;
-  } else if (r == h) {
+  if (r == h && r == t)
+    h = t = NULL;
+  else if (r == h) {
     h = h->next;
-    h->prev = nullptr;
+    h->prev = NULL;
   } else if (r == t) {
     t = t->prev;
-    t->next = nullptr;
+    t->next = NULL;
   } else {
     r->next->prev = r->prev;
+
     r->prev->next = r->next;
   }
   delete r;
 }
 
-void del_list(list *&h, list *&t) {
-  while (h) {
-    list *p = h;
-    h = h->next;
-    h->prev = nullptr;
-    delete p;
+void print(list *h, list *t) {
+  list *p = h;
+  while (p) {
+    std::cout << p->inf << " ";
+    p = p->next;
   }
 }
 
 int main() {
-  list *h;
-  list *t;
+  list *h = nullptr;
+  list *t = nullptr;
 
   std::string line;
   getline(std::cin, line);
   std::stringstream ss(line);
-  char tmp;
+  int tmp;
   while (ss >> tmp) {
     push(h, t, tmp);
   }
@@ -105,6 +96,7 @@ int main() {
     p = p->next;
   }
 
+  p = h;
   while (p) {
     if (p->inf == first) {
       insert_after(h, t, p, max);
