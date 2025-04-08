@@ -71,6 +71,7 @@ void print(list *h, list *t) {
     std::cout << p->inf << " ";
     p = p->next;
   }
+  std::cout << std::endl;
 }
 
 int main() {
