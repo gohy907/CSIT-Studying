@@ -284,6 +284,9 @@ int main() {
   while (ss >> tmp) {
     vec.push_back(tmp);
   }
-  test();
+
+  timsort(vec);
+  printVector(vec);
+
   in.close();
 }
