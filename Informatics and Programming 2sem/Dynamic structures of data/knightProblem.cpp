@@ -143,9 +143,8 @@ int main() {
     vec.push_back(squareToStr(finish));
     finish = table[finish.x][finish.y];
   }
-
-  std::reverse(vec.begin(), vec.end());
   vec.push_back(squareToStr(start));
+  std::reverse(vec.begin(), vec.end());
 
   for (int i = 0; i < vec.size(); ++i) {
     std::cout << vec[i] << " ";
