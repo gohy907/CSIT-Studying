@@ -35,7 +35,11 @@ struct Square {
 Square strToSquare(std::string str) {
   Square square;
   square.x = str[0] - 'A';
-  square.y = str[1] - '1';
+  if (!std::isdigit(str[1])) {
+    square.y = -1;
+    return square;
+  }
+  square.y = std::stoi(str.substr(1)) - 1;
   return square;
 }
 
@@ -107,6 +111,17 @@ int main() {
   std::cin >> strFinish;
   Square finish = strToSquare(strFinish);
 
+  if (!(validPosition(start) && validPosition(finish))) {
+    if (!validPosition(start)) {
+      std::cout << "Invalid start position" << std::endl;
+    }
+    if (!validPosition(finish)) {
+      std::cout << "Invaild finish position" << std::endl;
+    }
+
+    return 0;
+  }
+
   std::vector<std::vector<Square>> table = bfs(start, finish);
 
   std::vector<std::string> vec;
@@ -116,6 +131,7 @@ int main() {
   }
 
   std::reverse(vec.begin(), vec.end());
+  vec.push_back(squareToStr(start));
 
   for (int i = 0; i < vec.size(); ++i) {
     std::cout << vec[i] << " ";
