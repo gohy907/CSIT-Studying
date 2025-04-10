@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+namespace gohy {
+
 template <typename T> struct Queue {
   T inf;
   Queue<T> *next;
@@ -113,16 +115,8 @@ std::vector<std::vector<Square>> bfs(Square start, Square finish) {
   return table;
 }
 
-int main() {
-  std::string strStart;
-  std::string strFinish;
-
-  std::cout << "Enter start square: ";
-  std::cin >> strStart;
+int solve(std::string strStart, std::string strFinish) {
   Square start = strToSquare(strStart);
-
-  std::cout << "Enter final square: ";
-  std::cin >> strFinish;
   Square finish = strToSquare(strFinish);
 
   if (!(validPosition(start) && validPosition(finish))) {
@@ -145,9 +139,186 @@ int main() {
   }
   vec.push_back(squareToStr(start));
   std::reverse(vec.begin(), vec.end());
+  return vec.size();
+}
+} // namespace gohy
 
-  for (int i = 0; i < vec.size(); ++i) {
-    std::cout << vec[i] << " ";
+#include <iostream>
+#include <map>
+#include <vector>
+namespace Ezhkin_Kot {
+
+class Queue {
+private:
+  struct Node {
+    std::string value;
+    Node *next;
+    Node(std::string &val) : value(val), next(nullptr) {}
+  };
+
+  Node *frontNode = nullptr;
+  Node *backNode = nullptr;
+
+public:
+  void push(std::string &value) {
+    Node *newNode = new Node(value);
+    if (!backNode) {
+      frontNode = backNode = newNode;
+    } else {
+      backNode->next = newNode;
+      backNode = newNode;
+    }
+  }
+
+  void pop() {
+    if (!empty()) {
+      Node *temp = frontNode;
+      frontNode = frontNode->next;
+      delete temp;
+      if (!frontNode) {
+        backNode = nullptr;
+      }
+    }
+  }
+
+  std::string front() { return frontNode->value; }
+
+  bool empty() { return frontNode == nullptr; }
+
+  ~Queue() {
+    while (!empty()) {
+      pop();
+    }
+  }
+};
+
+class Graph {
+private:
+  std::map<std::string, std::vector<std::string>> adj;
+
+public:
+  // Add an edge (undirected)
+  void addEdge(std::string &u, std::string &v) {
+    adj[u].push_back(v);
+    adj[v].push_back(u);
+  }
+
+  // Set all possible moves
+  void setHorseGraph() {
+    std::vector<std::pair<int, int>> movesXY = {
+        {1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}};
+
+    for (char x = 'A'; x <= 'H'; ++x) {
+      for (int y = 1; y <= 8; ++y) {
+        std::string beginCell = std::string(1, x) + std::to_string(y);
+        for (int i = 0; i < 8; ++i) {
+          char nx = x + movesXY[i].first;
+          int ny = y + movesXY[i].second;
+          if (nx >= 'A' && nx <= 'H' && ny >= 1 && ny <= 8) {
+            std::string endCell = std::string(1, nx) + std::to_string(ny);
+            addEdge(beginCell, endCell);
+          }
+        }
+      }
+    }
+  }
+
+  // BFS to find minimal sequence of moves
+  int shortestPath(std::string &start, std::string &end) {
+    std::map<std::string, bool> visited;
+    std::map<std::string, std::string> prev;
+    Queue queue;
+
+    visited[start] = true;
+    queue.push(start);
+
+    while (!queue.empty()) {
+      std::string current = queue.front();
+      queue.pop();
+
+      if (current == end)
+        break;
+
+      for (std::string &neighbor : adj[current]) {
+        if (!visited[neighbor]) {
+          visited[neighbor] = true;
+          prev[neighbor] = current;
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    if (!visited[end]) {
+      std::cout << "Path not found." << std::endl;
+      return 0;
+    }
+
+    std::vector<std::string> path;
+    for (std::string at = end; at != start; at = prev[at]) {
+      path.push_back(at);
+    }
+    path.push_back(start);
+    std::reverse(path.begin(), path.end());
+
+    return path.size();
+  }
+};
+
+int solve(std::string u, std::string v) {
+  Graph g;
+  g.setHorseGraph();
+
+  return g.shortestPath(u, v);
+}
+} // namespace Ezhkin_Kot
+
+int randFromRange(int start, int end) {
+  return rand() % (end - start + 1) + start;
+}
+
+int main() {
+  srand(time(0));
+  char *rows = new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+  char *columns = new char[]{'1', '2', '3', '4', '5', '6', '7', '8'};
+
+  int gohyTotal = 0;
+  int Ezhkin_KotTotal = 0;
+  int n = 100000;
+  for (int i = 0; i < n; ++i) {
+    int x = randFromRange(0, 7);
+    int y = randFromRange(0, 7);
+
+    std::string start;
+    start += rows[y];
+    start += columns[x];
+
+    x = randFromRange(0, 7);
+    y = randFromRange(0, 7);
+
+    std::string finish;
+    finish += rows[y];
+    finish += columns[x];
+
+    int gohy = gohy::solve(start, finish);
+    int Ezhkin_Kot = Ezhkin_Kot::solve(start, finish);
+
+    std::cout << "Start: " << start << ", finish: " << finish << ". ";
+    if (gohy == Ezhkin_Kot) {
+      std::cout << "Algorithms are equal";
+    } else if (gohy > Ezhkin_Kot) {
+      std::cout << "Ezhkin_Kot's algorithm is better";
+      ++Ezhkin_KotTotal;
+    } else {
+      std::cout << "gohy's algorithm is better";
+      ++gohyTotal;
+    }
+
+    std::cout << std::endl;
   }
   std::cout << std::endl;
+
+  std::cout << "Ezhkin_Kot's algorithm is better in " << Ezhkin_KotTotal
+            << " cases out of " << n << std::endl;
+  std::cout << "gohy's algorithm is better in " << gohyTotal << " cases out of "
+            << n << std::endl;
 }
