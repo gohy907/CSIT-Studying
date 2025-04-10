@@ -3,29 +3,42 @@
 #include <string>
 #include <vector>
 
-template <typename T> struct Stack {
+template <typename T> struct Queue {
   T inf;
-  Stack<T> *next;
+  Queue<T> *next;
 };
 
-template <typename T> void push(Stack<T> *&h, T x) {
-  Stack<T> *r = new Stack<T>;
+template <typename T> void push(Queue<T> *&h, Queue<T> *&t, T x) {
+  Queue<T> *r = new Queue<T>;
   r->inf = x;
-  r->next = h;
-  h = r;
+  r->next = nullptr;
+  if (!h && !t) {
+    h = t = r;
+  }
+
+  else {
+    t->next = r;
+    t = r;
+  }
 }
 
-template <typename T> T pop(Stack<T> *&h) {
+template <typename T> T pop(Queue<T> *&h, Queue<T> *&t) {
   T i = h->inf;
-  Stack<T> *r = h;
+  Queue<T> *r = h;
   h = h->next;
+  if (!h) {
+    t = nullptr;
+  }
   delete r;
   return i;
 }
 
-template <typename T> bool empty(Stack<T> *&stack) {
-  return (stack == nullptr);
+template <typename T> T top(Queue<T> *&h) {
+  T i = h->inf;
+  return i;
 }
+
+template <typename T> bool empty(Queue<T> *&h) { return (h == nullptr); }
 
 struct Square {
   int x = -1;
@@ -73,10 +86,11 @@ std::vector<std::vector<Square>> bfs(Square start, Square finish) {
     table.push_back(tmp);
   }
 
-  Stack<Square> *d;
-  push(d, start);
-  while (!empty(d)) {
-    Square current = pop(d);
+  Queue<Square> *h = nullptr;
+  Queue<Square> *t = nullptr;
+  push(h, t, start);
+  while (!empty(h)) {
+    Square current = pop(h, t);
     for (int i = 0; i < 8; ++i) {
       Square next{current.x + dx[i], current.y + dy[i]};
       if (!validPosition(next)) {
@@ -93,7 +107,7 @@ std::vector<std::vector<Square>> bfs(Square start, Square finish) {
         return table;
       }
 
-      push(d, next);
+      push(h, t, next);
     }
   }
   return table;
