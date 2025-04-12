@@ -40,6 +40,8 @@ void insert(tree *&tr, int x) {
           y->left = n;
           break;
         }
+      } else {
+        return;
       }
     }
   }
