@@ -1,15 +1,11 @@
 #include <algorithm>
-#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <stack>
-#include <string>
 #include <vector>
 
-std::ifstream in("input.txt");
-std::ofstream out("output.txt");
+std::ofstream out("stats.txt");
 
 template <typename T> void reverse_stack(std::stack<T> &stack) {
   std::stack<T> reversedStack;
@@ -258,6 +254,11 @@ int randFromRange(int start, int end) {
   return rand() % (end - start + 1) + start;
 }
 
+// This function writes down in output file size of sorted vector and time in
+// CPU cycles code was soritng it in a way that is very easy to paste contents
+// of entire file in Desmos and see complexity of a program
+//
+// I didn't come up with something more clever than this
 void test() {
   srand(time(0));
   for (int i = 1; i < 10000000; i += 1000) {
@@ -273,20 +274,4 @@ void test() {
   }
 }
 
-int main() {
-  srand(time(0));
-  std::vector<int> vec;
-  std::string line;
-  getline(in, line);
-  std::stringstream ss(line);
-
-  int tmp;
-  while (ss >> tmp) {
-    vec.push_back(tmp);
-  }
-
-  timsort(vec);
-  printVector(vec);
-
-  in.close();
-}
+int main() { test(); }
