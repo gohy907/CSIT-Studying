@@ -3,7 +3,7 @@
 #include <vector>
 
 struct tree {
-  int inf;
+  double inf;
   tree *left;
   tree *right;
   tree *parent;
@@ -101,35 +101,48 @@ tree *Next(tree *tr, int x) {
 
 void Delete(tree *&tr, tree *v) {
   tree *p = v->parent;
-  if (!p)
-    tr = NULL;
-  else if (!v->left && !v->right) {
+  if (!p && !(v->left || v->right)) {
+    tr = nullptr;
+  } else if (!p) {
+    tree *succ = Next(tr, v->inf);
+    v->inf = succ->inf;
+    if (succ->parent->left == succ) {
+      succ->parent->left = succ->right;
+      if (succ->right)
+        succ->right->parent = succ->parent;
+    } else {
+      succ->parent->right = succ->right;
+      if (succ->right)
+        succ->right->parent = succ->parent;
+    }
+    delete succ;
+  } else if (!v->left && !v->right) {
     if (p->left == v)
       p->left = NULL;
     if (p->right == v)
       p->right = NULL;
     delete v;
-  } else if (!v->left || !v->right) { // если только один ребенок
-    if (!p) {          // если удаляем корень, у которого 1 ребенок
-      if (!v->left) {  // если есть правый ребенок
-        tr = v->right; // он становится корнем
+  } else if (!v->left || !v->right) {
+    if (!p) {
+      if (!v->left) {
+        tr = v->right;
         v->parent = NULL;
-      } else { // аналогично для левого
+      } else {
 
         tr = v->left;
         v->parent = NULL;
       }
     } else {
-      if (!v->left) {       // если есть правый ребенок
-        if (p->left == v) { // если удаляемый узел явл. левым ребенком
+      if (!v->left) {
+        if (p->left == v) {
           p->left = v->right;
-        } // ребенок удаляемого узла становится левым ребенком
+        }
 
         else {
           p->right = v->right;
-        } ////ребенок удаляемого узла становится правым
-        v->right->parent = p; // родителем ребенка становится его "дед"
-      } else {                // аналогично для левого ребенка
+        }
+        v->right->parent = p;
+      } else {
         if (p->left == v)
           p->left = v->left;
         else
@@ -138,14 +151,15 @@ void Delete(tree *&tr, tree *v) {
       }
       delete v;
     }
-  } else {                              // есть оба ребенка
-    tree *succ = Next(tr, v->inf);      // следующий за удаляемым узлом
-    v->inf = succ->inf;                 // присваиваем значение
-    if (succ->parent->left == succ) {   // если succ левый ребенок
-      succ->parent->left = succ->right; // его правый ребенок становится левым
-      if (succ->right)                  // если этот ребенок существует
-        succ->right->parent = succ->parent; // его родителем становится "дед"
-    } else { // аналогично если succ - правsq ребенок
+  } else {
+
+    tree *succ = Next(tr, v->inf);
+    v->inf = succ->inf;
+    if (succ->parent->left == succ) {
+      succ->parent->left = succ->right;
+      if (succ->right)
+        succ->right->parent = succ->parent;
+    } else {
       succ->parent->right = succ->right;
       if (succ->right)
         succ->right->parent = succ->parent;
