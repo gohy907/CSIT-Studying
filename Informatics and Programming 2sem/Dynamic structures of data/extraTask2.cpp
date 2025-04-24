@@ -84,7 +84,7 @@ template <typename T> bool empty(Queue<T> *&h) { return (h == nullptr); }
 
 void add_row(std::vector<std::vector<int>> &arr) {
   int index = arr.size();
-  std::cout << "Index " << index << ": " << std::flush;
+  std::cout << index << ": " << std::flush;
 
   std::string input;
   getline(std::cin, input);
@@ -109,7 +109,7 @@ std::vector<std::vector<int>> createAdjMatrix(int numOfVertices) {
 void DFS(std::vector<std::vector<int>> Gr, std::vector<int> &A, int x) {
   Stack<int> *st = nullptr;
 
-  A[x] = true;
+  A[x] = 1;
 
   push(st, x);
   std::cout << x << " ";
@@ -126,7 +126,7 @@ void DFS(std::vector<std::vector<int>> Gr, std::vector<int> &A, int x) {
       }
     }
     if (fl == true) {
-      A[y] = true;
+      A[y] = 1;
       push(st, y);
       std::cout << y << " ";
       fl = false;
@@ -135,7 +135,7 @@ void DFS(std::vector<std::vector<int>> Gr, std::vector<int> &A, int x) {
     }
   }
   for (int i = 0; i < Gr.size(); ++i) {
-    if (!A[Gr[x][i]]) {
+    if (A[Gr[x][i]] == 0) {
       DFS(Gr, A, Gr[x][i]);
     }
   }
@@ -149,6 +149,45 @@ void DFSHelper(std::vector<std::vector<int>> Gr) {
 
   std::vector<int> A(size);
   DFS(Gr, A, 0);
+  std::cout << std::endl;
+}
+
+void BFS(std::vector<std::vector<int>> Gr, std::vector<int> &A, int x) {
+  Queue<int> *h = nullptr;
+  Queue<int> *t = nullptr;
+
+  A[x] = 1;
+
+  push(h, t, x);
+  std::cout << x << " ";
+  while (!empty(h)) {
+    x = pop(h, t);
+    for (int i = 0; i < Gr[x].size(); ++i) {
+      if (A[Gr[x][i]] == 0) {
+        int y = Gr[x][i];
+        A[y] = 1;
+        push(h, t, y);
+        std::cout << y << " ";
+      }
+    }
+  }
+
+  for (int i = 0; i < Gr.size(); ++i) {
+    if (A[Gr[x][i]] == 0) {
+      BFS(Gr, A, Gr[x][i]);
+    }
+  }
+}
+
+void BFSHelper(std::vector<std::vector<int>> Gr) {
+  int size = Gr.size();
+  if (size == 0) {
+    return;
+  }
+
+  std::vector<int> A(size);
+  BFS(Gr, A, 0);
+  std::cout << std::endl;
 }
 
 int main() {
@@ -157,6 +196,8 @@ int main() {
   std::cin >> n;
 
   std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-  DFSHelper(createAdjMatrix(n));
+  std::vector<std::vector<int>> adjMatrix = createAdjMatrix(n);
   std::cout << std::endl;
+  DFSHelper(adjMatrix);
+  BFSHelper(adjMatrix);
 }
