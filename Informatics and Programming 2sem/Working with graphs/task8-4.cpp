@@ -64,7 +64,7 @@ void outputGraph(std::map<int, std::list<std::pair<int, double>>> l_Adj,
   }
 }
 
-void add_cycles(std::vector<int> pr, std::vector<std::vector<int>> &cycles,
+void add_cycles(std::map<int, int> pr, std::vector<std::vector<int>> &cycles,
                 std::vector<std::vector<int>> &cycles_sort, int start,
                 int end) {
   int cur = end;
@@ -102,7 +102,7 @@ void DFS(std::map<int, std::list<std::pair<int, double>>> adjMatrix,
 }
 
 void findLoop(std::map<int, std::list<std::pair<int, double>>> adjMatrix, int x,
-              std::vector<int> &used, std::vector<int> &pr,
+              std::map<int, int> &used, std::map<int, int> &pr,
               std::vector<std::vector<int>> &cycles,
               std::vector<std::vector<int>> &cycles_sort) {
   used[x] = 1;
@@ -127,10 +127,10 @@ findLoopHelper(std::map<int, std::list<std::pair<int, double>>> adjMatrix) {
   std::vector<std::vector<int>> cycles_sort;
   for (auto it = adjMatrix.begin(); it != adjMatrix.end(); ++it) {
     int x = it->first;
-    std::vector<int> used(adjMatrix.size());
-    std::vector<int> pr(adjMatrix.size());
-    for (int i = 0; i < pr.size(); ++i) {
-      pr[i] = -1;
+    std::map<int, int> used;
+    std::map<int, int> pr;
+    for (auto it1 = adjMatrix.begin(); it1 != adjMatrix.end(); ++it1) {
+      pr[(*it1).first] = -1;
     }
     findLoop(adjMatrix, x, used, pr, cycles, cycles_sort);
   }
