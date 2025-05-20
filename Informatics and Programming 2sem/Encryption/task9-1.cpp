@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
-#include <sstream>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -150,6 +150,33 @@ std::string blank(int n) {
     return str;
 }
 
+void printEmployee(Employee emp) {
+    std::vector<int> spaces = {
+        std::max((int)emp.surname.length(), (int)SURNAME.length()) + 1,
+        std::max((int)emp.job.length(), (int)JOB.length()) + 1,
+        std::max((int)dateToStr(emp.date).length(),
+                 (int)DATE_OF_BIRTH.length()) +
+            1,
+        std::max((int)std::to_string(emp.experience).length(),
+                 (int)EXPERIENCE.length()) +
+            1,
+        std::max((int)std::to_string(emp.salary).length(),
+                 (int)SALARY.length()) +
+            1};
+
+    for (int i = 1; i < 6; ++i) {
+        std::cout << std::left << std::setw(spaces[i - 1]) << categories[i];
+    }
+    std::cout << std::endl;
+
+    std::cout << std::left << std::setw(spaces[0]) << emp.surname;
+    std::cout << std::left << std::setw(spaces[1]) << emp.job;
+    std::cout << std::left << std::setw(spaces[2]) << dateToStr(emp.date);
+    std::cout << std::left << std::setw(spaces[3]) << emp.experience;
+    std::cout << emp.salary << std::endl;
+    std::cout << std::endl;
+}
+
 void printHashTable(std::vector<std::vector<Employee>> hashTable) {
     int maxSurLength = getMaxSurLength(hashTable);
     int maxJobLength = getMaxJobLength(hashTable);
@@ -187,6 +214,7 @@ void printHashTable(std::vector<std::vector<Employee>> hashTable) {
             std::cout << employee.salary << std::endl;
         }
     }
+    std::cout << std::endl;
 }
 
 int h(double x, int M) {
@@ -197,31 +225,43 @@ int h(double x, int M) {
     return x;
 }
 
+void insertInHashTable(std::vector<std::vector<Employee>> &hashTable,
+                       Employee x) {
+    int k = h(x.salary, hashTable.size());
+    hashTable[k].push_back(x);
+}
+
 std::vector<std::vector<Employee>> createHashTable(std::vector<Employee> A,
                                                    int M) {
     std::vector<std::vector<Employee>> hashTable(M);
     for (int i = 0; i < A.size(); ++i) {
-        int k = h(A[i].salary, M);
-        hashTable[k].push_back(A[i]);
+        insertInHashTable(hashTable, A[i]);
     }
     return hashTable;
 }
 
-std::vector<Employee>::iterator
-findInHashTable(std::vector<std::vector<Employee>> &hashTable, Employee X) {
+Employee *findInHashTable(std::vector<std::vector<Employee>> &hashTable,
+                          Employee X) {
+    Employee *emp = nullptr;
     int k = h(X.salary, hashTable.size());
-    for (auto it = hashTable[k].begin(); it != hashTable[k].end(); ++it) {
-        if ((*it) == X) {
-            return it;
+    for (int i = 0; i < hashTable[k].size(); ++i) {
+        if (hashTable[k][i] == X) {
+            emp = &hashTable[k][i];
+            break;
         }
     }
-    return hashTable[k].end();
+    return emp;
 }
 
-void deleteInHashTable(std::vector<std::vector<Employee>> hashTable,
+void deleteInHashTable(std::vector<std::vector<Employee>> &hashTable,
                        Employee X) {
     int k = h(X.salary, hashTable.size());
-    hashTable[k].erase(findInHashTable(hashTable, X));
+    for (int i = 0; i < hashTable[k].size(); ++i) {
+        if (hashTable[k][i] == X) {
+            hashTable[k].erase(hashTable[k].begin() + i);
+            break;
+        }
+    }
 }
 
 int main() {
@@ -247,4 +287,26 @@ int main() {
     std::vector<std::vector<Employee>> hashTable =
         createHashTable(employees, 64);
     printHashTable(hashTable);
+
+    Employee ep = {100, "das", "ad", strToDate("02.02.0907"), 2, 2};
+    insertInHashTable(hashTable, ep);
+    printHashTable(hashTable);
+
+    Employee *ep1 = findInHashTable(hashTable, ep);
+    if (!ep1) {
+        std::cout << "Employee not found";
+    } else {
+        printEmployee(*ep1);
+    }
+
+    deleteInHashTable(hashTable, ep);
+
+    printHashTable(hashTable);
+
+    ep1 = findInHashTable(hashTable, ep);
+    if (!ep1) {
+        std::cout << "Employee not found" << std::endl;
+    } else {
+        printEmployee(*ep1);
+    }
 }

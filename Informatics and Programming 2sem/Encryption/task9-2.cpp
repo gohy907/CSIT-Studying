@@ -1,10 +1,13 @@
 #include <algorithm>
 #include <climits>
 #include <cmath>
+#include <cstddef>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <new>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -149,6 +152,32 @@ std::string blank(int n) {
     return str;
 }
 
+void printEmployee(Employee emp) {
+    std::vector<int> spaces = {
+        std::max((int)emp.surname.length(), (int)SURNAME.length()) + 1,
+        std::max((int)emp.job.length(), (int)JOB.length()) + 1,
+        std::max((int)dateToStr(emp.date).length(),
+                 (int)DATE_OF_BIRTH.length()) +
+            1,
+        std::max((int)std::to_string(emp.experience).length(),
+                 (int)EXPERIENCE.length()) +
+            1,
+        std::max((int)std::to_string(emp.salary).length(),
+                 (int)SALARY.length()) +
+            1};
+
+    for (int i = 1; i < 6; ++i) {
+        std::cout << std::left << std::setw(spaces[i - 1]) << categories[i];
+    }
+    std::cout << std::endl;
+
+    std::cout << std::left << std::setw(spaces[0]) << emp.surname;
+    std::cout << std::left << std::setw(spaces[1]) << emp.job;
+    std::cout << std::left << std::setw(spaces[2]) << dateToStr(emp.date);
+    std::cout << std::left << std::setw(spaces[3]) << emp.experience;
+    std::cout << emp.salary << std::endl;
+}
+
 void printHashTable(std::vector<std::vector<Employee>> hashTable) {
     int maxSurLength = getMaxSurLength(hashTable);
     int maxJobLength = getMaxJobLength(hashTable);
@@ -186,6 +215,7 @@ void printHashTable(std::vector<std::vector<Employee>> hashTable) {
             std::cout << employee.salary << std::endl;
         }
     }
+    std::cout << std::endl;
 }
 
 int hp(double x, int M) {
@@ -197,46 +227,52 @@ int hp(double x, int M) {
 }
 
 int h(double x, int i, int M) {
-    int c1 = 1;
+    int c1 = 2;
     int c2 = 3;
     return ((int)x % M + c1 * i + c2 * i * i) % M;
+}
+
+void insertInHashTable(std::vector<std::vector<Employee>> &hashTable,
+                       Employee x) {
+    int M = hashTable.size();
+    int k = hp(x.salary, M);
+    int j = 0;
+    while (j != hashTable.size()) {
+        int p = h(k, j, M);
+        if (hashTable[p].size() == 0) {
+            hashTable[p].push_back(x);
+            break;
+        } else {
+            ++j;
+        }
+    }
 }
 
 std::vector<std::vector<Employee>> createHashTable(std::vector<Employee> A,
                                                    int M) {
     std::vector<std::vector<Employee>> hashTable(M);
     for (int i = 0; i < A.size(); ++i) {
-        // int k = hp(A[i].salary, M);
-        int k = A[i].salary % M;
-        int j = 0;
-        while (j != hashTable.size()) {
-            int p = h(k, j, M);
-            if (hashTable[p].size() == 0) {
-                hashTable[p].push_back(A[i]);
-                break;
-            } else {
-                ++j;
-            }
-        }
+        insertInHashTable(hashTable, A[i]);
     }
     return hashTable;
 }
 
-std::vector<Employee>::iterator
-findInHashTable(std::vector<std::vector<Employee>> &hashTable, Employee X) {
+Employee *findInHashTable(std::vector<std::vector<Employee>> &hashTable,
+                          Employee X) {
+    int M = hashTable.size();
     int k = hp(X.salary, hashTable.size());
-    for (auto it = hashTable[k].begin(); it != hashTable[k].end(); ++it) {
-        if ((*it) == X) {
-            return it;
+    int j = 0;
+    Employee *emp = nullptr;
+    while (j != hashTable.size()) {
+        int p = h(k, j, M);
+        if (hashTable[p].size() != 0 && hashTable[p][0] == X) {
+            emp = &(hashTable[p][0]);
+            break;
+        } else {
+            ++j;
         }
     }
-    return hashTable[k].end();
-}
-
-void deleteInHashTable(std::vector<std::vector<Employee>> hashTable,
-                       Employee X) {
-    int k = hp(X.salary, hashTable.size());
-    hashTable[k].erase(findInHashTable(hashTable, X));
+    return emp;
 }
 
 int main() {
@@ -262,4 +298,14 @@ int main() {
     std::vector<std::vector<Employee>> hashTable =
         createHashTable(employees, 20);
     printHashTable(hashTable);
+
+    Employee ep = {100, "das", "ad", strToDate("02.02.1907"), 2, 2};
+    insertInHashTable(hashTable, ep);
+    printHashTable(hashTable);
+    auto it = findInHashTable(hashTable, ep);
+    if (!it) {
+        std::cout << "Employee not found" << std::endl;
+    } else {
+        printEmployee(*it);
+    }
 }
