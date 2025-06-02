@@ -130,7 +130,7 @@ void dijkstraHelper(std::map<int, std::list<std::pair<int, double>>> adjMatrix,
 
 int main() {
     std::map<int, std::list<std::pair<int, double>>> adjMatrix =
-        createAdjMatrix(false, false);
+        createAdjMatrix(true, false);
 
     int start_vertex = 0;
 
