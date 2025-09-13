@@ -1,6 +1,11 @@
 #include <cmath>
 #include <iostream>
 
+bool equal(double a, double b) {
+    double eps = 0.00000000000001;
+    return std::abs(a - b) < eps;
+}
+
 class complexNumber {
     public:
         complexNumber(double r, double phi);
@@ -17,6 +22,12 @@ class complexNumber {
         void print();
 
         ~complexNumber();
+
+        bool operator==(complexNumber &num) {
+            return equal(r, num.radius()) &&
+                   equal(sin(phi), sin(num.angle())) &&
+                   equal(cos(phi), cos(num.angle()));
+        }
 
     private:
         double r;
@@ -106,11 +117,15 @@ int main() {
     List l = List();
     complexNumber a = complexNumber();
     complexNumber b = complexNumber(1, 2);
-    complexNumber c = complexNumber(2, 4);
+    complexNumber c = complexNumber(2, M_PI / 4);
 
     l.push(&a);
     l.push(&b);
     l.push(&c);
+
+    complexNumber d = complexNumber(2, 9 * M_PI / 4);
+
+    std::cout << l.find(d) << std::endl;
 
     l.print();
 }
