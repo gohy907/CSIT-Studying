@@ -29,6 +29,12 @@ class complexNumber {
                    equal(cos(phi), cos(num.angle()));
         }
 
+        bool operator!=(complexNumber &num) {
+            return !equal(r, num.radius()) ||
+                   !equal(sin(phi), sin(num.angle()) ||
+                                        !equal(cos(phi), cos(num.angle())));
+        }
+
     private:
         double r;
         double phi;
