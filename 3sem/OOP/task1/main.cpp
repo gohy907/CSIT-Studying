@@ -55,6 +55,7 @@ class List {
         List();
         void push(complexNumber *num);
         void print();
+        bool find(complexNumber num);
 
     private:
         node *head;
@@ -88,6 +89,17 @@ void List::print() {
         r = r->next;
         std::cout << std::endl;
     }
+}
+
+bool List::find(complexNumber num) {
+    node *r = head;
+    while (r != NULL) {
+        if (*(r->inf) == num) {
+            return true;
+        }
+        r = r->next;
+    }
+    return false;
 }
 
 int main() {
