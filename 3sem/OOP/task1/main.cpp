@@ -42,9 +42,12 @@ double complexNumber::im() { return r * sin(phi); }
 void complexNumber::setAngle(double Phi) { phi = Phi; }
 void complexNumber::setRaidus(double R) { r = R; }
 
+void complexNumber::print() {
+    std::cout << "Radius: " << r << std::endl;
+    std::cout << "Angle: " << phi << std::endl;
+}
+
 int main() {
     complexNumber a = complexNumber(1, 2);
-    std::cout << a.angle() << std::endl;
-    a.setAngle(5);
-    std::cout << a.angle() << std::endl;
+    a.print();
 }
