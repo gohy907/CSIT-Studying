@@ -42,12 +42,63 @@ double complexNumber::im() { return r * sin(phi); }
 void complexNumber::setAngle(double Phi) { phi = Phi; }
 void complexNumber::setRaidus(double R) { r = R; }
 
-void complexNumber::print() {
-    std::cout << "Radius: " << r << std::endl;
-    std::cout << "Angle: " << phi << std::endl;
+void complexNumber::print() { std::cout << "(" << r << ", " << phi << ")"; }
+
+struct node {
+        complexNumber *inf;
+        node *next;
+        node *prev;
+};
+
+class List {
+    public:
+        List();
+        void push(complexNumber *num);
+        void print();
+
+    private:
+        node *head;
+        node *tail;
+};
+
+List::List() {
+    head = NULL;
+    tail = NULL;
+}
+
+void List::push(complexNumber *num) {
+    node *r = new node;
+    r->inf = num;
+    r->next = NULL;
+    if (!head && !tail) {
+        r->prev = NULL;
+        head = r;
+    } else {
+        tail->next = r;
+        r->prev = tail;
+    }
+    tail = r;
+}
+
+void List::print() {
+    node *r = head;
+    while (r != NULL) {
+        complexNumber num = *(r->inf);
+        num.print();
+        r = r->next;
+        std::cout << std::endl;
+    }
 }
 
 int main() {
-    complexNumber a = complexNumber(1, 2);
-    a.print();
+    List l = List();
+    complexNumber a = complexNumber();
+    complexNumber b = complexNumber(1, 2);
+    complexNumber c = complexNumber(2, 4);
+
+    l.push(&a);
+    l.push(&b);
+    l.push(&c);
+
+    l.print();
 }
