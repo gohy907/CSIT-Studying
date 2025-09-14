@@ -73,6 +73,9 @@ class List {
         void push(complexNumber *num);
         void print();
         bool find(complexNumber num);
+        void erase(node *node);
+        node *begin();
+        node *end();
 
     private:
         node *head;
@@ -119,6 +122,25 @@ bool List::find(complexNumber num) {
     return false;
 }
 
+node *List::begin() { return head; }
+node *List::end() { return tail; }
+
+void List::erase(node *node) {
+    if (head == node && tail == node) {
+        head = tail = NULL;
+    } else if (node == head) {
+        head = head->next;
+        head->prev = NULL;
+    } else if (node == tail) {
+        tail = tail->prev;
+        tail->next = NULL;
+    } else {
+        node->next->prev = node->prev;
+        node->prev->next = node->next;
+    }
+    delete node;
+}
+
 int main() {
     List l = List();
     complexNumber a = complexNumber();
@@ -129,9 +151,8 @@ int main() {
     l.push(&b);
     l.push(&c);
 
-    complexNumber d = complexNumber(2, 9 * M_PI / 4);
+    // l.print();
 
-    std::cout << l.find(d) << std::endl;
-
+    l.erase(l.begin());
     l.print();
 }
