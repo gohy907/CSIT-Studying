@@ -25,6 +25,9 @@ class complexNumber {
 
         bool operator==(complexNumber &num);
         bool operator!=(complexNumber &num);
+        complexNumber operator+(complexNumber &num);
+        complexNumber operator-();
+        complexNumber operator-(complexNumber &num);
 
     private:
         double r;
@@ -41,6 +44,17 @@ complexNumber::complexNumber() {
 }
 
 complexNumber::~complexNumber() {}
+
+complexNumber complexNumber::operator-() {
+    return complexNumber(r, phi + M_PI);
+}
+
+complexNumber complexNumber::operator-(complexNumber &num) {
+    complexNumber cur = *(this);
+    complexNumber a = -num;
+    a.print();
+    return cur + a;
+}
 
 double complexNumber::radius() { return r; }
 double complexNumber::angle() { return phi; }
@@ -61,6 +75,17 @@ bool complexNumber::operator!=(complexNumber &num) {
 bool complexNumber::operator==(complexNumber &num) {
     return equal(r, num.radius()) && equal(sin(phi), sin(num.angle())) &&
            equal(cos(phi), cos(num.angle()));
+}
+
+complexNumber complexNumber::operator+(complexNumber &num) {
+    double r2 = num.radius();
+    double phi2 = num.angle();
+    double r3 = std::sqrt(
+        (r * cos(phi) + r2 * cos(phi2)) * (r * cos(phi) + r2 * cos(phi2)) +
+        (r * sin(phi) + r2 * sin(phi2)) * (r * sin(phi) + r2 * sin(phi2)));
+    double phi3 =
+        atan((r * sin(phi) + r2 * sin(phi2)) / (r * cos(phi) + r2 * cos(phi2)));
+    return complexNumber(r3, phi3);
 }
 
 struct node {
@@ -147,9 +172,11 @@ int main() {
     List l = List();
     complexNumber a = complexNumber();
     complexNumber b = complexNumber(1, 2);
-    complexNumber c = complexNumber(2, M_PI / 4);
+    complexNumber c = complexNumber(1, M_PI / 3);
 
     l.push(&a);
     l.push(&b);
     l.push(&c);
+    complexNumber d = b - c;
+    d.print();
 }
