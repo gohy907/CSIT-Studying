@@ -23,17 +23,8 @@ class complexNumber {
 
         ~complexNumber();
 
-        bool operator==(complexNumber &num) {
-            return equal(r, num.radius()) &&
-                   equal(sin(phi), sin(num.angle())) &&
-                   equal(cos(phi), cos(num.angle()));
-        }
-
-        bool operator!=(complexNumber &num) {
-            return !equal(r, num.radius()) ||
-                   !equal(sin(phi), sin(num.angle()) ||
-                                        !equal(cos(phi), cos(num.angle())));
-        }
+        bool operator==(complexNumber &num);
+        bool operator!=(complexNumber &num);
 
     private:
         double r;
@@ -60,6 +51,17 @@ void complexNumber::setAngle(double Phi) { phi = Phi; }
 void complexNumber::setRaidus(double R) { r = R; }
 
 void complexNumber::print() { std::cout << "(" << r << ", " << phi << ")"; }
+
+bool complexNumber::operator!=(complexNumber &num) {
+    return !equal(r, num.radius()) ||
+           !equal(sin(phi),
+                  sin(num.angle()) || !equal(cos(phi), cos(num.angle())));
+}
+
+bool complexNumber::operator==(complexNumber &num) {
+    return equal(r, num.radius()) && equal(sin(phi), sin(num.angle())) &&
+           equal(cos(phi), cos(num.angle()));
+}
 
 struct node {
         complexNumber *inf;
@@ -150,9 +152,4 @@ int main() {
     l.push(&a);
     l.push(&b);
     l.push(&c);
-
-    // l.print();
-
-    l.erase(l.begin());
-    l.print();
 }
