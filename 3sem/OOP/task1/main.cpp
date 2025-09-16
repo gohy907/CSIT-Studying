@@ -98,13 +98,6 @@ struct node {
         node *prev;
 };
 
-struct nodeIterator {
-        node *cur;
-        nodeIterator(node *node);
-};
-
-nodeIterator::nodeIterator(node *node) { cur = node; }
-
 class List {
     public:
         List();
