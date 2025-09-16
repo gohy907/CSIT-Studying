@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 
@@ -92,11 +93,36 @@ complexNumber complexNumber::operator+(complexNumber &num) {
     return complexNumber(r3, phi3);
 }
 
-struct node {
+class node {
+    public:
+        node(complexNumber *Inf, node *Next, node *Prev);
+        complexNumber operator*();
+        void operator=(complexNumber num);
+        node *getNext();
+        node *getPrev();
+        void setNext(node *node);
+        void setPrev(node *node);
+
+    private:
         complexNumber *inf;
-        node *next;
-        node *prev;
+        node *nextNode;
+        node *prevNode;
 };
+
+complexNumber node::operator*() { return *inf; }
+void node::operator=(complexNumber num) { inf = &num; }
+
+node::node(complexNumber *Inf, node *next, node *prev) {
+    inf = Inf;
+    nextNode = next;
+    prevNode = prev;
+}
+
+node *node::getNext() { return nextNode; }
+node *node::getPrev() { return prevNode; }
+
+void node::setNext(node *node) { nextNode = node; }
+void node::setPrev(node *node) { prevNode = node; }
 
 class List {
     public:
@@ -119,25 +145,24 @@ List::List() {
 }
 
 void List::push(complexNumber *num) {
-    node *r = new node;
-    r->inf = num;
-    r->next = NULL;
+    node r = node(num, NULL, NULL);
+    r.setNext(NULL);
     if (!head && !tail) {
-        r->prev = NULL;
-        head = r;
+        r.setPrev(NULL);
+        head = &r;
     } else {
-        tail->next = r;
-        r->prev = tail;
+        tail->setNext(&r);
+        r.setPrev(tail);
     }
-    tail = r;
+    tail = &r;
 }
 
 void List::print() {
     node *r = head;
     while (r != NULL) {
-        complexNumber num = *(r->inf);
+        complexNumber num = **r;
         num.print();
-        r = r->next;
+        r = r->getNext();
         std::cout << std::endl;
     }
 }
@@ -145,10 +170,10 @@ void List::print() {
 bool List::find(complexNumber num) {
     node *r = head;
     while (r != NULL) {
-        if (*(r->inf) == num) {
+        if (**r == num) {
             return true;
         }
-        r = r->next;
+        r = r->getNext();
     }
     return false;
 }
@@ -160,14 +185,14 @@ void List::erase(node *node) {
     if (head == node && tail == node) {
         head = tail = NULL;
     } else if (node == head) {
-        head = head->next;
-        head->prev = NULL;
+        head = head->getNext();
+        head->setPrev(NULL);
     } else if (node == tail) {
-        tail = tail->prev;
-        tail->next = NULL;
+        tail = tail->getPrev();
+        tail->setNext(NULL);
     } else {
-        node->next->prev = node->prev;
-        node->prev->next = node->next;
+        node->getNext()->setPrev(node->getPrev());
+        node->getPrev()->setNext(node->getNext());
     }
     delete node;
 }
