@@ -49,13 +49,6 @@ complexNumber complexNumber::operator-() {
     return complexNumber(r, phi + M_PI);
 }
 
-complexNumber complexNumber::operator-(complexNumber &num) {
-    complexNumber cur = *(this);
-    complexNumber a = -num;
-    a.print();
-    return cur + a;
-}
-
 double complexNumber::radius() { return r; }
 double complexNumber::angle() { return phi; }
 double complexNumber::re() { return r * cos(phi); }
@@ -77,6 +70,17 @@ bool complexNumber::operator==(complexNumber &num) {
            equal(cos(phi), cos(num.angle()));
 }
 
+complexNumber complexNumber::operator-(complexNumber &num) {
+    double r2 = num.radius();
+    double phi2 = num.angle();
+    double r3 = std::sqrt(
+        (r * cos(phi) - r2 * cos(phi2)) * (r * cos(phi) - r2 * cos(phi2)) +
+        (r * sin(phi) - r2 * sin(phi2)) * (r * sin(phi) - r2 * sin(phi2)));
+    double phi3 =
+        atan2((r * sin(phi) - r2 * sin(phi2)), (r * cos(phi) - r2 * cos(phi2)));
+    return complexNumber(r3, phi3);
+}
+
 complexNumber complexNumber::operator+(complexNumber &num) {
     double r2 = num.radius();
     double phi2 = num.angle();
@@ -84,7 +88,7 @@ complexNumber complexNumber::operator+(complexNumber &num) {
         (r * cos(phi) + r2 * cos(phi2)) * (r * cos(phi) + r2 * cos(phi2)) +
         (r * sin(phi) + r2 * sin(phi2)) * (r * sin(phi) + r2 * sin(phi2)));
     double phi3 =
-        atan((r * sin(phi) + r2 * sin(phi2)) / (r * cos(phi) + r2 * cos(phi2)));
+        atan2((r * sin(phi) + r2 * sin(phi2)), (r * cos(phi) + r2 * cos(phi2)));
     return complexNumber(r3, phi3);
 }
 
