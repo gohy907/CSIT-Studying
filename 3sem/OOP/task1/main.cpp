@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 bool equal(double a, double b) {
     double eps = 0.00000000000001;
@@ -98,17 +99,22 @@ struct node {
         node *prev;
 };
 
+// Двусторонний список, содержащий node, которые содержат complexNumber
 class List {
     public:
         List();
+        ~List();
+
         void push(complexNumber *num);
         void print();
         void insert(node *node, complexNumber num);
         bool contains(complexNumber num);
         node *find(complexNumber num);
         void erase(node *node);
+
         node *begin();
         node *end();
+
         void findAll(bool condition(complexNumber &num));
 
     private:
@@ -116,11 +122,16 @@ class List {
         node *tail;
 };
 
+// Конструктор пустого List
 List::List() {
     head = NULL;
     tail = NULL;
 }
 
+// Деструктор List
+List::~List() {}
+
+// Печатает на экране все complexNumber в List, удовлетворящие функции condition
 void List::findAll(bool condition(complexNumber &num)) {
     node *cur = head;
     while (cur) {
@@ -133,6 +144,7 @@ void List::findAll(bool condition(complexNumber &num)) {
     }
 }
 
+// Вставляет новый node с inf = num в конец List
 void List::push(complexNumber *num) {
     node *r = new node;
     r->inf = num;
@@ -147,6 +159,7 @@ void List::push(complexNumber *num) {
     tail = r;
 }
 
+// Вставляет новый node с inf = num перед Node
 void List::insert(node *Node, complexNumber num) {
     node *newNode = new node;
     newNode->inf = &num;
@@ -160,6 +173,7 @@ void List::insert(node *Node, complexNumber num) {
     Node->prev = newNode;
 }
 
+// Печатает на экран все complexNumber, содержащиеся в List
 void List::print() {
     node *r = head;
     while (r != NULL) {
@@ -170,6 +184,8 @@ void List::print() {
     }
 }
 
+// Возвращает node, в котором inf == num, если .contains(num),
+// возвращает .end() в противном случае
 node *List::find(complexNumber num) {
     node *r = head;
     while (r != NULL) {
@@ -181,6 +197,8 @@ node *List::find(complexNumber num) {
     return this->end();
 }
 
+// Возвращает true, если в List найдётся node с inf == num,
+// возвращает false в противном случае
 bool List::contains(complexNumber num) {
     node *r = head;
     while (r != NULL) {
@@ -192,9 +210,13 @@ bool List::contains(complexNumber num) {
     return false;
 }
 
+// Вернёт указатель на первый node в List
 node *List::begin() { return head; }
+
+// Вернёт указатель на последний node в List
 node *List::end() { return tail; }
 
+// Удалит node из List
 void List::erase(node *node) {
     if (head == node && tail == node) {
         head = tail = NULL;
@@ -211,6 +233,8 @@ void List::erase(node *node) {
     delete node;
 }
 
+// Возвращает true, если комплексное число находится в первой четверти
+// координатной плоскости, включая границы, и false в обратном случае
 bool isInFirstQuarter(complexNumber &num) {
     return (0 <= sin(num.angle()) && sin(num.angle()) <= 1) &&
            (0 <= cos(num.angle()) && cos(num.angle()) <= 1);
