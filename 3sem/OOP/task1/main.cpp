@@ -109,6 +109,7 @@ class List {
         void erase(node *node);
         node *begin();
         node *end();
+        void findAll(bool condition(complexNumber &num));
 
     private:
         node *head;
@@ -118,6 +119,18 @@ class List {
 List::List() {
     head = NULL;
     tail = NULL;
+}
+
+void List::findAll(bool condition(complexNumber &num)) {
+    node *cur = head;
+    while (cur) {
+        complexNumber &curNum = *(cur->inf);
+        if (condition(curNum)) {
+            curNum.print();
+            std::cout << std::endl;
+        }
+        cur = cur->next;
+    }
 }
 
 void List::push(complexNumber *num) {
@@ -139,7 +152,6 @@ void List::insert(node *Node, complexNumber num) {
     newNode->inf = &num;
     newNode->next = Node;
     newNode->prev = Node->prev;
-
     if (Node->prev) {
         Node->prev->next = newNode;
     } else {
@@ -199,6 +211,11 @@ void List::erase(node *node) {
     delete node;
 }
 
+bool isInFirstQuarter(complexNumber &num) {
+    return (0 <= sin(num.angle()) && sin(num.angle()) <= 1) &&
+           (0 <= cos(num.angle()) && cos(num.angle()) <= 1);
+}
+
 int main() {
     List l = List();
     complexNumber a = complexNumber(0, 0);
@@ -210,4 +227,5 @@ int main() {
     l.push(&c);
     l.insert(l.begin()->next, d);
     l.print();
+    l.findAll(isInFirstQuarter);
 }
