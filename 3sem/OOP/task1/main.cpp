@@ -103,6 +103,7 @@ class List {
         List();
         void push(complexNumber *num);
         void print();
+        bool contains(complexNumber num);
         node *find(complexNumber num);
         void erase(node *node);
         node *begin();
@@ -151,6 +152,17 @@ node *List::find(complexNumber num) {
         r = r->next;
     }
     return this->end();
+}
+
+bool List::contains(complexNumber num) {
+    node *r = head;
+    while (r != NULL) {
+        if (*(r->inf) == num) {
+            return true;
+        }
+        r = r->next;
+    }
+    return false;
 }
 
 node *List::begin() { return head; }
