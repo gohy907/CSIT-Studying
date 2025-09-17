@@ -103,6 +103,7 @@ class List {
         List();
         void push(complexNumber *num);
         void print();
+        void insert(node *node, complexNumber num);
         bool contains(complexNumber num);
         node *find(complexNumber num);
         void erase(node *node);
@@ -131,6 +132,20 @@ void List::push(complexNumber *num) {
         r->prev = tail;
     }
     tail = r;
+}
+
+void List::insert(node *Node, complexNumber num) {
+    node *newNode = new node;
+    newNode->inf = &num;
+    newNode->next = Node;
+    newNode->prev = Node->prev;
+
+    if (Node->prev) {
+        Node->prev->next = newNode;
+    } else {
+        head = newNode;
+    }
+    Node->prev = newNode;
 }
 
 void List::print() {
@@ -186,13 +201,13 @@ void List::erase(node *node) {
 
 int main() {
     List l = List();
-    complexNumber a = complexNumber();
-    complexNumber b = complexNumber(1, 2);
-    complexNumber c = complexNumber(1, M_PI / 3);
-
+    complexNumber a = complexNumber(0, 0);
+    complexNumber b = complexNumber(1, 1);
+    complexNumber c = complexNumber(2, 2);
+    complexNumber d = complexNumber(3, 3);
     l.push(&a);
     l.push(&b);
     l.push(&c);
-    complexNumber d = b - c;
-    d.print();
+    l.insert(l.begin()->next, d);
+    l.print();
 }
