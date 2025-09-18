@@ -1,12 +1,14 @@
 #include <cmath>
 #include <iostream>
-#include <vector>
 
+// Возвращает true, если числа a и b отличаются менее чем на eps,
+// возвращает false в противном случае
 bool equal(double a, double b) {
     double eps = 0.00000000000001;
     return std::abs(a - b) < eps;
 }
 
+// Класс комплексного числа в тригонометрической форме
 class complexNumber {
     public:
         complexNumber(double r, double phi);
@@ -35,42 +37,61 @@ class complexNumber {
         double phi;
 };
 
+// Конструктор complexNumber
 complexNumber::complexNumber(double R, double Phi) {
     r = R;
     phi = Phi;
 }
+
+// Конструктор complexNumber
 complexNumber::complexNumber() {
     r = 0.0;
     phi = 0.0;
 }
 
+// Деконструктор complexNumber
 complexNumber::~complexNumber() {}
 
+// Перегрузка бинарного оператора - для complexNumber
 complexNumber complexNumber::operator-() {
     return complexNumber(r, phi + M_PI);
 }
 
+// Возвращает радиус у complexNumber
 double complexNumber::radius() { return r; }
+
+// Возвращает угол у complexNumber
 double complexNumber::angle() { return phi; }
+
+// Возвращает реальную часть complexNumber в алгебраическом виде
 double complexNumber::re() { return r * cos(phi); }
+
+// Возвращает мнимую часть complexNumber в алгебраическом виде
 double complexNumber::im() { return r * sin(phi); }
 
+// Сеттер атрибута phi
 void complexNumber::setAngle(double Phi) { phi = Phi; }
+
+// Сеттер атрибута r
 void complexNumber::setRaidus(double R) { r = R; }
 
+// Печатает complexNumber в виде (радиус, угол)
 void complexNumber::print() { std::cout << "(" << r << ", " << phi << ")"; }
 
+// Перегруженный бинарный оператор != для complexNumber
 bool complexNumber::operator!=(complexNumber &num) {
     return !equal(r, num.radius()) ||
            !equal(sin(phi),
                   sin(num.angle()) || !equal(cos(phi), cos(num.angle())));
 }
 
+// Перегруженный бинарный оператор == для complexNumber
 bool complexNumber::operator==(complexNumber &num) {
     return equal(r, num.radius()) && equal(sin(phi), sin(num.angle())) &&
            equal(cos(phi), cos(num.angle()));
 }
 
+// Перегруженный бинарный оператор - для complexNumber
 complexNumber complexNumber::operator-(complexNumber &num) {
     double r2 = num.radius();
     double phi2 = num.angle();
@@ -82,6 +103,7 @@ complexNumber complexNumber::operator-(complexNumber &num) {
     return complexNumber(r3, phi3);
 }
 
+// Перегруженный бинарный оператор + для complexNumber
 complexNumber complexNumber::operator+(complexNumber &num) {
     double r2 = num.radius();
     double phi2 = num.angle();
@@ -93,6 +115,7 @@ complexNumber complexNumber::operator+(complexNumber &num) {
     return complexNumber(r3, phi3);
 }
 
+// Структура node для реализации двустороннено списка
 struct node {
         complexNumber *inf;
         node *next;
