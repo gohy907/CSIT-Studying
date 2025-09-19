@@ -5,7 +5,7 @@
 // Возвращает true, если числа a и b отличаются менее чем на eps,
 // возвращает false в противном случае
 bool equal(double a, double b) {
-    double eps = 0.000000000000000001;
+    double eps = 0.0000000000001;
     return std::abs(a - b) < eps;
 }
 
@@ -78,6 +78,7 @@ complexNumber::complexNumber(double R, double Phi) {
     phi = Phi;
     setRe();
     setIm();
+    setIsExtended();
 }
 
 // Конструктор complexNumber
@@ -124,9 +125,12 @@ bool complexNumber::operator!=(complexNumber &num) {
 
 // Перегруженный бинарный оператор == для complexNumber
 bool complexNumber::operator==(complexNumber &num) {
-    complexNumber n = *this;
-    return equal(r, num.radius()) && equal(sin(phi), sin(num.angle())) &&
-           equal(cos(phi), cos(num.angle()));
+    double sin1 = sin(phi);
+    double sin2 = sin(num.angle());
+
+    double cos1 = cos(phi);
+    double cos2 = cos(num.angle());
+    return equal(r, num.radius()) && equal(sin1, sin2) && equal(cos1, cos2);
 }
 
 // Перегруженный бинарный оператор - для complexNumber
@@ -315,18 +319,9 @@ bool isInFirstQuarter(complexNumber num) {
 int main() {
     List l = List();
     complexNumber a = complexNumber(0, 0);
-    complexNumber b = complexNumber(1, 1);
+    complexNumber b = complexNumber(0, M_PI * 2);
     complexNumber c = complexNumber(2, 2);
     complexNumber d = complexNumber(0.3, 3);
-    l.push(&a);
-    l.push(&b);
-    l.push(&c);
-    complexNumber e = complexNumber(0, 180);
-    complexNumber f = a / b;
-    std::cout << (a == e) << std::endl;
-    std::cout << b.getRe() << " " << b.getIm() << std::endl;
-    l.push(&e);
-    complexNumber n = c - d;
-    n.print();
-    std::cout << n.getRe() << " " << n.getIm() << std::endl;
+    std::cout << (a == b) << std::endl;
+    std::cout << sin(180) << " " << sin(0) << std::endl;
 }
