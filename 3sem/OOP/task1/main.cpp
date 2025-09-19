@@ -1,6 +1,6 @@
 #include <cmath>
-#include <cstdlib>
 #include <iostream>
+#include <stdexcept>
 
 // Возвращает true, если числа a и b отличаются менее чем на eps,
 // возвращает false в противном случае
@@ -320,21 +320,35 @@ bool isInFirstQuarter(complexNumber num) {
 }
 
 complexNumber getComplexNumberFromUser() {
-    double r;
-    double phi;
+    complexNumber num;
 
-    std::cout << "Введите радиус: ";
-    std::cin >> r;
-    std::cout << "Введите угол: ";
-    std::cin >> phi;
+    try {
+        double r;
+        double phi;
 
-    complexNumber num = complexNumber(r, phi);
+        std::cout << "Введите радиус: ";
+        if (!(std::cin >> r)) {
+            throw std::invalid_argument("ОШИБКА: Ожидалось число");
+        }
+
+        std::cout << "Введите угол: ";
+        if (!(std::cin >> phi)) {
+            throw std::invalid_argument("ОШИБКА: Ожидалось число");
+        }
+
+        num = complexNumber(r, phi);
+
+    } catch (std::invalid_argument &error) {
+        std::cerr << error.what() << std::endl;
+    }
+
     return num;
 }
 
 int main() {
     List l = List();
     complexNumber a = complexNumber(0, 0);
-    complexNumber b = getComplexNumberFromUser();
-    b.print();
+    complexNumber b;
+
+    b = getComplexNumberFromUser();
 }
