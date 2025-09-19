@@ -196,6 +196,8 @@ class List {
 
         void findAll(bool condition(complexNumber &num));
 
+        complexNumber operator[](size_t index);
+
     private:
         void erase(node *node);
         node *head;
@@ -210,6 +212,23 @@ List::List() {
 
 // Деструктор List
 List::~List() {}
+
+complexNumber List::operator[](size_t index) {
+    node *cur = this->begin();
+
+    for (int i = 0; i < index; ++i) {
+        if (!cur) {
+            throw std::out_of_range("ОШИБКА: Индекс больше длины");
+            break;
+        }
+        cur = cur->next;
+    }
+    if (!cur) {
+        throw std::out_of_range("ОШИБКА: Индекс больше длины");
+    }
+
+    return *cur->inf;
+}
 
 // Печатает на экране все complexNumber в List, удовлетворящие функции condition
 void List::findAll(bool condition(complexNumber &num)) {
