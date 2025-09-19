@@ -21,7 +21,7 @@ class complexNumber {
         double getIm();
         bool getIsExtended();
 
-        void setRaidus(double r);
+        void setRadius(double r);
         void setAngle(double phi);
 
         void print();
@@ -74,7 +74,7 @@ void complexNumber::setIm() { im = r * sin(phi); }
 
 // Конструктор complexNumber
 complexNumber::complexNumber(double R, double Phi) {
-    setRaidus(R);
+    setRadius(R);
     setAngle(Phi);
     setRe();
     setIm();
@@ -83,7 +83,7 @@ complexNumber::complexNumber(double R, double Phi) {
 
 // Конструктор complexNumber
 complexNumber::complexNumber() {
-    setRaidus(0.0);
+    setRadius(0.0);
     setAngle(0.0);
     setRe();
     setIm();
@@ -114,7 +114,7 @@ double complexNumber::getIm() { return im; }
 void complexNumber::setAngle(double Phi) { phi = Phi; }
 
 // Сеттер атрибута r. Вызовёт исключение invalid_argument, если R < 0
-void complexNumber::setRaidus(double R) {
+void complexNumber::setRadius(double R) {
     try {
         if (R < 0) {
             throw std::invalid_argument("ОШИБКА: Ожидалось, что R > 0");
