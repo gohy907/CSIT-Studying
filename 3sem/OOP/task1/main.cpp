@@ -1,10 +1,11 @@
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 
 // Возвращает true, если числа a и b отличаются менее чем на eps,
 // возвращает false в противном случае
 bool equal(double a, double b) {
-    double eps = 0.00000000000001;
+    double eps = 0.000000000000000001;
     return std::abs(a - b) < eps;
 }
 
@@ -16,8 +17,9 @@ class complexNumber {
 
         double radius();
         double angle();
-        double re();
-        double im();
+        double getRe();
+        double getIm();
+        bool getIsExtended();
 
         void setRaidus(double r);
         void setAngle(double phi);
@@ -31,16 +33,51 @@ class complexNumber {
         complexNumber operator+(complexNumber &num);
         complexNumber operator-();
         complexNumber operator-(complexNumber &num);
+        complexNumber operator*(complexNumber &num);
+        complexNumber operator/(complexNumber &num);
 
     private:
+        void setRe();
+        void setIm();
+        void setIsExtended();
+        bool isExtended;
+        double re;
+        double im;
         double r;
         double phi;
 };
+
+void complexNumber::setIsExtended() {
+    isExtended = phi > 2 * M_PI || phi < -2 * M_PI;
+}
+
+complexNumber complexNumber::operator*(complexNumber &num) {
+    double newRadius = std::abs(r * num.radius());
+    double newAngle = phi + num.phi;
+    return complexNumber(newRadius, newAngle);
+}
+
+complexNumber complexNumber::operator/(complexNumber &num) {
+    if (equal(num.radius(), 0)) {
+        std::cerr << "Division by zero" << std::endl;
+        std::abort();
+    }
+
+    double newRadius = std::abs(r / num.radius());
+    double newAngle = phi - num.phi;
+    return complexNumber(newRadius, newAngle);
+}
+
+bool complexNumber::getIsExtended() { return isExtended; }
+void complexNumber::setRe() { re = r * cos(phi); }
+void complexNumber::setIm() { im = r * sin(phi); }
 
 // Конструктор complexNumber
 complexNumber::complexNumber(double R, double Phi) {
     r = R;
     phi = Phi;
+    setRe();
+    setIm();
 }
 
 // Конструктор complexNumber
@@ -64,10 +101,10 @@ double complexNumber::radius() { return r; }
 double complexNumber::angle() { return phi; }
 
 // Возвращает реальную часть complexNumber в алгебраическом виде
-double complexNumber::re() { return r * cos(phi); }
+double complexNumber::getRe() { return re; }
 
 // Возвращает мнимую часть complexNumber в алгебраическом виде
-double complexNumber::im() { return r * sin(phi); }
+double complexNumber::getIm() { return im; }
 
 // Сеттер атрибута phi
 void complexNumber::setAngle(double Phi) { phi = Phi; }
@@ -87,6 +124,7 @@ bool complexNumber::operator!=(complexNumber &num) {
 
 // Перегруженный бинарный оператор == для complexNumber
 bool complexNumber::operator==(complexNumber &num) {
+    complexNumber n = *this;
     return equal(r, num.radius()) && equal(sin(phi), sin(num.angle())) &&
            equal(cos(phi), cos(num.angle()));
 }
@@ -133,7 +171,7 @@ class List {
         void insert(node *node, complexNumber num);
         bool contains(complexNumber num);
         node *find(complexNumber num);
-        void erase(node *node);
+        void remove(complexNumber num);
 
         node *begin();
         node *end();
@@ -141,6 +179,7 @@ class List {
         void findAll(bool condition(complexNumber &num));
 
     private:
+        void erase(node *node);
         node *head;
         node *tail;
 };
@@ -256,9 +295,19 @@ void List::erase(node *node) {
     delete node;
 }
 
+void List::remove(complexNumber num) {
+    node *cur = head;
+    while (cur) {
+        if (cur->inf->angle() == num.angle() &&
+            cur->inf->radius() == num.radius()) {
+            this->erase(cur);
+        }
+        cur = cur->next;
+    }
+}
 // Возвращает true, если комплексное число находится в первой четверти
 // координатной плоскости, включая границы, и false в обратном случае
-bool isInFirstQuarter(complexNumber &num) {
+bool isInFirstQuarter(complexNumber num) {
     return (0 <= sin(num.angle()) && sin(num.angle()) <= 1) &&
            (0 <= cos(num.angle()) && cos(num.angle()) <= 1);
 }
@@ -268,11 +317,16 @@ int main() {
     complexNumber a = complexNumber(0, 0);
     complexNumber b = complexNumber(1, 1);
     complexNumber c = complexNumber(2, 2);
-    complexNumber d = complexNumber(3, 3);
+    complexNumber d = complexNumber(0.3, 3);
     l.push(&a);
     l.push(&b);
     l.push(&c);
-    l.insert(l.begin()->next, d);
-    l.print();
-    l.findAll(isInFirstQuarter);
+    complexNumber e = complexNumber(0, 180);
+    complexNumber f = a / b;
+    std::cout << (a == e) << std::endl;
+    std::cout << b.getRe() << " " << b.getIm() << std::endl;
+    l.push(&e);
+    complexNumber n = c - d;
+    n.print();
+    std::cout << n.getRe() << " " << n.getIm() << std::endl;
 }
