@@ -85,6 +85,9 @@ complexNumber::complexNumber(double R, double Phi) {
 complexNumber::complexNumber() {
     r = 0.0;
     phi = 0.0;
+    setRe();
+    setIm();
+    setIsExtended();
 }
 
 // Деконструктор complexNumber
