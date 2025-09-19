@@ -74,7 +74,12 @@ void complexNumber::setIm() { im = r * sin(phi); }
 
 // Конструктор complexNumber
 complexNumber::complexNumber(double R, double Phi) {
-    setRadius(R);
+    try {
+        setRadius(R);
+    } catch (std::invalid_argument &error) {
+        std::cerr << error.what() << std::endl;
+    }
+
     setAngle(Phi);
     setRe();
     setIm();
@@ -115,16 +120,10 @@ void complexNumber::setAngle(double Phi) { phi = Phi; }
 
 // Сеттер атрибута r. Вызовёт исключение invalid_argument, если R < 0
 void complexNumber::setRadius(double R) {
-    try {
-        if (R < 0) {
-            throw std::invalid_argument("ОШИБКА: Ожидалось, что R > 0");
-        }
-        r = R;
+    if (R < 0) {
+        throw std::invalid_argument("ОШИБКА: Ожидалось, что R > 0");
     }
-
-    catch (std::invalid_argument &error) {
-        std::cerr << error.what() << std::endl;
-    }
+    r = R;
 }
 
 // Печатает complexNumber в виде (радиус, угол)
