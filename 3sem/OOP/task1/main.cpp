@@ -316,12 +316,22 @@ bool isInFirstQuarter(complexNumber num) {
            (0 <= cos(num.angle()) && cos(num.angle()) <= 1);
 }
 
+complexNumber getComplexNumberFromUser() {
+    double r;
+    double phi;
+
+    std::cout << "Введите радиус: ";
+    std::cin >> r;
+    std::cout << "Введите угол: ";
+    std::cin >> phi;
+
+    complexNumber num = complexNumber(r, phi);
+    return num;
+}
+
 int main() {
     List l = List();
     complexNumber a = complexNumber(0, 0);
-    complexNumber b = complexNumber(0, M_PI * 2);
-    complexNumber c = complexNumber(2, 2);
-    complexNumber d = complexNumber(0.3, 3);
-    std::cout << (a == b) << std::endl;
-    std::cout << sin(180) << " " << sin(0) << std::endl;
+    complexNumber b = getComplexNumberFromUser();
+    b.print();
 }
