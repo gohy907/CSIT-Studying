@@ -183,7 +183,7 @@ class List {
         List();
         ~List();
 
-        void push(complexNumber *num);
+        void push(complexNumber num);
         void print();
         void insert(node *node, complexNumber num);
         bool contains(complexNumber num);
@@ -243,9 +243,9 @@ void List::findAll(bool condition(complexNumber &num)) {
 }
 
 // Вставляет новый node с inf = num в конец List
-void List::push(complexNumber *num) {
+void List::push(complexNumber num) {
     node *r = new node;
-    r->inf = num;
+    r->inf = new complexNumber(num);
     r->next = NULL;
     if (!head && !tail) {
         r->prev = NULL;
