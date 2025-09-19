@@ -377,11 +377,46 @@ complexNumber getComplexNumberFromUser() {
 }
 
 int main() {
-    List l = List();
-    complexNumber a = complexNumber(0, 0);
-    complexNumber b;
+    List list = List();
+    while (true) {
 
-    b = getComplexNumberFromUser();
+        std::cout << "0: Выйти" << std::endl;
+        std::cout << "1: Вывести список" << std::endl;
+        std::cout << "2: Добавить в список число" << std::endl;
+        std::cout << "3: Удалить из списка число" << std::endl;
+        std::cout << "4: Вывести число из списка" << std::endl;
+        std::cout << "5: Вывести число из списка в алгебраической форме"
+                  << std::endl;
+        std::cout
+            << "6: Прибавить ко всем числам, с радиусом меньше 2, 0.5 к радиусу"
+            << std::endl;
+        std::cout
+            << "7: Сделать копии чисел из списка, уменьшить вдвое их угол, и "
+               "добавить в конец списка"
+            << std::endl;
 
-    complexNumber c = complexNumber(-1, -1);
+        std::cout << "Выберите действие: ";
+        int option;
+        std::cin >> option;
+
+        if (option == 0) {
+            break;
+        }
+
+        std::cout << std::endl;
+        switch (option) {
+        case 1: {
+            list.print();
+            break;
+        }
+        case 2: {
+            list.push(getComplexNumberFromUser());
+            break;
+        }
+        }
+
+        std::cout << std::endl;
+    }
+    complexNumber b = complexNumber(2, 3);
+    complexNumber c = complexNumber(3, 4);
 }
