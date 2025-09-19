@@ -74,8 +74,8 @@ void complexNumber::setIm() { im = r * sin(phi); }
 
 // Конструктор complexNumber
 complexNumber::complexNumber(double R, double Phi) {
-    r = R;
-    phi = Phi;
+    setRaidus(R);
+    setAngle(Phi);
     setRe();
     setIm();
     setIsExtended();
@@ -83,8 +83,8 @@ complexNumber::complexNumber(double R, double Phi) {
 
 // Конструктор complexNumber
 complexNumber::complexNumber() {
-    r = 0.0;
-    phi = 0.0;
+    setRaidus(0.0);
+    setAngle(0.0);
     setRe();
     setIm();
     setIsExtended();
@@ -113,8 +113,19 @@ double complexNumber::getIm() { return im; }
 // Сеттер атрибута phi
 void complexNumber::setAngle(double Phi) { phi = Phi; }
 
-// Сеттер атрибута r
-void complexNumber::setRaidus(double R) { r = R; }
+// Сеттер атрибута r. Вызовёт исключение invalid_argument, если R < 0
+void complexNumber::setRaidus(double R) {
+    try {
+        if (R < 0) {
+            throw std::invalid_argument("ОШИБКА: Ожидалось, что R > 0");
+        }
+        r = R;
+    }
+
+    catch (std::invalid_argument &error) {
+        std::cerr << error.what() << std::endl;
+    }
+}
 
 // Печатает complexNumber в виде (радиус, угол)
 void complexNumber::print() { std::cout << "(" << r << ", " << phi << ")"; }
@@ -328,12 +339,14 @@ complexNumber getComplexNumberFromUser() {
 
         std::cout << "Введите радиус: ";
         if (!(std::cin >> r)) {
-            throw std::invalid_argument("ОШИБКА: Ожидалось число");
+            throw std::invalid_argument(
+                "ОШИБКА: Ошибка ввода, ожидалось число");
         }
 
         std::cout << "Введите угол: ";
         if (!(std::cin >> phi)) {
-            throw std::invalid_argument("ОШИБКА: Ожидалось число");
+            throw std::invalid_argument(
+                "ОШИБКА: Ошибка ввода, ожидалось число");
         }
 
         num = complexNumber(r, phi);
@@ -351,4 +364,6 @@ int main() {
     complexNumber b;
 
     b = getComplexNumberFromUser();
+
+    complexNumber c = complexNumber(-1, -1);
 }
