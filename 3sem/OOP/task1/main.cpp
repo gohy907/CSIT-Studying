@@ -196,6 +196,8 @@ class List {
 
         complexNumber operator[](size_t index);
 
+        size_t length();
+
     private:
         node *getNodeByIndex(size_t index);
         void erase(node *node);
@@ -211,6 +213,16 @@ List::List() {
 
 // Деструктор List
 List::~List() {}
+
+size_t List::length() {
+    node *cur = head;
+    size_t length = 0;
+    while (cur) {
+        ++length;
+        cur = cur->next;
+    }
+    return length;
+}
 
 node *List::getNodeByIndex(size_t index) {
     node *cur = this->begin();
