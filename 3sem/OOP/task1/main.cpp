@@ -389,9 +389,6 @@ bool isValidFloat(std::string &str) {
 bool isValidSize(std::string &str) {
     try {
         int num = std::stoi(str);
-        if (num < 0 || num > 8) {
-            return false;
-        }
     } catch (std::invalid_argument &error) {
         checkForEOF();
         return false;
@@ -499,6 +496,8 @@ int main() {
 
         if (option == 0) {
             break;
+        } else if (option < 0 || option > 8) {
+            std::cout << "ОШИБКА: Ожидалось число от 0 до 8" << std::endl;
         }
 
         switch (option) {
