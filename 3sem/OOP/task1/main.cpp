@@ -187,7 +187,7 @@ class List {
         void print();
         void insert(size_t index, complexNumber num);
         bool contains(complexNumber num);
-        node *find(complexNumber num);
+        size_t find(complexNumber num);
         void remove(size_t index);
 
         node *begin();
@@ -306,17 +306,17 @@ void List::print() {
     }
 }
 
-// Возвращает node, в котором inf == num, если .contains(num),
-// возвращает .end() в противном случае
-node *List::find(complexNumber num) {
-    node *r = head;
-    while (r != NULL) {
-        if (*(r->inf) == num) {
-            return r;
+// Возвращает индекс num в list
+// Если его не найдется, возвращает list.length()
+size_t List::find(complexNumber num) {
+    for (size_t i = 0; i < length(); ++i) {
+        complexNumber num1 = (*this)[i];
+        if (equal(num.angle(), num1.angle()),
+            equal(num.radius(), num1.radius())) {
+            return i;
         }
-        r = r->next;
     }
-    return this->end();
+    return length();
 }
 
 // Возвращает true, если в List найдётся node с inf == num,
@@ -468,13 +468,14 @@ int main() {
         std::cout << "2: Добавить в конец списка число" << std::endl;
         std::cout << "3: Добавить число в какое-то место списка" << std::endl;
         std::cout << "4: Удалить из списка число" << std::endl;
-        std::cout << "5: Вывести число из списка" << std::endl;
-        std::cout << "6: Вывести число из списка в алгебраической форме"
+        std::cout << "5: Найти число" << std::endl;
+        std::cout << "6: Вывести число из списка" << std::endl;
+        std::cout << "7: Вывести число из списка в алгебраической форме"
                   << std::endl;
         std::cout
-            << "7: Прибавить ко всем числам, с радиусом меньше 2, 0.5 к углу"
+            << "8: Прибавить ко всем числам, с радиусом меньше 2, 0.5 к углу"
             << std::endl;
-        std::cout << "8: Сделать копии чисел из списка, у которых радиус "
+        std::cout << "9: Сделать копии чисел из списка, у которых радиус "
                      "больше 1, уменьшить вдвое их угол и "
                      "добавить в конец списка"
                   << std::endl;
@@ -490,14 +491,14 @@ int main() {
         if (isValidSize(optionStr)) {
             option = std::stoi(optionStr);
         } else {
-            std::cout << "ОШИБКА: Ожидалось число от 0 до 8" << std::endl;
+            std::cout << "ОШИБКА: Ожидалось число от 0 до 9" << std::endl;
             continue;
         }
 
         if (option == 0) {
             break;
-        } else if (option < 0 || option > 8) {
-            std::cout << "ОШИБКА: Ожидалось число от 0 до 8" << std::endl;
+        } else if (option < 0 || option > 9) {
+            std::cout << "ОШИБКА: Ожидалось число от 0 до 9" << std::endl;
         }
 
         switch (option) {
@@ -547,6 +548,18 @@ int main() {
             break;
         }
         case 5: {
+            complexNumber num;
+            if (getComplexNumberFromUser(num)) {
+                size_t index = list.find(num);
+                if (index == list.length()) {
+                    std::cout << "ОШИБКА: Число не найдено" << std::endl;
+                } else {
+                    std::cout << index << std::endl;
+                }
+            }
+            break;
+        }
+        case 6: {
             std::cout << "Введите индекс: ";
             std::string indexStr;
             std::getline(std::cin, indexStr);
@@ -562,7 +575,7 @@ int main() {
             }
             break;
         }
-        case 6: {
+        case 7: {
             std::cout << "Введите индекс: ";
             std::string indexStr;
             std::getline(std::cin, indexStr);
@@ -579,11 +592,11 @@ int main() {
             }
             break;
         }
-        case 7: {
+        case 8: {
             list.addIf(isRadiusLess2);
             break;
         }
-        case 8: {
+        case 9: {
             list.halfAngleIf(isRadiusMore1);
         }
         }
