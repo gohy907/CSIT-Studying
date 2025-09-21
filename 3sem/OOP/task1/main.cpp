@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <string>
 
 // Возвращает true, если числа a и b отличаются менее чем на eps,
 // возвращает false в противном случае
@@ -365,35 +366,49 @@ bool isInFirstQuarter(complexNumber num) {
            (0 <= cos(num.angle()) && cos(num.angle()) <= 1);
 }
 
-bool getComplexNumberFromUser(complexNumber &num) {
+bool isValidFloat(std::string &str) {
     try {
-        double r;
-        double phi;
-
-        std::cout << "Введите радиус: ";
-        if (!(std::cin >> r)) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            throw std::invalid_argument(
-                "ОШИБКА: Ошибка ввода, ожидалось число");
-            return false;
-        }
-
-        std::cout << "Введите угол: ";
-        if (!(std::cin >> phi)) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            throw std::invalid_argument(
-                "ОШИБКА: Ошибка ввода, ожидалось число");
-            return false;
-        }
-
-        num = complexNumber(r, phi);
-
+        double num = std::stod(str);
     } catch (std::invalid_argument &error) {
-        std::cerr << error.what() << std::endl;
         return false;
     }
+    return true;
+}
+
+bool isValidSize(std::string &str) {
+    try {
+        int num = std::stoi(str);
+        if (num < 0 || num > 8) {
+            return false;
+        }
+    } catch (std::invalid_argument &error) {
+        return false;
+    }
+    return true;
+}
+
+bool getComplexNumberFromUser(complexNumber &num) {
+    std::string rStr;
+    std::string phiStr;
+
+    std::cout << "Введите радиус: ";
+    std::getline(std::cin, rStr);
+
+    if (!isValidFloat(rStr)) {
+        std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
+                  << std::endl;
+        return false;
+    }
+
+    std::cout << "Введите угол: ";
+    std::getline(std::cin, phiStr);
+    if (!isValidFloat(phiStr)) {
+        std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
+                  << std::endl;
+        return false;
+    }
+
+    num = complexNumber(std::stod(rStr), std::stod(phiStr));
     return true;
 }
 
