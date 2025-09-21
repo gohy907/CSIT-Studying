@@ -433,27 +433,52 @@ int main() {
             << std::endl;
 
         std::cout << "Выберите действие: ";
+        std::string optionStr;
+        std::getline(std::cin, optionStr);
+        std::cout << std::endl;
         int option;
-        std::cin >> option;
+        if (isValidSize(optionStr)) {
+            option = std::stoi(optionStr);
+        } else {
+            std::cout << "ОШИБКА: Ожидалось число от 0 до 8" << std::endl;
+        }
 
         if (option == 0) {
             break;
         }
 
-        std::cout << std::endl;
         switch (option) {
         case 1: {
             list.print();
             break;
         }
         case 2: {
-            list.push(getComplexNumberFromUser());
+            complexNumber num;
+            if (getComplexNumberFromUser(num)) {
+                list.push(num);
+            }
+            break;
+        }
+        case 3: {
+            std::cout << "Введите индекс: ";
+            size_t index;
+            std::cin >> index;
+
+            if (index >= list.length()) {
+                std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                break;
+            }
+            complexNumber num;
+            if (getComplexNumberFromUser(num)) {
+                list.insert(index, num);
+            }
             break;
         }
         }
 
         std::cout << std::endl;
     }
+
     complexNumber b = complexNumber(2, 3);
     complexNumber c = complexNumber(3, 4);
 }
