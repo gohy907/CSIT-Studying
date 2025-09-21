@@ -366,12 +366,20 @@ bool isInFirstQuarter(complexNumber num) {
            (0 <= cos(num.angle()) && cos(num.angle()) <= 1);
 }
 
+void checkForEOF() {
+    if (std::cin.eof()) {
+        exit(0);
+    }
+}
+
 bool isValidFloat(std::string &str) {
     try {
         double num = std::stod(str);
     } catch (std::invalid_argument &error) {
+        checkForEOF();
         return false;
     }
+
     return true;
 }
 
@@ -382,6 +390,7 @@ bool isValidSize(std::string &str) {
             return false;
         }
     } catch (std::invalid_argument &error) {
+        checkForEOF();
         return false;
     }
     return true;
@@ -415,7 +424,6 @@ bool getComplexNumberFromUser(complexNumber &num) {
 int main() {
     List list = List();
     while (true) {
-
         std::cout << "0: Выйти" << std::endl;
         std::cout << "1: Вывести список" << std::endl;
         std::cout << "2: Добавить в конец списка число" << std::endl;
@@ -433,9 +441,12 @@ int main() {
             << std::endl;
 
         std::cout << "Выберите действие: ";
+
         std::string optionStr;
         std::getline(std::cin, optionStr);
+        checkForEOF();
         std::cout << std::endl;
+
         int option;
         if (isValidSize(optionStr)) {
             option = std::stoi(optionStr);
