@@ -418,7 +418,7 @@ bool getComplexNumberFromUser(complexNumber &num) {
     return true;
 }
 
-bool isRadiusLess2(complexNumber &num) { return num.getRe() < 2; }
+bool isRadiusLess2(complexNumber &num) { return num.radius() < 2; }
 void List::addIf(bool condition(complexNumber &num)) {
     for (int i = 0; i < length(); ++i) {
         complexNumber &num1 = (*this)[i];
@@ -428,14 +428,20 @@ void List::addIf(bool condition(complexNumber &num)) {
     }
 }
 
-bool isRadiusMore1(complexNumber &num) { return num.getRe() > 1; }
+bool isRadiusMore1(complexNumber &num) { return num.radius() > 1; }
 void List::halfAngleIf(bool condition(complexNumber &num)) {
+    List tmp = List();
+
     for (int i = 0; i < length(); ++i) {
         complexNumber &num1 = (*this)[i];
         if (condition(num1)) {
-            num1.setAngle(num1.angle() / 2);
-            push(num1);
+            tmp.push(num1);
         }
+    }
+
+    for (int i = 0; i < tmp.length(); ++i) {
+        tmp[i].setAngle(tmp[i].angle() / 2);
+        push(tmp[i]);
     }
 }
 
