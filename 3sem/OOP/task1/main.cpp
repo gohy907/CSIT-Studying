@@ -188,7 +188,7 @@ class List {
         void insert(size_t index, complexNumber num);
         bool contains(complexNumber num);
         node *find(complexNumber num);
-        void remove(complexNumber num);
+        void remove(size_t index);
 
         node *begin();
         node *end();
@@ -349,15 +349,10 @@ void List::erase(node *node) {
     delete node;
 }
 
-void List::remove(complexNumber num) {
-    node *cur = head;
-    while (cur) {
-        if (cur->inf->angle() == num.angle() &&
-            cur->inf->radius() == num.radius()) {
-            this->erase(cur);
-        }
-        cur = cur->next;
-    }
+void List::remove(size_t index) {
+    node *cur = getNodeByIndex(index);
+    this->erase(cur);
+    cur = cur->next;
 }
 // Возвращает true, если комплексное число находится в первой четверти
 // координатной плоскости, включая границы, и false в обратном случае
