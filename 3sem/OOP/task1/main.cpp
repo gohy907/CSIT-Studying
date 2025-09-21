@@ -559,6 +559,7 @@ int main() {
                     break;
                 }
                 list[index].print();
+                std::cout << std::endl;
             }
             break;
         }
