@@ -184,7 +184,7 @@ class List {
 
         void push(complexNumber num);
         void print();
-        void insert(node *node, complexNumber num);
+        void insert(size_t index, complexNumber num);
         bool contains(complexNumber num);
         node *find(complexNumber num);
         void remove(complexNumber num);
@@ -262,7 +262,8 @@ void List::push(complexNumber num) {
 }
 
 // Вставляет новый node с inf = num перед Node
-void List::insert(node *Node, complexNumber num) {
+void List::insert(size_t index, complexNumber num) {
+    node *Node = getNodeByIndex(index);
     node *newNode = new node;
     newNode->inf = &num;
     newNode->next = Node;
