@@ -194,6 +194,8 @@ class List {
         node *end();
 
         void findAll(bool condition(complexNumber &num));
+        void addIf(bool condition(complexNumber &num));
+        void halfAngleIf(bool condition(complexNumber &num));
 
         complexNumber &operator[](size_t index);
 
@@ -416,6 +418,27 @@ bool getComplexNumberFromUser(complexNumber &num) {
     return true;
 }
 
+bool isRadiusLess2(complexNumber &num) { return num.getRe() < 2; }
+void List::addIf(bool condition(complexNumber &num)) {
+    for (int i = 0; i < length(); ++i) {
+        complexNumber &num1 = (*this)[i];
+        if (condition(num1)) {
+            num1.setAngle(num1.angle() + 0.5);
+        }
+    }
+}
+
+bool isRadiusMore1(complexNumber &num) { return num.getRe() > 1; }
+void List::halfAngleIf(bool condition(complexNumber &num)) {
+    for (int i = 0; i < length(); ++i) {
+        complexNumber &num1 = (*this)[i];
+        if (condition(num1)) {
+            num1.setAngle(num1.angle() / 2);
+            push(num1);
+        }
+    }
+}
+
 int main() {
     List list = List();
     while (true) {
@@ -430,10 +453,10 @@ int main() {
         std::cout
             << "7: Прибавить ко всем числам, с радиусом меньше 2, 0.5 к радиусу"
             << std::endl;
-        std::cout
-            << "8: Сделать копии чисел из списка, уменьшить вдвое их угол, и "
-               "добавить в конец списка"
-            << std::endl;
+        std::cout << "8: Сделать копии чисел из списка, у которых радиус "
+                     "больше 1, уменьшить вдвое их угол и "
+                     "добавить в конец списка"
+                  << std::endl;
 
         std::cout << "Выберите действие: ";
 
@@ -499,11 +522,47 @@ int main() {
             }
             break;
         }
+        case 5: {
+            std::cout << "Введите индекс: ";
+            std::string indexStr;
+            std::getline(std::cin, indexStr);
+            checkForEOF();
+            if (isValidSize(indexStr)) {
+                size_t index = std::stoi(indexStr);
+                if (index >= list.length()) {
+                    std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                    break;
+                }
+                list[index].print();
+            }
+            break;
+        }
+        case 6: {
+            std::cout << "Введите индекс: ";
+            std::string indexStr;
+            std::getline(std::cin, indexStr);
+            checkForEOF();
+            if (isValidSize(indexStr)) {
+                size_t index = std::stoi(indexStr);
+                if (index >= list.length()) {
+                    std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                    break;
+                }
+                complexNumber num = list[index];
+                std::cout << "(" << num.getRe() << ", " << num.getIm() << ")"
+                          << std::endl;
+            }
+            break;
+        }
+        case 7: {
+            list.addIf(isRadiusLess2);
+            break;
+        }
+        case 8: {
+            list.halfAngleIf(isRadiusMore1);
+        }
         }
 
         std::cout << std::endl;
     }
-
-    complexNumber b = complexNumber(2, 3);
-    complexNumber c = complexNumber(3, 4);
 }
