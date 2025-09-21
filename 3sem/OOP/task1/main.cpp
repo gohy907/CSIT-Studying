@@ -227,6 +227,9 @@ size_t List::length() {
     return length;
 }
 
+// Вернёт node, находящийся в index-ой ячейке List
+// ОСТОРОЖНО! РАБОТАЕТ ЗА ЛИНЕЙНОЕ ВРЕМЯ!
+// ВСЕ ЖАЛОБЫ НА ВРЕМЯ РАБОТЫ БУДУТ ПЕРЕАДРЕСОВАНЫ В /dev/null
 node *List::getNodeByIndex(size_t index) {
     node *cur = this->begin();
 
@@ -244,6 +247,7 @@ node *List::getNodeByIndex(size_t index) {
     return cur;
 }
 
+// Вернёт complexNumber, находящийся в index-ой ячейке List
 complexNumber &List::operator[](size_t index) {
     return *getNodeByIndex(index)->inf;
 }
@@ -351,11 +355,13 @@ void List::erase(node *node) {
     delete node;
 }
 
+// Удалит complexNumber, расположенный в index-ой ячейке List
 void List::remove(size_t index) {
     node *cur = getNodeByIndex(index);
     this->erase(cur);
     cur = cur->next;
 }
+
 // Возвращает true, если комплексное число находится в первой четверти
 // координатной плоскости, включая границы, и false в обратном случае
 bool isInFirstQuarter(complexNumber num) {
@@ -393,6 +399,8 @@ bool isValidSize(std::string &str) {
     return true;
 }
 
+// Возвращает true, если введённые данные верны и запишет в num новый
+// complexNumber Возвращает false иначе
 bool getComplexNumberFromUser(complexNumber &num) {
     std::string rStr;
     std::string phiStr;
@@ -418,7 +426,12 @@ bool getComplexNumberFromUser(complexNumber &num) {
     return true;
 }
 
+// Возвращает true, если радиус complexNumber < 2
+// Возвращает false иначе
 bool isRadiusLess2(complexNumber &num) { return num.radius() < 2; }
+
+// Добавит 0.5 радиан к углу всех complexNumber
+// Если выполняется condition
 void List::addIf(bool condition(complexNumber &num)) {
     for (int i = 0; i < length(); ++i) {
         complexNumber &num1 = (*this)[i];
@@ -428,7 +441,12 @@ void List::addIf(bool condition(complexNumber &num)) {
     }
 }
 
+// Возвращает true, если радиус complexNumber > 1
+// Возвращает false иначе
 bool isRadiusMore1(complexNumber &num) { return num.radius() > 1; }
+
+// Поделит угол всех complexNumber на 2 и добавит их в конец List
+// если выполняется condition
 void List::halfAngleIf(bool condition(complexNumber &num)) {
     List tmp = List();
 
