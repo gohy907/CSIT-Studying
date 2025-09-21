@@ -467,16 +467,35 @@ int main() {
         }
         case 3: {
             std::cout << "Введите индекс: ";
-            size_t index;
-            std::cin >> index;
-
-            if (index >= list.length()) {
-                std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
-                break;
+            std::string indexStr;
+            std::getline(std::cin, indexStr);
+            checkForEOF();
+            if (isValidSize(indexStr)) {
+                size_t index = std::stoi(indexStr);
+                if (index >= list.length()) {
+                    std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                    break;
+                }
+                complexNumber num;
+                if (getComplexNumberFromUser(num)) {
+                    list.insert(index, num);
+                }
             }
-            complexNumber num;
-            if (getComplexNumberFromUser(num)) {
-                list.insert(index, num);
+            break;
+        }
+        case 4: {
+            std::cout << "Введите индекс: ";
+            std::string indexStr;
+            std::getline(std::cin, indexStr);
+            checkForEOF();
+            if (isValidSize(indexStr)) {
+                size_t index = std::stoi(indexStr);
+                if (index >= list.length()) {
+                    std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                    break;
+                }
+
+                list.remove(index);
             }
             break;
         }
