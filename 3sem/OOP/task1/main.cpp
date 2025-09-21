@@ -195,7 +195,7 @@ class List {
 
         void findAll(bool condition(complexNumber &num));
 
-        complexNumber operator[](size_t index);
+        complexNumber &operator[](size_t index);
 
         size_t length();
 
@@ -242,7 +242,7 @@ node *List::getNodeByIndex(size_t index) {
     return cur;
 }
 
-complexNumber List::operator[](size_t index) {
+complexNumber &List::operator[](size_t index) {
     return *getNodeByIndex(index)->inf;
 }
 
