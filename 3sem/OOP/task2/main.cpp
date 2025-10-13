@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -15,7 +16,6 @@ class Figure {
         double z;
         std::string type = "Фигура";
         std::string name = "Безымянная фигура";
-        virtual void additionalPrint() {}
 
     public:
         Figure() {};
@@ -24,14 +24,20 @@ class Figure {
               y(y),
               z(z) {}
         void print() {
-            std::cout << "Тип: " << getName() << std::endl
-                      << "Имя: " << getType() << std::endl
+            std::cout << "Тип: " << getType() << std::endl
+                      << "Имя: " << getName() << std::endl
                       << "Координаты: " << "(" << x << ", " << y << ", " << z
                       << ")" << std::endl;
-            additionalPrint();
         }
         virtual std::string getName() { return name; }
         virtual std::string getType() { return type; }
+
+        bool operator==(Figure &f) {
+            return equal(x, f.x) && equal(y, f.y) && equal(z, f.z) &&
+                   type == f.type;
+        }
+        virtual double size() { return 0; }
+        virtual double volume() { return 0; }
 };
 
 struct node {
@@ -44,7 +50,7 @@ class List {
         List();
         ~List();
 
-        void push(Figure num);
+        void push(Figure *num);
         void print();
         void insert(size_t index, Figure num);
         bool contains(Figure num);
@@ -119,9 +125,9 @@ Figure &List::operator[](size_t index) { return *getNodeByIndex(index)->inf; }
 // }
 
 // Вставляет новый node с inf = num в конец List
-void List::push(Figure num) {
+void List::push(Figure *num) {
     node *r = new node;
-    r->inf = new Figure(num);
+    r->inf = num; // Не создаём объект Figure, а просто сохраняем указатель!
     r->next = NULL;
     if (!head && !tail) {
         r->prev = NULL;
@@ -161,29 +167,28 @@ void List::print() {
 
 // Возвращает индекс num в list
 // Если его не найдется, возвращает list.length()
-// size_t List::find(Figure num) {
-//     for (size_t i = 0; i < length(); ++i) {
-//         Figure num1 = (*this)[i];
-//         if (equal(num.angle(), num1.angle()),
-//             equal(num.radius(), num1.radius())) {
-//             return i;
-//         }
-//     }
-//     return length();
-// }
+size_t List::find(Figure num) {
+    for (size_t i = 0; i < length(); ++i) {
+        Figure num1 = (*this)[i];
+        if (num1 == num) {
+            return i;
+        }
+    }
+    return length();
+}
 
 // Возвращает true, если в List найдётся node с inf == num,
 // возвращает false в противном случае
-// bool List::contains(Figure num) {
-//     node *r = head;
-//     while (r != NULL) {
-//         if (*(r->inf) == num) {
-//             return true;
-//         }
-//         r = r->next;
-//     }
-//     return false;
-// }
+bool List::contains(Figure num) {
+    node *r = head;
+    while (r != NULL) {
+        if (*(r->inf) == num) {
+            return true;
+        }
+        r = r->next;
+    }
+    return false;
+}
 
 // Вернёт указатель на первый node в List
 node *List::begin() { return head; }
@@ -217,41 +222,43 @@ void List::remove(size_t index) {
 
 class Point : public Figure {
     private:
-        std::string type = "Точка";
-        std::string name = "Безымянная точка";
+        void setDefaultType() { type = "Точка"; }
 
     public:
-        Point() {};
+        Point() { setDefaultType(); };
         Point(double x, double y, double z)
-            : Figure(x, y, z) {}
+            : Figure(x, y, z) {
+
+            setDefaultType();
+        }
         Point(double x, double y, double z, std::string name)
-            : Figure(x, y, z),
-              name(name) {}
+            : Figure(x, y, z) {
+            setName(name);
+            setDefaultType();
+        }
         virtual std::string getName() { return name; }
         virtual std::string getType() { return type; }
 
         double getX() { return x; }
         double getY() { return y; }
         double getZ() { return z; }
-        bool operator==(Point &point2) {
-            return (equal(x, point2.getX()) && equal(y, point2.getY()),
-                    equal(z, point2.getZ()));
-        }
+        virtual void setName(std::string &newName) { name = newName; }
 };
 
 class Sphere : public Figure {
     private:
         double radius = 0;
-        std::string type = "Шар";
-        std::string name = "Безымянный шар";
+        void setDefaultType() { type = "Сфера"; }
 
     public:
-        Sphere() {};
+        Sphere() { setDefaultType(); };
         Sphere(double x, double y, double z)
             : Figure(x, y, z) {}
         Sphere(double x, double y, double z, std::string name)
-            : Figure(x, y, z),
-              name(name) {}
+            : Figure(x, y, z) {
+            setName(name);
+            setDefaultType();
+        }
         Sphere(double x, double y, double z, double r)
             : Figure(x, y, z),
               radius(r) {
@@ -259,88 +266,47 @@ class Sphere : public Figure {
                 throw std::invalid_argument(
                     "ОШИБКА: Радиус должен быть неотрицательным");
             }
+            setDefaultType();
         }
         Sphere(double x, double y, double z, double r, std::string name)
             : Figure(x, y, z),
-              radius(r),
-              name(name) {
-
-            throw std::invalid_argument(
-                "ОШИБКА: Радиус должен быть неотрицательным");
+              radius(r) {
+            if (r < 0) {
+                throw std::invalid_argument(
+                    "ОШИБКА: Радиус должен быть неотрицательным");
+            }
+            setName(name);
+            setDefaultType();
         }
         virtual std::string getName() { return name; }
         virtual std::string getType() { return type; }
-};
-
-class Segment : public Figure {
-    private:
-        Point beginPoint;
-        Point endPoint;
-        std::string type = "Отрезок";
-        std::string name = "Безымянный отрезок";
-
-    public:
-        Segment() {};
-        Segment(Point beginPoint, Point endPoint)
-            : beginPoint(beginPoint),
-              endPoint(endPoint) {}
-        Point getBeginPoint() { return beginPoint; }
-        Point getEndPoint() { return endPoint; }
-        double getLength() {
-            Point point1 = getBeginPoint();
-            Point point2 = getEndPoint();
-            double x1 = point1.getX();
-            double y1 = point1.getY();
-            double z1 = point1.getZ();
-
-            double x2 = point2.getX();
-            double y2 = point2.getY();
-            double z2 = point2.getZ();
-
-            double diffX = x1 - x2;
-            double diffY = y1 - y2;
-            double diffZ = z1 - z2;
-
-            return sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ);
-        }
-        bool operator==(Segment &seg2) {
-            Point point11 = getBeginPoint();
-            Point point12 = getEndPoint();
-
-            Point point21 = seg2.getBeginPoint();
-            Point point22 = seg2.getEndPoint();
-            return (point11 == point21 && point12 == point22);
-        }
+        virtual void setName(std::string &newName) { name = newName; }
 };
 
 class Polyhedron : public Figure {
     private:
+        size_t numberOfEdgesInSide;
         std::string type = "Многогранник";
         std::string name = "Безымянный многогранник";
-        List edges = List();
 
     public:
         Polyhedron() {};
-        Polyhedron(double x, double y, double z, List &inputEdges)
-            : Figure(x, y, z) {
-            for (size_t i = 0; i < edges.length(); ++i) {
-                edges.push(inputEdges[i]);
-            }
-        }
-        Polyhedron(double x, double y, double z, std::string name)
+        Polyhedron(double x, double y, double z, size_t numberOfEdgesInSide)
             : Figure(x, y, z),
-              name(name) {}
+              numberOfEdgesInSide(numberOfEdgesInSide) {}
+
         virtual std::string getName() { return name; }
-        virtual std::string getType() { return type; }
+        virtual std::string getType() { return type; };
 };
 
 int main() {
     try {
-        Figure f = Figure(1, 2, 3);
-        Point a = Point(1, 3, 5);
-        Sphere b = Sphere(1, 3, 5, -1);
-        a.print();
-        b.print();
+        Point a = Point(1, 3, 5, "dsadasd");
+        Sphere b = Sphere(1, 3, 101, "asad");
+        List l = List();
+        l.push(&a);
+        l.push(&b);
+        l.print();
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
