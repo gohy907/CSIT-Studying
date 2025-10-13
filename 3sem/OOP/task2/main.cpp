@@ -38,6 +38,7 @@ class Figure {
         }
         virtual double size() { return 0; }
         virtual double volume() { return 0; }
+        virtual bool input() { return false; }
 };
 
 struct node {
@@ -236,13 +237,24 @@ class Point : public Figure {
             setName(name);
             setDefaultType();
         }
-        virtual std::string getName() { return name; }
-        virtual std::string getType() { return type; }
+        virtual std::string getName() override { return name; }
+        virtual std::string getType() override { return type; }
 
         double getX() { return x; }
         double getY() { return y; }
         double getZ() { return z; }
         virtual void setName(std::string &newName) { name = newName; }
+        bool input() override {
+            std::cout << "Введите координаты x, y, z через пробел: ";
+            if (!(std::cin >> x >> y >> z))
+                return false;
+
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+
+            return true;
+        }
 };
 
 class Sphere : public Figure {
@@ -278,9 +290,24 @@ class Sphere : public Figure {
             setName(name);
             setDefaultType();
         }
-        virtual std::string getName() { return name; }
-        virtual std::string getType() { return type; }
+        virtual std::string getName() override { return name; }
+        virtual std::string getType() override { return type; }
         virtual void setName(std::string &newName) { name = newName; }
+        bool input() override {
+            std::cout << "Введите координаты x, y, z, радиус через пробел: ";
+            if (!(std::cin >> x >> y >> z >> radius))
+                return false;
+            if (radius < 0) {
+                std::cout << "Ошибка: радиус не должен быть отрицательным\n";
+                return false;
+            }
+
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+
+            return true;
+        }
 };
 
 class Polyhedron : public Figure {
@@ -330,86 +357,16 @@ bool isValidSize(std::string &str) {
     return true;
 }
 
-bool getPointFromUser(Point &p) {
-    std::string x;
-    std::string y;
-    std::string z;
-
-    std::cout << "Введите координаты через пробел: ";
-    std::cin >> x >> y >> z;
-
-    std::string coords[3] = {x, y, z};
-    for (char i = 0; i < 3; ++i) {
-        if (!isValidFloat(coords[i])) {
-            std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
-                      << std::endl;
-            return false;
-        }
+Figure *createFigure(int n) {
+    switch (n) {
+    case 1:
+        return new Point();
+    case 2:
+        return new Sphere();
+    case 3:
+        return new Polyhedron();
     }
-
-    std::string name;
-    std::cout << "Введите имя: ";
-
-    p = Point(std::stod(x), std::stod(y), std::stod(z), name);
-    return true;
-}
-
-bool getSphereFromUser(Sphere &s) {
-    std::string x;
-    std::string y;
-    std::string z;
-    std::string r;
-
-    std::cout << "Введите координаты и радиус через пробел: ";
-    std::cin >> x >> y >> z >> r;
-
-    std::string coords[4] = {x, y, z, r};
-    for (char i = 0; i < 3; ++i) {
-        if (!isValidFloat(coords[i])) {
-            std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
-                      << std::endl;
-            return false;
-        }
-    }
-
-    std::string name;
-    std::cout << "Введите имя: ";
-
-    s = Sphere(std::stod(x), std::stod(y), std::stod(z), std::stod(r), name);
-    return true;
-}
-
-bool getPolyhedronFromUser(Polyhedron &s) {
-    std::string x;
-    std::string y;
-    std::string z;
-    std::string n;
-
-    std::cout
-        << "Введите координаты и количество сторон у грани через пробел: ";
-    std::cin >> x >> y >> z >> n;
-
-    std::string coords[3] = {x, y, z};
-    for (char i = 0; i < 3; ++i) {
-        if (!isValidFloat(coords[i])) {
-            std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
-                      << std::endl;
-            return false;
-        }
-    }
-
-    if (!isValidSize(n)) {
-        std::cout << "ОШИБКА: Ошибка ввода, ожидалось беззнаковое целое число"
-                  << std::endl;
-        return false;
-    }
-
-    std::string name;
-    std::cout << "Введите имя: ";
-
-    s = Polyhedron(std::stod(x), std::stod(y), std::stod(z), std::stoi(n),
-                   name);
-    return true;
+    return NULL;
 }
 
 void pushFromInput(List &list) {
@@ -419,12 +376,11 @@ void pushFromInput(List &list) {
         std::cout << "1: Точка" << std::endl;
         std::cout << "2: Сфера" << std::endl;
         std::cout << "3: Многогранник" << std::endl;
-
         std::string optionStrFig;
+
         std::getline(std::cin, optionStrFig);
         checkForEOF();
         std::cout << std::endl;
-
         int optionFig;
         if (isValidSize(optionStrFig)) {
             optionFig = std::stoi(optionStrFig);
@@ -436,33 +392,72 @@ void pushFromInput(List &list) {
             break;
         } else if (optionFig < 1 || optionFig > 3) {
             std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+            continue;
         }
 
-        switch (optionFig) {
-        case 1: {
-            Point p;
-            if (getPointFromUser(p)) {
-                list.push(&p);
-                return;
-            }
+        Figure *fig = createFigure(optionFig);
+
+        if (!fig->input()) {
+            std::cout << "ОШИБКА: Ошибка ввода\n";
+            delete fig;
+            return;
         }
-        case 2: {
-            Sphere s;
-            if (getSphereFromUser(s)) {
-                list.push(&s);
-                return;
-            }
-        }
-        case 3: {
-            Polyhedron p;
-            if (getPolyhedronFromUser(p)) {
-                list.push(&p);
-                return;
-            }
-        }
-        }
+
+        list.push(fig);
+        break;
     }
 }
+
+void insertFromInput(List &list) {
+
+    std::cout << "Введите индекс: ";
+    std::string indexStr;
+    std::getline(std::cin, indexStr);
+    checkForEOF();
+    if (isValidSize(indexStr)) {
+        size_t index = std::stoi(indexStr);
+        if (index >= list.length()) {
+            std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+            return;
+        }
+
+        std::cout << "Выберите тип фигуры: " << std::endl;
+        std::cout << "0: Отменить" << std::endl;
+        std::cout << "1: Точка" << std::endl;
+        std::cout << "2: Сфера" << std::endl;
+        std::cout << "3: Многогранник" << std::endl;
+        std::string optionStrFig;
+
+        std::getline(std::cin, optionStrFig);
+        checkForEOF();
+        std::cout << std::endl;
+        int optionFig;
+        if (isValidSize(optionStrFig)) {
+            optionFig = std::stoi(optionStrFig);
+        } else {
+            std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+            return;
+        }
+        if (optionFig == 0) {
+            return;
+        } else if (optionFig < 1 || optionFig > 3) {
+            std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+            return;
+        }
+
+        Figure *fig = createFigure(optionFig);
+
+        if (!fig->input()) {
+            std::cout << "ОШИБКА: Ошибка ввода\n";
+            delete fig;
+            return;
+        }
+
+        list.insert(index, *fig);
+        return;
+    }
+}
+
 int main() {
     try {
         List list = List();
@@ -473,17 +468,7 @@ int main() {
             std::cout << "3: Добавить число в какое-то место списка"
                       << std::endl;
             std::cout << "4: Удалить из списка число" << std::endl;
-            std::cout << "5: Найти число" << std::endl;
-            std::cout << "6: Вывести число из списка" << std::endl;
-            std::cout << "7: Вывести число из списка в алгебраической форме"
-                      << std::endl;
-            std::cout << "8: Прибавить ко всем числам, с радиусом меньше 2, "
-                         "0.5 к углу"
-                      << std::endl;
-            std::cout << "9: Сделать копии чисел из списка, у которых радиус "
-                         "больше 1, уменьшить вдвое их угол и "
-                         "добавить в конец списка"
-                      << std::endl;
+            std::cout << "5: Вывести число из списка" << std::endl;
 
             std::cout << "Выберите действие: ";
 
@@ -515,19 +500,7 @@ int main() {
                 pushFromInput(list);
             }
             case 3: {
-                std::cout << "Введите индекс: ";
-                std::string indexStr;
-                std::getline(std::cin, indexStr);
-                checkForEOF();
-                if (isValidSize(indexStr)) {
-                    size_t index = std::stoi(indexStr);
-                    if (index >= list.length()) {
-                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
-                        break;
-                    }
-                    pushFromInput(list);
-                }
-                break;
+                insertFromInput(list);
             }
             case 4: {
                 std::cout << "Введите индекс: ";
@@ -546,18 +519,6 @@ int main() {
                 break;
             }
             case 5: {
-                complexNumber num;
-                if (getComplexNumberFromUser(num)) {
-                    size_t index = list.find(num);
-                    if (index == list.length()) {
-                        std::cout << "ОШИБКА: Число не найдено" << std::endl;
-                    } else {
-                        std::cout << index << std::endl;
-                    }
-                }
-                break;
-            }
-            case 6: {
                 std::cout << "Введите индекс: ";
                 std::string indexStr;
                 std::getline(std::cin, indexStr);
@@ -573,29 +534,7 @@ int main() {
                 }
                 break;
             }
-            case 7: {
-                std::cout << "Введите индекс: ";
-                std::string indexStr;
-                std::getline(std::cin, indexStr);
-                checkForEOF();
-                if (isValidSize(indexStr)) {
-                    size_t index = std::stoi(indexStr);
-                    if (index >= list.length()) {
-                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
-                        break;
-                    }
-                    complexNumber num = list[index];
-                    std::cout << "(" << num.getRe() << ", " << num.getIm()
-                              << ")" << std::endl;
-                }
-                break;
-            }
-            case 8: {
-                list.addIf(isRadiusLess2);
-                break;
-            }
-            case 9: {
-                list.halfAngleIf(isRadiusMore1);
+            case 6: {
             }
             }
 
