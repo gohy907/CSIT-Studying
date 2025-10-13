@@ -291,22 +291,316 @@ class Polyhedron : public Figure {
 
     public:
         Polyhedron() {};
-        Polyhedron(double x, double y, double z, size_t numberOfEdgesInSide)
+        Polyhedron(double x, double y, double z, size_t numberOfEdgesInSide,
+                   std::string &name)
             : Figure(x, y, z),
-              numberOfEdgesInSide(numberOfEdgesInSide) {}
+              numberOfEdgesInSide(numberOfEdgesInSide) {
+            setName(name);
+        }
 
         virtual std::string getName() { return name; }
         virtual std::string getType() { return type; };
+        virtual void setName(std::string &newName) { name = newName; }
 };
 
+void checkForEOF() {
+    if (std::cin.eof()) {
+        exit(0);
+    }
+}
+
+bool isValidFloat(std::string &str) {
+    try {
+        double num = std::stod(str);
+    } catch (std::invalid_argument &error) {
+        checkForEOF();
+        return false;
+    }
+
+    return true;
+}
+
+bool isValidSize(std::string &str) {
+    try {
+        int num = std::stoi(str);
+    } catch (std::invalid_argument &error) {
+        checkForEOF();
+        return false;
+    }
+    return true;
+}
+
+bool getPointFromUser(Point &p) {
+    std::string x;
+    std::string y;
+    std::string z;
+
+    std::cout << "Введите координаты через пробел: ";
+    std::cin >> x >> y >> z;
+
+    std::string coords[3] = {x, y, z};
+    for (char i = 0; i < 3; ++i) {
+        if (!isValidFloat(coords[i])) {
+            std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
+                      << std::endl;
+            return false;
+        }
+    }
+
+    std::string name;
+    std::cout << "Введите имя: ";
+
+    p = Point(std::stod(x), std::stod(y), std::stod(z), name);
+    return true;
+}
+
+bool getSphereFromUser(Sphere &s) {
+    std::string x;
+    std::string y;
+    std::string z;
+    std::string r;
+
+    std::cout << "Введите координаты и радиус через пробел: ";
+    std::cin >> x >> y >> z >> r;
+
+    std::string coords[4] = {x, y, z, r};
+    for (char i = 0; i < 3; ++i) {
+        if (!isValidFloat(coords[i])) {
+            std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
+                      << std::endl;
+            return false;
+        }
+    }
+
+    std::string name;
+    std::cout << "Введите имя: ";
+
+    s = Sphere(std::stod(x), std::stod(y), std::stod(z), std::stod(r), name);
+    return true;
+}
+
+bool getPolyhedronFromUser(Polyhedron &s) {
+    std::string x;
+    std::string y;
+    std::string z;
+    std::string n;
+
+    std::cout
+        << "Введите координаты и количество сторон у грани через пробел: ";
+    std::cin >> x >> y >> z >> n;
+
+    std::string coords[3] = {x, y, z};
+    for (char i = 0; i < 3; ++i) {
+        if (!isValidFloat(coords[i])) {
+            std::cout << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
+                      << std::endl;
+            return false;
+        }
+    }
+
+    if (!isValidSize(n)) {
+        std::cout << "ОШИБКА: Ошибка ввода, ожидалось беззнаковое целое число"
+                  << std::endl;
+        return false;
+    }
+
+    std::string name;
+    std::cout << "Введите имя: ";
+
+    s = Polyhedron(std::stod(x), std::stod(y), std::stod(z), std::stoi(n),
+                   name);
+    return true;
+}
+
+void pushFromInput(List &list) {
+    while (true) {
+        std::cout << "Выберите тип фигуры: " << std::endl;
+        std::cout << "0: Отменить" << std::endl;
+        std::cout << "1: Точка" << std::endl;
+        std::cout << "2: Сфера" << std::endl;
+        std::cout << "3: Многогранник" << std::endl;
+
+        std::string optionStrFig;
+        std::getline(std::cin, optionStrFig);
+        checkForEOF();
+        std::cout << std::endl;
+
+        int optionFig;
+        if (isValidSize(optionStrFig)) {
+            optionFig = std::stoi(optionStrFig);
+        } else {
+            std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+            continue;
+        }
+        if (optionFig == 0) {
+            break;
+        } else if (optionFig < 1 || optionFig > 3) {
+            std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+        }
+
+        switch (optionFig) {
+        case 1: {
+            Point p;
+            if (getPointFromUser(p)) {
+                list.push(&p);
+                return;
+            }
+        }
+        case 2: {
+            Sphere s;
+            if (getSphereFromUser(s)) {
+                list.push(&s);
+                return;
+            }
+        }
+        case 3: {
+            Polyhedron p;
+            if (getPolyhedronFromUser(p)) {
+                list.push(&p);
+                return;
+            }
+        }
+        }
+    }
+}
 int main() {
     try {
-        Point a = Point(1, 3, 5, "dsadasd");
-        Sphere b = Sphere(1, 3, 101, "asad");
-        List l = List();
-        l.push(&a);
-        l.push(&b);
-        l.print();
+        List list = List();
+        while (true) {
+            std::cout << "0: Выйти" << std::endl;
+            std::cout << "1: Вывести список" << std::endl;
+            std::cout << "2: Добавить в конец списка фигуру" << std::endl;
+            std::cout << "3: Добавить число в какое-то место списка"
+                      << std::endl;
+            std::cout << "4: Удалить из списка число" << std::endl;
+            std::cout << "5: Найти число" << std::endl;
+            std::cout << "6: Вывести число из списка" << std::endl;
+            std::cout << "7: Вывести число из списка в алгебраической форме"
+                      << std::endl;
+            std::cout << "8: Прибавить ко всем числам, с радиусом меньше 2, "
+                         "0.5 к углу"
+                      << std::endl;
+            std::cout << "9: Сделать копии чисел из списка, у которых радиус "
+                         "больше 1, уменьшить вдвое их угол и "
+                         "добавить в конец списка"
+                      << std::endl;
+
+            std::cout << "Выберите действие: ";
+
+            std::string optionStr;
+            std::getline(std::cin, optionStr);
+            checkForEOF();
+            std::cout << std::endl;
+
+            int option;
+            if (isValidSize(optionStr)) {
+                option = std::stoi(optionStr);
+            } else {
+                std::cout << "ОШИБКА: Ожидалось число от 0 до 9" << std::endl;
+                continue;
+            }
+
+            if (option == 0) {
+                break;
+            } else if (option < 0 || option > 9) {
+                std::cout << "ОШИБКА: Ожидалось число от 0 до 9" << std::endl;
+            }
+
+            switch (option) {
+            case 1: {
+                list.print();
+                break;
+            }
+            case 2: {
+                pushFromInput(list);
+            }
+            case 3: {
+                std::cout << "Введите индекс: ";
+                std::string indexStr;
+                std::getline(std::cin, indexStr);
+                checkForEOF();
+                if (isValidSize(indexStr)) {
+                    size_t index = std::stoi(indexStr);
+                    if (index >= list.length()) {
+                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                        break;
+                    }
+                    pushFromInput(list);
+                }
+                break;
+            }
+            case 4: {
+                std::cout << "Введите индекс: ";
+                std::string indexStr;
+                std::getline(std::cin, indexStr);
+                checkForEOF();
+                if (isValidSize(indexStr)) {
+                    size_t index = std::stoi(indexStr);
+                    if (index >= list.length()) {
+                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                        break;
+                    }
+
+                    list.remove(index);
+                }
+                break;
+            }
+            case 5: {
+                complexNumber num;
+                if (getComplexNumberFromUser(num)) {
+                    size_t index = list.find(num);
+                    if (index == list.length()) {
+                        std::cout << "ОШИБКА: Число не найдено" << std::endl;
+                    } else {
+                        std::cout << index << std::endl;
+                    }
+                }
+                break;
+            }
+            case 6: {
+                std::cout << "Введите индекс: ";
+                std::string indexStr;
+                std::getline(std::cin, indexStr);
+                checkForEOF();
+                if (isValidSize(indexStr)) {
+                    size_t index = std::stoi(indexStr);
+                    if (index >= list.length()) {
+                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                        break;
+                    }
+                    list[index].print();
+                    std::cout << std::endl;
+                }
+                break;
+            }
+            case 7: {
+                std::cout << "Введите индекс: ";
+                std::string indexStr;
+                std::getline(std::cin, indexStr);
+                checkForEOF();
+                if (isValidSize(indexStr)) {
+                    size_t index = std::stoi(indexStr);
+                    if (index >= list.length()) {
+                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                        break;
+                    }
+                    complexNumber num = list[index];
+                    std::cout << "(" << num.getRe() << ", " << num.getIm()
+                              << ")" << std::endl;
+                }
+                break;
+            }
+            case 8: {
+                list.addIf(isRadiusLess2);
+                break;
+            }
+            case 9: {
+                list.halfAngleIf(isRadiusMore1);
+            }
+            }
+
+            std::cout << std::endl;
+        }
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
