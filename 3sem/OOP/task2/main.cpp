@@ -29,6 +29,7 @@ class Figure {
                       << "Координаты: " << "(" << x << ", " << y << ", " << z
                       << ")" << std::endl;
         }
+        virtual void setName(std::string newName) { name = newName; }
         virtual std::string getName() { return name; }
         virtual std::string getType() { return type; }
 
@@ -330,7 +331,7 @@ class Polyhedron : public Figure {
         Polyhedron(double x, double y, double z)
             : Figure(x, y, z) {}
         Polyhedron(double x, double y, double z, size_t numberOfEdgesInSide,
-                   std::string &name)
+                   const std::string &name)
             : Figure(x, y, z),
               numberOfEdgesInSide(numberOfEdgesInSide) {
             setDefaultType();
@@ -339,7 +340,6 @@ class Polyhedron : public Figure {
 
         virtual std::string getName() override { return name; }
         virtual std::string getType() override { return type; };
-        virtual void setName(std::string &newName) { name = newName; }
         bool input() override {
             std::cout << "Введите координаты x, y, z, количество ребёр на "
                          "грани через пробел: ";
@@ -366,9 +366,8 @@ class Cube : public Polyhedron {
 
     public:
         Cube() { setDefaultType(); };
-        Cube(double x, double y, double z, size_t numberOfEdgesInSide,
-             std::string &name)
-            : Polyhedron(x, y, z, numberOfEdgesInSide, name) {
+        Cube(double x, double y, double z, const std::string &name)
+            : Polyhedron(x, y, z, 4, name) {
             setDefaultType();
             setName(name);
         }
@@ -518,7 +517,12 @@ void insertFromInput(List &list) {
 
 int main() {
     try {
+        Cube c = Cube(1, 2, 3, "Куб 1");
+        Cube d = c;
         List list = List();
+        list.push(&c);
+        list.push(&d);
+        list[1].setName("Куб 2");
         while (true) {
             std::cout << std::endl;
             std::cout << "0: Выйти" << std::endl;
