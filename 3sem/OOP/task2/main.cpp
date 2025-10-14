@@ -543,11 +543,7 @@ void insertFromInput(List &list) {
 
 int main() {
     try {
-        // Cube c = Cube(1, 2, 3, "Куб 1");
-        // Cube d = c;
         List list = List();
-        // list.push(&c);
-        // list.push(&d);
         while (true) {
             std::cout << std::endl;
             std::cout << "0: Выйти" << std::endl;
@@ -563,6 +559,8 @@ int main() {
             std::cout << "7: Вывести площадь поверхности фигуры из списка"
                       << std::endl;
             std::cout << "8: Вывести объём фигуры из списка" << std::endl;
+            std::cout << "9: Вывести объём всех многогранников из списка"
+                      << std::endl;
 
             std::cout << "Выберите действие: ";
 
@@ -679,6 +677,23 @@ int main() {
                     std::cout << list[index].volume() << std::endl;
                 }
                 break;
+            }
+            case 9: {
+                for (size_t i = 0; i < list.length(); ++i) {
+                    Polyhedron *p = new Polyhedron();
+                    {
+                        Polyhedron *p1 = dynamic_cast<Cube *>(&list[i]);
+                        if (p1) {
+                            std::cout << p1->volume() << std::endl;
+                        }
+                    }
+                    {
+                        Polyhedron *p1 = dynamic_cast<Tetrahedron *>(&list[i]);
+                        if (p1) {
+                            std::cout << p1->volume() << std::endl;
+                        }
+                    }
+                }
             }
             }
         }
