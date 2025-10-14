@@ -403,6 +403,10 @@ class Cube : public Polyhedron {
 
             return true;
         }
+        double size() override { return 6 * lengthOfEdge * lengthOfEdge; }
+        double volume() override {
+            return lengthOfEdge * lengthOfEdge * lengthOfEdge;
+        }
 };
 
 void checkForEOF() {
@@ -556,10 +560,9 @@ int main() {
             std::cout << "6: Скопировать фигуру по индексу и добавить её в "
                          "конец списка"
                       << std::endl;
-            std::cout << "7: Попытаться динамически перекастовать одну "
-                         "фигуру "
-                         "в другую"
+            std::cout << "7: Вывести площадь поверхности фигуры из списка"
                       << std::endl;
+            std::cout << "8: Вывести объём фигуры из списка" << std::endl;
 
             std::cout << "Выберите действие: ";
 
@@ -658,58 +661,22 @@ int main() {
                         std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
                         break;
                     }
-                    std::cout << "Выберите тип фигуры: " << std::endl;
-                    std::cout << "0: Отменить" << std::endl;
-                    std::cout << "1: Точка" << std::endl;
-                    std::cout << "2: Сфера" << std::endl;
-                    std::cout << "3: Многогранник" << std::endl;
-                    std::cout << "4: Куб" << std::endl;
-                    std::string optionStrFig;
-
-                    std::getline(std::cin, optionStrFig);
-                    checkForEOF();
-                    std::cout << std::endl;
-                    int optionFig;
-                    if (isValidSize(optionStrFig)) {
-                        optionFig = std::stoi(optionStrFig);
-                    } else {
-                        std::cout << "ОШИБКА: Ожидалось число от 1 до 4"
-                                  << std::endl;
+                    std::cout << list[index].size() << std::endl;
+                }
+                break;
+            }
+            case 8: {
+                std::cout << "Введите индекс: ";
+                std::string indexStr;
+                std::getline(std::cin, indexStr);
+                checkForEOF();
+                if (isValidSize(indexStr)) {
+                    size_t index = std::stoi(indexStr);
+                    if (index >= list.length()) {
+                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
                         break;
                     }
-                    if (optionFig == 0) {
-                        break;
-                    } else if (optionFig < 1 || optionFig > 4) {
-                        std::cout << "ОШИБКА: Ожидалось число от 1 до 4"
-                                  << std::endl;
-                        break;
-                    }
-                    Figure *f = &list[index];
-                    Figure *newF;
-                    switch (optionFig) {
-                    case 1: {
-                        newF = dynamic_cast<Point *>(f);
-                        break;
-                    }
-                    case 2: {
-                        newF = dynamic_cast<Sphere *>(f);
-                        break;
-                    }
-                    case 3: {
-                        newF = dynamic_cast<Polyhedron *>(f);
-                        break;
-                    }
-                    case 4: {
-                        newF = dynamic_cast<Cube *>(f);
-                        break;
-                    }
-                    }
-                    if (newF == NULL) {
-                        std::cout << "ОШИБКА: Невозможно перекастовать"
-                                  << std::endl;
-                        break;
-                    }
-                    list.push(newF);
+                    std::cout << list[index].volume() << std::endl;
                 }
                 break;
             }
