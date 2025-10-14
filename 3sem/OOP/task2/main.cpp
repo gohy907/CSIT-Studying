@@ -39,8 +39,8 @@ class Figure {
         virtual double size() { return 0; }
         virtual double volume() { return 0; }
         virtual bool input() { return false; }
-        Figure &operator=(Figure &f) {
-            if (this != &f) {
+        virtual Figure &operator=(const Figure &f) {
+            if (this != &f) { // Проверка самоприсваивания
                 x = f.x;
                 y = f.y;
                 z = f.z;
@@ -511,7 +511,7 @@ void insertFromInput(List &list) {
             return;
         }
 
-        list.insert(index, *fig);
+        list.insert(index, fig);
         return;
     }
 }
@@ -616,7 +616,7 @@ int main() {
                         break;
                     }
                     Figure *f = &list[index];
-                    Figure *newF(f);
+                    Figure *newF = f;
                     list.push(newF);
                     std::cout << std::endl;
                 }
