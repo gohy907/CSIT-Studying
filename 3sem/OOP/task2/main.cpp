@@ -476,15 +476,23 @@ int main() {
             std::cout << "0: Выйти" << std::endl;
             std::cout << "1: Вывести список" << std::endl;
             std::cout << "2: Добавить в конец списка фигуру" << std::endl;
-            std::cout << "3: Добавить число в какое-то место списка"
+            std::cout << "3: Добавить фигуру в какое-то место списка"
                       << std::endl;
-            std::cout << "4: Удалить из списка число" << std::endl;
-            std::cout << "5: Вывести число из списка" << std::endl;
+            std::cout << "4: Удалить из списка фигуру" << std::endl;
+            std::cout << "5: Вывести фигуру из списка" << std::endl;
+            std::cout << "6: Скопировать фигуру по индексу и добавить её в "
+                         "конец списка"
+                      << std::endl;
+            std::cout << "7: Попытаться динамически перекастовать одну фигуру "
+                         "в другую"
+                      << std::endl;
 
             std::cout << "Выберите действие: ";
 
             std::string optionStr;
-            std::getline(std::cin, optionStr);
+            while (optionStr == "") {
+                std::getline(std::cin, optionStr);
+            }
             checkForEOF();
             std::cout << std::endl;
 
@@ -548,6 +556,22 @@ int main() {
                 break;
             }
             case 6: {
+                std::cout << "Введите индекс: ";
+                std::string indexStr;
+                std::getline(std::cin, indexStr);
+                checkForEOF();
+                if (isValidSize(indexStr)) {
+                    size_t index = std::stoi(indexStr);
+                    if (index >= list.length()) {
+                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                        break;
+                    }
+                    Figure *f = &list[index];
+                    Figure *newF(f);
+                    list.push(newF);
+                    std::cout << std::endl;
+                }
+                break;
             }
             }
 
