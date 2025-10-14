@@ -23,7 +23,7 @@ class Figure {
             : x(x),
               y(y),
               z(z) {}
-        void print() {
+        virtual void print() {
             std::cout << "Тип: " << getType() << std::endl
                       << "Имя: " << getName() << std::endl
                       << "Координаты: " << "(" << x << ", " << y << ", " << z
@@ -323,6 +323,13 @@ class Sphere : public Figure {
         double volume() override {
             return 4 * M_PI * radius * radius * radius / 3;
         }
+        void print() override {
+            std::cout << "Тип: " << getType() << std::endl
+                      << "Имя: " << getName() << std::endl
+                      << "Координаты: " << "(" << x << ", " << y << ", " << z
+                      << ")" << std::endl
+                      << "Радиус: " << radius << std::endl;
+        }
 };
 
 class Polyhedron : public Figure {
@@ -378,6 +385,13 @@ class Tetrahedron : public Polyhedron {
         double volume() override {
             return lengthOfEdge * lengthOfEdge * lengthOfEdge / (6 * sqrt(2));
         }
+        void print() override {
+            std::cout << "Тип: " << getType() << std::endl
+                      << "Имя: " << getName() << std::endl
+                      << "Координаты: " << "(" << x << ", " << y << ", " << z
+                      << ")" << std::endl
+                      << "Длина рёбер: " << lengthOfEdge << std::endl;
+        }
 };
 
 class Cube : public Polyhedron {
@@ -406,6 +420,13 @@ class Cube : public Polyhedron {
         double size() override { return 6 * lengthOfEdge * lengthOfEdge; }
         double volume() override {
             return lengthOfEdge * lengthOfEdge * lengthOfEdge;
+        }
+        void print() override {
+            std::cout << "Тип: " << getType() << std::endl
+                      << "Имя: " << getName() << std::endl
+                      << "Координаты: " << "(" << x << ", " << y << ", " << z
+                      << ")" << std::endl
+                      << "Длина рёбер: " << lengthOfEdge << std::endl;
         }
 };
 
@@ -490,6 +511,187 @@ void pushFromInput(List &list) {
     }
 }
 
+class NonVirtualFigure {
+    protected:
+        double x;
+        double y;
+        double z;
+        std::string type = "Невиртуальная фигура";
+        std::string name = "Невиртуальная безымянная фигура";
+
+    public:
+        NonVirtualFigure() {}
+        NonVirtualFigure(double x, double y, double z)
+            : x(x),
+              y(y),
+              z(z) {}
+
+        void print() {
+            std::cout << "Тип: " << type << std::endl
+                      << "Имя: " << name << std::endl
+                      << "Координаты: (" << x << ", " << y << ", " << z << ")"
+                      << std::endl;
+        }
+
+        void setName(const std::string &newName) { name = newName; }
+        std::string getName() { return name; }
+        std::string getType() { return type; }
+
+        bool input() { return false; }
+
+        double size() { return 0; }
+        double volume() { return 0; }
+};
+
+class NonVirtualSphere : public NonVirtualFigure {
+    private:
+        double radius = 0;
+        void setDefaultType() { type = "NonVirtualСфера"; }
+
+    public:
+        NonVirtualSphere() { setDefaultType(); }
+        NonVirtualSphere(double x, double y, double z, double r,
+                         const std::string &name)
+            : NonVirtualFigure(x, y, z),
+              radius(r) {
+            setDefaultType();
+            setName(name);
+        }
+
+        bool input() {
+            std::cout << "Введите координаты x, y, z и радиус через пробел: ";
+            if (!(std::cin >> x >> y >> z >> radius))
+                return false;
+            if (radius < 0) {
+                std::cout << "Ошибка: радиус не должен быть отрицательным\n";
+                return false;
+            }
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+            return true;
+        }
+
+        double size() { return 4 * M_PI * radius * radius; }
+
+        double volume() {
+            return (4.0 / 3.0) * M_PI * radius * radius * radius;
+        }
+        void print() {
+            std::cout << "Тип: " << getType() << std::endl
+                      << "Имя: " << getName() << std::endl
+                      << "Координаты: " << "(" << x << ", " << y << ", " << z
+                      << ")" << std::endl
+                      << "Радиус: " << radius << std::endl;
+        }
+};
+class NonVirtualPolyhedron : public NonVirtualFigure {
+    protected:
+        double lengthOfEdge;
+        size_t numberOfEdgesInSide;
+
+        void setDefaultType() { type = "Невиртуальный многогранник"; }
+
+    public:
+        NonVirtualPolyhedron() { setDefaultType(); }
+        NonVirtualPolyhedron(double x, double y, double z)
+            : NonVirtualFigure(x, y, z) {
+            setDefaultType();
+        }
+        NonVirtualPolyhedron(double x, double y, double z, size_t edgesCount,
+                             double edgeLength, const std::string &name)
+            : NonVirtualFigure(x, y, z),
+              lengthOfEdge(edgeLength),
+              numberOfEdgesInSide(edgesCount) {
+            setDefaultType();
+            setName(name);
+        }
+
+        bool input() {
+            std::cout << "Введите координаты x, y, z, количество ребёр на "
+                         "грани и длину ребра через пробел: ";
+            if (!(std::cin >> x >> y >> z >> numberOfEdgesInSide >>
+                  lengthOfEdge))
+                return false;
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+            return true;
+        }
+};
+
+class NonVirtualTetrahedron : public NonVirtualPolyhedron {
+        void setDefaultType() { type = "Невиртуальный тетраэдр"; }
+
+    public:
+        NonVirtualTetrahedron() { setDefaultType(); }
+        NonVirtualTetrahedron(double x, double y, double z, double size,
+                              std::string name)
+            : NonVirtualPolyhedron(x, y, z, 3, size, name) {
+            setDefaultType();
+            setName(name);
+        }
+
+        bool input() {
+            std::cout
+                << "Введите координаты x, y, z и длину ребра через пробел: ";
+            if (!(std::cin >> x >> y >> z >> lengthOfEdge))
+                return false;
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+            return true;
+        }
+
+        double size() { return lengthOfEdge * lengthOfEdge * sqrt(3); }
+
+        double volume() {
+            return lengthOfEdge * lengthOfEdge * lengthOfEdge / (6 * sqrt(2));
+        }
+        void print() {
+            std::cout << "Тип: " << getType() << std::endl
+                      << "Имя: " << getName() << std::endl
+                      << "Координаты: " << "(" << x << ", " << y << ", " << z
+                      << ")" << std::endl
+                      << "Длина рёбер: " << lengthOfEdge << std::endl;
+        }
+};
+
+class NonVirtualCube : public NonVirtualPolyhedron {
+        void setDefaultType() { type = "Невиртуальный куб"; }
+
+    public:
+        NonVirtualCube() { setDefaultType(); }
+        NonVirtualCube(double x, double y, double z, double size,
+                       std::string name)
+            : NonVirtualPolyhedron(x, y, z, 4, size, name) {
+            setDefaultType();
+            setName(name);
+        }
+
+        bool input() {
+            std::cout
+                << "Введите координаты x, y, z и длину ребра через пробел: ";
+            if (!(std::cin >> x >> y >> z >> lengthOfEdge))
+                return false;
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+            return true;
+        }
+
+        double size() { return 6 * lengthOfEdge * lengthOfEdge; }
+
+        double volume() { return lengthOfEdge * lengthOfEdge * lengthOfEdge; }
+        void print() {
+            std::cout << "Тип: " << getType() << std::endl
+                      << "Имя: " << getName() << std::endl
+                      << "Координаты: " << "(" << x << ", " << y << ", " << z
+                      << ")" << std::endl
+                      << "Длина рёбер: " << lengthOfEdge << std::endl;
+        }
+};
+
 void insertFromInput(List &list) {
 
     std::cout << "Введите индекс: ";
@@ -543,6 +745,16 @@ void insertFromInput(List &list) {
 
 int main() {
     try {
+        Figure *c1 = new Cube(0, 0, 0, 2, "Куб 1");
+        NonVirtualFigure *c2 =
+            new NonVirtualCube(10, 10, 10, 5, "Невиртуальный куб 1");
+
+        c1->print();
+        std::cout << "Объём: " << c1->volume() << std::endl;
+        std::cout << std::endl;
+        c2->print();
+        std::cout << "Объём: " << c2->volume() << std::endl;
+
         List list = List();
         while (true) {
             std::cout << std::endl;
@@ -566,6 +778,7 @@ int main() {
 
             std::string optionStr;
             while (optionStr == "") {
+                std::cin.clear();
                 std::getline(std::cin, optionStr);
             }
             checkForEOF();
