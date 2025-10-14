@@ -39,6 +39,16 @@ class Figure {
         virtual double size() { return 0; }
         virtual double volume() { return 0; }
         virtual bool input() { return false; }
+        Figure &operator=(Figure &f) {
+            if (this != &f) {
+                x = f.x;
+                y = f.y;
+                z = f.z;
+                type = f.type;
+                name = f.name;
+            }
+            return *this;
+        }
 };
 
 struct node {
@@ -462,6 +472,7 @@ int main() {
     try {
         List list = List();
         while (true) {
+            std::cout << std::endl;
             std::cout << "0: Выйти" << std::endl;
             std::cout << "1: Вывести список" << std::endl;
             std::cout << "2: Добавить в конец списка фигуру" << std::endl;
@@ -498,9 +509,11 @@ int main() {
             }
             case 2: {
                 pushFromInput(list);
+                break;
             }
             case 3: {
                 insertFromInput(list);
+                break;
             }
             case 4: {
                 std::cout << "Введите индекс: ";
