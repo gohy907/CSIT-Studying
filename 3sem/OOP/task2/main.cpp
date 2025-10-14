@@ -63,7 +63,7 @@ class List {
 
         void push(Figure *num);
         void print();
-        void insert(size_t index, Figure num);
+        void insert(size_t index, Figure *num);
         bool contains(Figure num);
         size_t find(Figure num);
         void remove(size_t index);
@@ -151,10 +151,10 @@ void List::push(Figure *num) {
 }
 
 // Вставляет новый node с inf = num перед Node
-void List::insert(size_t index, Figure num) {
+void List::insert(size_t index, Figure *num) {
     node *Node = getNodeByIndex(index);
     node *newNode = new node;
-    newNode->inf = &num;
+    newNode->inf = num;
     newNode->next = Node;
     newNode->prev = Node->prev;
     if (Node->prev) {
@@ -169,8 +169,8 @@ void List::insert(size_t index, Figure num) {
 void List::print() {
     node *r = head;
     while (r != NULL) {
-        Figure num = *(r->inf);
-        num.print();
+        Figure *num = (r->inf);
+        num->print();
         r = r->next;
         std::cout << std::endl;
     }
@@ -323,21 +323,66 @@ class Sphere : public Figure {
 class Polyhedron : public Figure {
     private:
         size_t numberOfEdgesInSide;
-        std::string type = "Многогранник";
-        std::string name = "Безымянный многогранник";
+        void setDefaultType() { type = "Многогранник"; }
 
     public:
-        Polyhedron() {};
+        Polyhedron() { setDefaultType(); };
+        Polyhedron(double x, double y, double z)
+            : Figure(x, y, z) {}
         Polyhedron(double x, double y, double z, size_t numberOfEdgesInSide,
                    std::string &name)
             : Figure(x, y, z),
               numberOfEdgesInSide(numberOfEdgesInSide) {
+            setDefaultType();
             setName(name);
         }
 
-        virtual std::string getName() { return name; }
-        virtual std::string getType() { return type; };
+        virtual std::string getName() override { return name; }
+        virtual std::string getType() override { return type; };
         virtual void setName(std::string &newName) { name = newName; }
+        bool input() override {
+            std::cout << "Введите координаты x, y, z, количество ребёр на "
+                         "грани через пробел: ";
+            if (!(std::cin >> x >> y >> z >> numberOfEdgesInSide))
+                return false;
+            if (numberOfEdgesInSide <= 1) {
+                std::cout << "ОШИБКА: Количество сторон должно быть больше 1"
+                          << std::endl;
+                return false;
+            }
+
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+
+            return true;
+        }
+};
+
+class Cube : public Polyhedron {
+    private:
+        size_t numberOfEdgesInSide = 4;
+        void setDefaultType() { type = "Куб"; }
+
+    public:
+        Cube() { setDefaultType(); };
+        Cube(double x, double y, double z, size_t numberOfEdgesInSide,
+             std::string &name)
+            : Polyhedron(x, y, z, numberOfEdgesInSide, name) {
+            setDefaultType();
+            setName(name);
+        }
+
+        bool input() override {
+            std::cout << "Введите координаты x, y, z: ";
+            if (!(std::cin >> x >> y >> z))
+                return false;
+            std::cout << "Введите имя: ";
+            if (!(std::cin >> name))
+                return false;
+
+            return true;
+        }
 };
 
 void checkForEOF() {
@@ -375,6 +420,8 @@ Figure *createFigure(int n) {
         return new Sphere();
     case 3:
         return new Polyhedron();
+    case 4:
+        return new Cube();
     }
     return NULL;
 }
@@ -386,6 +433,7 @@ void pushFromInput(List &list) {
         std::cout << "1: Точка" << std::endl;
         std::cout << "2: Сфера" << std::endl;
         std::cout << "3: Многогранник" << std::endl;
+        std::cout << "4: Куб" << std::endl;
         std::string optionStrFig;
 
         std::getline(std::cin, optionStrFig);
@@ -400,8 +448,8 @@ void pushFromInput(List &list) {
         }
         if (optionFig == 0) {
             break;
-        } else if (optionFig < 1 || optionFig > 3) {
-            std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+        } else if (optionFig < 1 || optionFig > 4) {
+            std::cout << "ОШИБКА: Ожидалось число от 1 до 4" << std::endl;
             continue;
         }
 
@@ -483,7 +531,8 @@ int main() {
             std::cout << "6: Скопировать фигуру по индексу и добавить её в "
                          "конец списка"
                       << std::endl;
-            std::cout << "7: Попытаться динамически перекастовать одну фигуру "
+            std::cout << "7: Попытаться динамически перекастовать одну "
+                         "фигуру "
                          "в другую"
                       << std::endl;
 
@@ -573,10 +622,76 @@ int main() {
                 }
                 break;
             }
-            }
+            case 7: {
+                std::cout << "Введите индекс: ";
+                std::string indexStr;
+                std::getline(std::cin, indexStr);
+                checkForEOF();
+                if (isValidSize(indexStr)) {
+                    size_t index = std::stoi(indexStr);
+                    if (index >= list.length()) {
+                        std::cout << "ОШИБКА: Индекс больше длины" << std::endl;
+                        break;
+                    }
+                    std::cout << "Выберите тип фигуры: " << std::endl;
+                    std::cout << "0: Отменить" << std::endl;
+                    std::cout << "1: Точка" << std::endl;
+                    std::cout << "2: Сфера" << std::endl;
+                    std::cout << "3: Многогранник" << std::endl;
+                    std::cout << "4: Куб" << std::endl;
+                    std::string optionStrFig;
 
-            std::cout << std::endl;
+                    std::getline(std::cin, optionStrFig);
+                    checkForEOF();
+                    std::cout << std::endl;
+                    int optionFig;
+                    if (isValidSize(optionStrFig)) {
+                        optionFig = std::stoi(optionStrFig);
+                    } else {
+                        std::cout << "ОШИБКА: Ожидалось число от 1 до 4"
+                                  << std::endl;
+                        break;
+                    }
+                    if (optionFig == 0) {
+                        break;
+                    } else if (optionFig < 1 || optionFig > 4) {
+                        std::cout << "ОШИБКА: Ожидалось число от 1 до 4"
+                                  << std::endl;
+                        break;
+                    }
+                    Figure *f = &list[index];
+                    Figure *newF;
+                    switch (optionFig) {
+                    case 1: {
+                        newF = dynamic_cast<Point *>(f);
+                        break;
+                    }
+                    case 2: {
+                        newF = dynamic_cast<Sphere *>(f);
+                        break;
+                    }
+                    case 3: {
+                        newF = dynamic_cast<Polyhedron *>(f);
+                        break;
+                    }
+                    case 4: {
+                        newF = dynamic_cast<Cube *>(f);
+                        break;
+                    }
+                    }
+                    if (newF == NULL) {
+                        std::cout << "ОШИБКА: Невозможно перекастовать"
+                                  << std::endl;
+                        break;
+                    }
+                    list.push(newF);
+                }
+                break;
+            }
+            }
         }
+
+        std::cout << std::endl;
     } catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
