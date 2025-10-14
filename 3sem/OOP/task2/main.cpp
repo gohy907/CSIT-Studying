@@ -319,62 +319,83 @@ class Sphere : public Figure {
 
             return true;
         }
+        double size() override { return M_PI * 4 * radius * radius; }
+        double volume() override {
+            return 4 * M_PI * radius * radius * radius / 3;
+        }
 };
 
 class Polyhedron : public Figure {
     private:
-        size_t numberOfEdgesInSide;
         void setDefaultType() { type = "Многогранник"; }
+
+    protected:
+        double lengthOfEdge;
+        size_t numberOfEdgesInSide;
 
     public:
         Polyhedron() { setDefaultType(); };
         Polyhedron(double x, double y, double z)
             : Figure(x, y, z) {}
         Polyhedron(double x, double y, double z, size_t numberOfEdgesInSide,
-                   const std::string &name)
+                   double lengthOfEdge, std::string name)
             : Figure(x, y, z),
-              numberOfEdgesInSide(numberOfEdgesInSide) {
+              numberOfEdgesInSide(numberOfEdgesInSide),
+              lengthOfEdge(lengthOfEdge) {
             setDefaultType();
             setName(name);
         }
 
         virtual std::string getName() override { return name; }
         virtual std::string getType() override { return type; };
-        bool input() override {
-            std::cout << "Введите координаты x, y, z, количество ребёр на "
-                         "грани через пробел: ";
-            if (!(std::cin >> x >> y >> z >> numberOfEdgesInSide))
-                return false;
-            if (numberOfEdgesInSide <= 1) {
-                std::cout << "ОШИБКА: Количество сторон должно быть больше 1"
-                          << std::endl;
-                return false;
-            }
+};
 
+class Tetrahedron : public Polyhedron {
+    private:
+        void setDefaultType() { type = "Тетраэдр"; }
+
+    public:
+        Tetrahedron() { setDefaultType(); }
+
+        Tetrahedron(double x, double y, double z, double size, std::string name)
+            : Polyhedron(x, y, z, 3, size, name) {
+            setDefaultType();
+            setName(name);
+        }
+
+        bool input() override {
+            std::cout
+                << "Введите координаты x, y, z и длину ребра через пробел: ";
+            if (!(std::cin >> x >> y >> z >> lengthOfEdge))
+                return false;
             std::cout << "Введите имя: ";
             if (!(std::cin >> name))
                 return false;
 
             return true;
         }
+        double size() override { return lengthOfEdge * lengthOfEdge * sqrt(3); }
+        double volume() override {
+            return lengthOfEdge * lengthOfEdge * lengthOfEdge / (6 * sqrt(2));
+        }
 };
 
 class Cube : public Polyhedron {
     private:
-        size_t numberOfEdgesInSide = 4;
         void setDefaultType() { type = "Куб"; }
 
     public:
         Cube() { setDefaultType(); };
-        Cube(double x, double y, double z, const std::string &name)
-            : Polyhedron(x, y, z, 4, name) {
+        Cube(double x, double y, double z, double size, std::string name)
+            : Polyhedron(x, y, z, 4, size, name) {
             setDefaultType();
             setName(name);
         }
 
         bool input() override {
-            std::cout << "Введите координаты x, y, z: ";
-            if (!(std::cin >> x >> y >> z))
+            std::cout
+                << "Введите координаты x, y, z и длину ребра через пробел: ";
+            if (!(std::cin >> x >> y >> z >> lengthOfEdge))
                 return false;
             std::cout << "Введите имя: ";
             if (!(std::cin >> name))
@@ -418,7 +439,7 @@ Figure *createFigure(int n) {
     case 2:
         return new Sphere();
     case 3:
-        return new Polyhedron();
+        return new Tetrahedron();
     case 4:
         return new Cube();
     }
@@ -431,7 +452,7 @@ void pushFromInput(List &list) {
         std::cout << "0: Отменить" << std::endl;
         std::cout << "1: Точка" << std::endl;
         std::cout << "2: Сфера" << std::endl;
-        std::cout << "3: Многогранник" << std::endl;
+        std::cout << "3: Тетраэдр" << std::endl;
         std::cout << "4: Куб" << std::endl;
         std::string optionStrFig;
 
@@ -482,7 +503,8 @@ void insertFromInput(List &list) {
         std::cout << "0: Отменить" << std::endl;
         std::cout << "1: Точка" << std::endl;
         std::cout << "2: Сфера" << std::endl;
-        std::cout << "3: Многогранник" << std::endl;
+        std::cout << "3: Тетраэдр" << std::endl;
+        std::cout << "4: Куб" << std::endl;
         std::string optionStrFig;
 
         std::getline(std::cin, optionStrFig);
@@ -492,13 +514,13 @@ void insertFromInput(List &list) {
         if (isValidSize(optionStrFig)) {
             optionFig = std::stoi(optionStrFig);
         } else {
-            std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+            std::cout << "ОШИБКА: Ожидалось число от 1 до 4" << std::endl;
             return;
         }
         if (optionFig == 0) {
             return;
-        } else if (optionFig < 1 || optionFig > 3) {
-            std::cout << "ОШИБКА: Ожидалось число от 1 до 3" << std::endl;
+        } else if (optionFig < 1 || optionFig > 4) {
+            std::cout << "ОШИБКА: Ожидалось число от 1 до 4" << std::endl;
             return;
         }
 
@@ -517,12 +539,11 @@ void insertFromInput(List &list) {
 
 int main() {
     try {
-        Cube c = Cube(1, 2, 3, "Куб 1");
-        Cube d = c;
+        // Cube c = Cube(1, 2, 3, "Куб 1");
+        // Cube d = c;
         List list = List();
-        list.push(&c);
-        list.push(&d);
-        list[1].setName("Куб 2");
+        // list.push(&c);
+        // list.push(&d);
         while (true) {
             std::cout << std::endl;
             std::cout << "0: Выйти" << std::endl;
