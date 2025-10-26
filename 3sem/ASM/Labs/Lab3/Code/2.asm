@@ -49,18 +49,18 @@ start:
 
     divloop:
         xor EDX, EDX
-        div dword ptr EBX  
-        push EDX
-        inc CX
-        cmp EAX, 0
-        jne divloop
+        div dword ptr EBX; Делим EDX:EAX на EBX
+        push EDX; Остаток от деления заносим в стек
+        inc CX; Прибавляем 1 к количеству разрядов
+        cmp EAX, 0; Сраниваем частное с нулём
+        jne divloop; Если частное не равно нулю, продолжаем делить
 
     stackloop:
-        pop EDX
+        pop EDX; Достаём остатки из стека и печатаем их
         call print
         loop stackloop
 
-        mov AX, 4C00h
-        int 21h
+    mov AX, 4C00h
+    int 21h
 
 end start

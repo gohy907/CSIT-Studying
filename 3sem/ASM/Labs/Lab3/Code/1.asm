@@ -10,7 +10,7 @@ print PROC; Процедура вывода значения в DL на экра
     push AX
     push DX
     add DL, '0'
-    mov ah, 02h
+    mov AH, 02h
     int 21h
     pop DX
     pop AX
@@ -48,18 +48,18 @@ start:
 
     divloop:
         xor DX, DX
-        div word ptr BX 
-        push DX
-        inc CX
-        cmp AX, 0
-        jne divloop
+        div word ptr BX; Делим DX:AX на BX
+        push DX; Остаток от деления заносим в стек
+        inc CX; Прибавляем 1 к количеству разрядов
+        cmp AX, 0; Сравниваем частное с нулём
+        jne divloop; Если частное не равно нулю, продолжаем делить
 
     stackloop:
-        pop DX
+        pop DX; Достаём остатки из стека и печатаем их
         call print
         loop stackloop
 
-        mov AX, 4C00h
-        int 21h
+    mov AX, 4C00h
+    int 21h
 
 end start
