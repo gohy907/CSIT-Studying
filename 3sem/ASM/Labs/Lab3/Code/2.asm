@@ -3,7 +3,6 @@
 .386
 
 .data
-del dd 10
 Hello db 'Arkhipov Ivan, 251 group$'
 
 .code
@@ -45,11 +44,12 @@ start:
     call print_nl
 
     mov EAX, 65536
+    mov EBX, 10
     xor CX, CX
 
     divloop:
         xor EDX, EDX
-        div dword ptr del  
+        div dword ptr EBX  
         push EDX
         inc CX
         cmp EAX, 0

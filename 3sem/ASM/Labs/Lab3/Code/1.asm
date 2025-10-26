@@ -2,7 +2,6 @@
 .stack 100h
 
 .data
-del dw 10
 Hello db 'Arkhipov Ivan, 251 group$'
 
 .code
@@ -44,11 +43,12 @@ start:
     call print_nl
 
     mov AX, 65535
+    mov BX, 10
     xor CX, CX
 
     divloop:
         xor DX, DX
-        div word ptr del  
+        div word ptr BX 
         push DX
         inc CX
         cmp AX, 0
