@@ -63,12 +63,7 @@ void complexNumber::setIm() { im = r * sin(phi); }
 
 // Конструктор complexNumber
 complexNumber::complexNumber(double R, double Phi) {
-    try {
-        setRadius(R);
-    } catch (std::invalid_argument &error) {
-        std::cerr << error.what() << std::endl;
-    }
-
+    setRadius(R);
     setAngle(Phi);
     setRe();
     setIm();
