@@ -104,7 +104,7 @@ double complexNumber::getIm() { return im; }
 
 // Сеттер атрибута phi
 void complexNumber::setAngle(double Phi) {
-    if (std::abs(Phi) > Phi * 2) {
+    if (std::abs(Phi) > M_PI * 2) {
         throw Phi;
     }
     phi = Phi;
