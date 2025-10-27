@@ -110,6 +110,8 @@ void List::halfAngleIf(bool condition(complexNumber &num)) {
 
 int main() {
     List list = List();
+    list.push(complexNumber(0, 0));
+    list.push(complexNumber(1, 1));
     while (true) {
         try {
             std::cout << "0: Выйти" << std::endl;
@@ -202,6 +204,7 @@ int main() {
             }
 
             std::cout << std::endl;
+
         } catch (double) {
             std::cerr << "ОШИБКА: Ввод дробного числа из неверного диапазона"
                       << std::endl;
@@ -212,6 +215,8 @@ int main() {
             std::cerr << error.what() << std::endl;
         } catch (std::out_of_range &error) {
             std::cerr << error.what() << std::endl;
+        } catch (...) {
+            std::cerr << "dalskmd" << std::endl;
         }
     }
 }

@@ -1,4 +1,6 @@
+#include "error.h"
 #include <cmath>
+#include <error.h>
 #include <iostream>
 
 bool equal(double a, double b) {
@@ -49,8 +51,7 @@ complexNumber complexNumber::operator*(complexNumber &num) {
 
 complexNumber complexNumber::operator/(complexNumber &num) {
     if (equal(num.radius(), 0)) {
-        std::cerr << "Division by zero" << std::endl;
-        std::abort();
+        throw ExceptionDivisionByZero();
     }
 
     double newRadius = std::abs(r / num.radius());

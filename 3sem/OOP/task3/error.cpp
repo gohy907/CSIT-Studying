@@ -22,3 +22,8 @@ class FileException : public Error {
     public:
         std::string what() { return "ОШИБКА: Ошибка файла"; }
 };
+
+class ExceptionDivisionByZero : public Error {
+    public:
+        std::string what() { return "ОШИБКА: Деление на ноль"; }
+};
