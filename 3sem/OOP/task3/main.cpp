@@ -205,9 +205,8 @@ int main() {
         } catch (double) {
             std::cerr << "ОШИБКА: Ввод дробного числа из неверного диапазона"
                       << std::endl;
-        } catch (ExceptionBadNumberInput) {
-            std::cerr << "ОШИБКА: Ошибка ввода, ожидалось число в формате 12.34"
-                      << std::endl;
+        } catch (Error &error) {
+            std::cerr << error.what() << std::endl;
         } catch (std::invalid_argument &error) {
             checkForEOF();
             std::cerr << error.what() << std::endl;
