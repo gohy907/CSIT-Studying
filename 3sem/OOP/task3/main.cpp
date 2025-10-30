@@ -32,7 +32,7 @@ bool isValidFloat(std::string &str) {
 
 bool isValidSize(std::string &str) {
     try {
-        int num = std::stoull(str);
+        size_t num = std::stoull(str);
     } catch (std::invalid_argument &error) {
         checkForEOF();
         return false;
@@ -216,7 +216,7 @@ int main() {
         } catch (std::out_of_range &error) {
             std::cerr << error.what() << std::endl;
         } catch (...) {
-            std::cerr << "dalskmd" << std::endl;
+            std::cerr << "Неизвестная ошибка!" << std::endl;
         }
     }
 }
