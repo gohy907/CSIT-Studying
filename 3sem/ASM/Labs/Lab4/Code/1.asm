@@ -3,8 +3,7 @@
 .186
 
 .data
-hello db 'aboba$'
-aboba db 'abobization$'
+hello db 'Arkhipov Ivan, 251$'
 string db 5 dup (' '), '$'
 simple db 10 dup (0)
 
@@ -91,6 +90,10 @@ print_nl ENDP
 start:
 	mov AX, @data
 	mov DS, AX
+
+    mov DX, offset hello
+    call print_str
+    call print_nl
 
 	xor CX, CX
 	mov AL, 2
