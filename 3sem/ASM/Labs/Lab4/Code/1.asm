@@ -5,7 +5,7 @@
 .data
 hello db 'Arkhipov Ivan, 251$'
 string db 5 dup (' '), '$'
-simple db 10 dup (0)
+simple db 20 dup (?)
 
 .code
 
@@ -95,65 +95,63 @@ start:
     call print_str
     call print_nl
 
-	xor CX, CX
-	mov AL, 2
-	store:
-		mov BX, CX
-		mov simple[BX], AL
-        add AL, 2
-	    inc CX 
-	    cmp CX, 10
-		jne store
+	mov CX, 2
+    xor SI, SI
+	store_1:
+        mov AL, 2 
 
-    mov CX, 2 
-	rows:
-        xor SI, SI
-        push CX
-	    cols:
+        store_2:
             cmp CX, 1 
-            push CX
-	        je squares
+            je store_squares
 
-              
-            xor AX, AX
-            mov AL, simple[SI]
-            push CX
-            push SI
+            mov simple[SI], AL
+            jmp end_store 
 
-            mov CX, 5
-            mov SI, offset string
-            call format_str
-
-            pop SI
-            pop CX
-            jmp end_cols
-
-            squares:
-            xor AX, AX
-            mov AL, simple[SI]
+            store_squares: 
+            push AX
             mul AL
+            mov simple[SI], AL
+            pop AX
 
-            push CX
-            push SI
+            end_store:
+            inc SI 
+            add AL, 2
 
+            cmp SI, 10
+            je store_2_end
+
+            cmp SI, 20 
+            je store_2_end
+
+            jmp store_2
+
+        store_2_end:
+
+		loop store_1
+
+    mov CX, 20 
+    xor SI, SI
+	print_loop:
+        cmp CX, 10 
+        jne not_print_nl
+        call print_nl 
+
+        not_print_nl:
+        push CX
+        push SI
+        xor AX, AX
+            mov AL, simple[SI]
             mov CX, 5
             mov SI, offset string
             call format_str
 
             pop SI
-            pop CX
-
-            end_cols:
             pop CX
             
             mov DX, offset string
             call print_str
             inc SI
-            cmp SI, 10
-            jne cols
-        call print_nl
-        pop CX
-        loop rows
+        loop print_loop
 	mov AX, 4C00h
 	int 21h
 end start
