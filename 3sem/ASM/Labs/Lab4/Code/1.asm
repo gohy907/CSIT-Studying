@@ -5,7 +5,7 @@
 .data
 hello db 'Arkhipov Ivan, 251$'
 string db 5 dup (' '), '$'
-simple db 20 dup (?)
+simple dw 20 dup (0)
 
 .code
 
@@ -97,6 +97,7 @@ start:
 
 	mov CX, 2
     xor SI, SI
+    xor AX, AX
 	store_1:
         mov AL, 2 
 
@@ -104,23 +105,22 @@ start:
             cmp CX, 1 
             je store_squares
 
-            mov simple[SI], AL
+            mov simple[SI], AX
             jmp end_store 
 
             store_squares: 
             push AX
             mul AL
-            mov simple[SI], AL
+            mov word ptr simple[SI], AX
             pop AX
 
             end_store:
-            inc SI 
-            add AL, 2
-
-            cmp SI, 10
+            add SI, 2 
+            add AL, 2 ; Так как заполняем в памяти два байта, смещаем указатель на два
+            cmp SI, 20; Т.е. проверяем, что записано 10 чисел (20 байтов)
             je store_2_end
 
-            cmp SI, 20 
+            cmp SI, 40; Т.е. проверяем, что записано 20 чисел (40 байтов)
             je store_2_end
 
             jmp store_2
@@ -140,7 +140,7 @@ start:
         push CX
         push SI
         xor AX, AX
-            mov AL, simple[SI]
+            mov AX, simple[SI]
             mov CX, 5
             mov SI, offset string
             call format_str
@@ -150,7 +150,7 @@ start:
             
             mov DX, offset string
             call print_str
-            inc SI
+            add SI, 2
         loop print_loop
 	mov AX, 4C00h
 	int 21h
