@@ -9,21 +9,6 @@ simple dw 20 dup (0)
 
 .code
 
-; Процедура вывода цифры на экран
-; Цифра должна находиться в регистре DL
-print PROC
-    push AX
-    push DX
-
-    add DL, '0'
-    mov AH, 02h
-    int 21h
-
-    pop DX
-    pop AX
-    ret
-print ENDP
-
 ; Процедура вывода строки на экран
 ; Адрес строки должен находиться в регистре DX
 print_str PROC
