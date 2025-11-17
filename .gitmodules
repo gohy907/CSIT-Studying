@@ -1,0 +1,3 @@
+[submodule "3sem/OOP/task4/external/raylib"]
+	path = 3sem/OOP/task4/external/raylib
+	url = git@github.com:raysan5/raylib.git
