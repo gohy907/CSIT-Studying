@@ -1,68 +1,72 @@
 #include "raylib.h"
+#include "raymath.h"
 
 class Car {
     private:
-        float x;
-        float y;
-        float velocity;
+        Vector2 position;
+        Vector2 velocity;
+        Vector2 acceleration;
         Rectangle source;
         Texture2D atlas;
         float width = 120;
         float height = 85;
     public:
-        Car(float x, float y, float velocity, Rectangle source, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);
         
-        void setX(float x);
-        float getX();
-
-        void setY(float y);
-        float getY();
-
-        void setVelocity(float velocity);
-        float getVelocity();
+        void setPosition(Vector2 position);
+        Vector2 getPosition();
+        
+        void setVelocity(Vector2 velocity);
+        Vector2 getVelocity();
 
         void setSource(Rectangle source);
         
+        void update();
         void draw();
 };
 
-Car::Car(float x, float y, float velocity, Rectangle source, Texture2D atlas) {
-    this->x = x;
-    this->y = y;
-    this->velocity = velocity;
+Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas) {
+    this-> position = position;
+    this-> velocity = velocity;
+    this->acceleration = acceleration;
     this->source = source;
     this->atlas = atlas;
 }
 
-void Car::setX(float x){
-    this->x = x;
+Car::Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas) {
+    this-> position = position;
+    this-> velocity = velocity;
+    this->acceleration = Vector2{0.0, 0.0};
+    this->source = source;
+    this->atlas = atlas;
 }
 
-float Car::getX(){
-    return x;
+void Car::setPosition(Vector2 position) {
+    this->position = position;
 }
 
-void Car::setY(float y){
-    this->y = y;
+Vector2 Car::getPosition() {
+    return this->position;
 }
 
-float Car::getY(){
-    return y;
-}
-    
-void Car::setVelocity(float velocity){
+void Car::setVelocity(Vector2 velocity){
     this->velocity = velocity;
 }
 
-float Car::getVelocity(){
-    return velocity;
+Vector2 Car::getVelocity(){
+    return this->velocity;
 }
 
 void Car::setSource(Rectangle source){
     this->source = source;
 }
 
+void Car::update() {
+    position = Vector2Add(position, velocity);
+    velocity = Vector2Add(velocity, acceleration);
+}
+
 void Car::draw(){
-    x += velocity;
-    DrawTexturePro(atlas, source, Rectangle{x, y, width, height}, Vector2{0, 0}, 0, WHITE);
+    DrawTexturePro(atlas, source, Rectangle{position.x, position.y, width, height}, Vector2{0, 0}, 0, WHITE);
 }

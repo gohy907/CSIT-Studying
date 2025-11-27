@@ -3,26 +3,25 @@
 
 class Car {
     private:
-        float x;
-        float y;
-        float velocity;
+        Vector2 position;
+        Vector2 velocity;
+        Vector2 acceleration;
         Rectangle source;
         Texture2D atlas;
         float width = 120;
         float height = 85;
     public:
-        Car(float x, float y, float velocity, Rectangle source, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);
         
-        void setX(float x);
-        float getX();
-
-        void setY(float y);
-        float getY();
-
-        void setVelocity(float velocity);
-        float getVelocity();
+        void setPosition(Vector2 position);
+        Vector2 getPosition();
+        
+        void setVelocity(Vector2 velocity);
+        Vector2 getVelocity();
 
         void setSource(Rectangle source);
         
+        void update();
         void draw();
 };
