@@ -28,7 +28,7 @@ class Car {
 
 Car::Car(float x, float y, float velocity, Rectangle source, Texture2D atlas) {
     this->x = x;
-    this->y = x;
+    this->y = y;
     this->velocity = velocity;
     this->source = source;
     this->atlas = atlas;
