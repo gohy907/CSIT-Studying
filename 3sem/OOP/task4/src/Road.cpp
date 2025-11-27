@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include <vector>
+#include "Car.h"
 
 class Road {
 private:
@@ -13,21 +15,19 @@ private:
     Color backgroundColor;
     Color borderColor;
     Color boundsColor;
+
+    std::vector<Car> cars;
 public:
     Road(float x, float y, float width, float height, 
          float thickness, Color backgroundColor, Color borderColor, Color boundsColor);
+
+    void setCarList(std::vector<Car> cars);
+    void addCar(Car car);
+
+    void update();
     void draw();
+
 };
-
-void Road::draw() {
-    DrawRectangleRec(this->top, this->borderColor);
-    DrawRectangleRec(this->bottom, this->borderColor);
-    DrawRectangleRec(this->left, this->borderColor);
-    DrawRectangleRec(this->right, this->borderColor);
-
-    DrawRectangleRec(this->leftBounds, this->boundsColor);
-    DrawRectangleRec(this->rightBounds, this->boundsColor);
-}
 
 Road:: Road(float x, float y, float width, float height, 
             float thickness, Color backgroundColor, Color borderColor, Color boundsColor) {
@@ -36,10 +36,38 @@ Road:: Road(float x, float y, float width, float height,
     this->left = Rectangle{x, y, thickness, height};
     this->right = Rectangle{x + width - thickness, y, thickness, height};
 
-    this->leftBounds = Rectangle{0.0, x, y, height};
+    this->leftBounds = Rectangle{0.0, y, x, height};
     this->rightBounds = Rectangle{x + width, y, width, height};
 
     this->borderColor = borderColor;
     this->boundsColor = boundsColor;
 }
+
+void Road::setCarList(std::vector<Car> cars) {
+    this->cars = cars;
+}
+
+void Road::addCar(Car car) {
+    this->cars.push_back(car);
+}
+
+void Road::update() {
+    for (size_t i = 0; i < cars.size(); ++i) {
+        cars[i].update();
+    }
+}
+void Road::draw() {
+    DrawRectangleRec(this->top, this->borderColor);
+    DrawRectangleRec(this->bottom, this->borderColor);
+    DrawRectangleRec(this->left, this->borderColor);
+    DrawRectangleRec(this->right, this->borderColor);
+
+    for (size_t i = 0; i < cars.size(); ++i) {
+        cars[i].draw();
+    }
+
+    DrawRectangleRec(this->leftBounds, this->boundsColor);
+    DrawRectangleRec(this->rightBounds, this->boundsColor);
+}
+
 

@@ -1,5 +1,8 @@
 #pragma once
 #include "raylib.h"
+#include "Car.h"
+#include "raylib.h"
+#include <vector>
 
 class Road {
 private:
@@ -14,9 +17,16 @@ private:
     Color backgroundColor;
     Color borderColor;
     Color boundsColor;
+
+    std::vector<Car> cars;
 public:
     Road(float x, float y, float width, float height, 
          float thickness, Color backgroundColor, Color borderColor, Color boundsColor);
-    void draw();
-};
 
+    void setCarList(std::vector<Car> cars);
+    void addCar(Car car);
+
+    void update();
+    void draw();
+
+};
