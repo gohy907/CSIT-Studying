@@ -14,6 +14,9 @@ class Car {
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
         Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);
         
+        float getWidth();
+        float getHeight();
+
         void setPosition(Vector2 position);
         Vector2 getPosition();
         

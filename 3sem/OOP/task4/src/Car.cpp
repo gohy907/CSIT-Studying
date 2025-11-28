@@ -14,6 +14,9 @@ class Car {
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
         Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);
         
+        float getWidth();
+        float getHeight();
+
         void setPosition(Vector2 position);
         Vector2 getPosition();
         
@@ -40,6 +43,14 @@ Car::Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas) 
     this->acceleration = Vector2{0.0, 0.0};
     this->source = source;
     this->atlas = atlas;
+}
+
+float Car::getWidth() {
+    return width;
+}
+
+float Car::getHeight() {
+    return height;
 }
 
 void Car::setPosition(Vector2 position) {
