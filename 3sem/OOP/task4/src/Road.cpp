@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include <vector>
+#include <iostream>
 #include "Car.h"
 
 class Road {
@@ -53,18 +54,24 @@ void Road::addCar(Car car) {
 
 void Road::update() {
     for (size_t i = 0; i < cars.size(); ++i) {
-        cars[i].update();
+        Car &car = cars[i];
+        std::cout << car.getPosition().x << std::endl;
+        if (car.getPosition().x  > top.x + top.width) {
+            cars.erase(cars.begin() + i);
+        } else {
+            car.update();
+        }
     }
 }
 void Road::draw() {
+    for (size_t i = 0; i < cars.size(); ++i) {
+        cars[i].draw();
+    }
+
     DrawRectangleRec(this->top, this->borderColor);
     DrawRectangleRec(this->bottom, this->borderColor);
     DrawRectangleRec(this->left, this->borderColor);
     DrawRectangleRec(this->right, this->borderColor);
-
-    for (size_t i = 0; i < cars.size(); ++i) {
-        cars[i].draw();
-    }
 
     DrawRectangleRec(this->leftBounds, this->boundsColor);
     DrawRectangleRec(this->rightBounds, this->boundsColor);
