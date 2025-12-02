@@ -55,7 +55,6 @@ void Road::addCar(Car car) {
 void Road::update() {
     for (size_t i = 0; i < cars.size(); ++i) {
         Car &car = cars[i];
-        std::cout << car.getPosition().x << std::endl;
         if (car.getPosition().x  > top.x + top.width) {
             cars.erase(cars.begin() + i);
         } else {
