@@ -24,9 +24,9 @@ const Rectangle GREEN_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1), 0, CAR_WIDTH, CAR_
 const Rectangle YELLOW_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1) * 2, 0, CAR_WIDTH, CAR_HEIGHT};
 const Rectangle BLUE_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1) * 3, 0, CAR_WIDTH, CAR_HEIGHT};
 
-const Rectangle AREA_OF_SLIDER = Rectangle{150, 300, 340, 70};
+const Rectangle SPEED_SLIDER = Rectangle{150, 300, 340, 70};
 
-const Rectangle AREA_OF_CAR_SPAWN_BUTTON = Rectangle{500, 300, 340, 70};
+const Rectangle CAR_SPAWN_BUTTON = Rectangle{500, 300, 340, 70};
 
 Font InitRussianFont(const char *fontPath, int fontSize) {
     int charsCount = 0;
@@ -58,8 +58,8 @@ int main()
     while (!WindowShouldClose())
     {
         BeginDrawing();
-            GuiValueBox(AREA_OF_SLIDER, "Скорость ", &defaultSpeed, 0, 40, true);
-            bool spawnNewCar = GuiButton(AREA_OF_CAR_SPAWN_BUTTON, "Создать новую машину");
+            GuiValueBox(SPEED_SLIDER, "Скорость ", &defaultSpeed, 0, 40, true);
+            bool spawnNewCar = GuiButton(CAR_SPAWN_BUTTON, "Создать новую машину");
             if (spawnNewCar) {
                 mainRoad.addCar(car);
             }
