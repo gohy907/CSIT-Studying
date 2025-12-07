@@ -59,15 +59,14 @@ int main()
     {
         BeginDrawing();
             GuiValueBox(SPEED_SLIDER, "Скорость ", &defaultSpeed, 0, 40, true);
-            bool spawnNewCar = GuiButton(CAR_SPAWN_BUTTON, "Создать новую машину");
-            if (spawnNewCar) {
+            if (GuiButton(CAR_SPAWN_BUTTON, "Создать новую машину")) {
                 mainRoad.addCar(car);
             }
+            car.setVelocity(Vector2{(float)defaultSpeed, 0});
+            GuiButton(Rectangle{500, 500, 30, 30}, "<");
             mainRoad.draw();
             mainRoad.update();
-            Color color = WHITE;
-            car.setVelocity(Vector2{(float)defaultSpeed, 0});
-        ClearBackground(RAYWHITE);
+            ClearBackground(RAYWHITE);
         EndDrawing();
     }
 
