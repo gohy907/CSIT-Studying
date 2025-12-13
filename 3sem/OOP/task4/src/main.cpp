@@ -2,6 +2,7 @@
 #include "Car.h"
 #include "raygui.h"
 #include "Road.h"
+#include "resources.h"
 
 const float SCREEN_WIDTH = 1920;
 const float SCREEN_HEIGHT = 1080;
@@ -28,7 +29,9 @@ const Rectangle SPEED_SLIDER = Rectangle{150, 300, 340, 70};
 
 const Rectangle CAR_SPAWN_BUTTON = Rectangle{500, 300, 340, 70};
 
-Font InitRussianFont(const char *fontPath, int fontSize) {
+// В FontUtils.cpp или main.cpp
+
+Font LoadRussianFontStatic(int fontSize) {
     int charsCount = 0;
     int* chars = LoadCodepoints(
         "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя"
@@ -38,19 +41,34 @@ Font InitRussianFont(const char *fontPath, int fontSize) {
         &charsCount
     );
 
-    Font font = LoadFontEx(fontPath, fontSize, chars, charsCount);
+  Font font = LoadFontFromMemory(
+        ".ttf",           // fileType (расширение)
+        HYWENHEI_data,  // data
+        HYWENHEI_size,  // dataSize  
+        fontSize,         // fontSize
+        chars,            // codepoints
+        charsCount        // codepointCount
+    );
+    
     UnloadCodepoints(chars);
     return font;
+}
+
+Texture2D LoadCarTextureStatic() {
+    Image img = LoadImageFromMemory(".png", CARS_data, CARS_size);
+    Texture2D texture = LoadTextureFromImage(img);
+    UnloadImage(img);
+    return texture;
 }
 
 int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [core] example - basic window");
     GuiSetStyle(DEFAULT, TEXT_SIZE, FONT_SIZE);
-    Font font = InitRussianFont("static/HYWenHei.ttf", FONT_SIZE);
+    Font font = LoadRussianFontStatic(FONT_SIZE);
     GuiSetFont(font);
     Road mainRoad = Road(ROAD_X, ROAD_Y, ROAD_WIDTH, ROAD_HEIGHT, ROAD_BORDER_WIDTH, BLACK, BLACK, RAYWHITE);
-    Texture2D atlas = LoadTexture("static/cars.png");
+    Texture2D atlas = LoadCarTextureStatic();
     Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE, atlas);
     SetTargetFPS(60);
     mainRoad.addCar(car);
