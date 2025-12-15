@@ -1,3 +1,55 @@
+#import "conf.typ": conf, intro, conclusion
+#show: conf.with(
+  title: [Лабораторная №8. Вариант 1202],
+  type: "pract",
+  info: (
+    author: (
+      name: [Архипова Ивана Сергеевича],
+      faculty: [КНиИТ],
+      group: "251",
+      sex: "male",
+    ),
+    inspector: (
+      degree: "Старший преподаватель",
+      name: "Черноусова Е. М.",
+    ),
+  ),
+  settings: (
+    title_page: (
+      enabled: true,
+    ),
+    contents_page: (
+      enabled: false,
+    ),
+  ),
+)
+
+#let tracetable(caption, filename) = {
+    set text(lang: "ru")
+    figure(
+        caption: caption,
+       {
+            let trace = csv(filename);
+
+            set text(size: 8pt)
+
+            table(columns: 13, 
+                table.header(
+                    table.cell(rowspan: 2, [Шаг]), table.cell(rowspan: 2, [Машинный код]),
+                    table.cell(rowspan: 2, [Команда]), table.cell(colspan: 9, [Регистры]), [Флаги],
+                    [AX], [BX], [CX], [DX], [SP], [DS], [SS], [CS], [IP], [CZSOPAID]
+                ),
+                ..trace.map(r => { 
+                    r.at(2) = raw(lang: "tasm", r.at(2));
+                    r
+                }).flatten()
+            )
+        }
+    )
+}
+
+= Текст программы с комментариями
+```asm 
 ; Подключение внешних функций WinAPI
 extrn ExitProcess:proc
 extrn MessageBoxW:proc
@@ -326,4 +378,13 @@ mainCRTStartup proc
     call ExitProcess
 mainCRTStartup endp
 end
+```
 
+= Скриншоты запуска
+
+#figure(image("static/1.png"), caption: [Положительный ответ])
+#figure(image("static/2.png"), caption: [Отрицательный ответ])
+#figure(image("static/3.png"), caption: [A выходит за границы возможных значений])
+#figure(image("static/4.png"), caption: [B выходит за границы возможных значений])
+#figure(image("static/5.png"), caption: [Параметр, содержащий кроме цифр другие символы])
+#figure(image("static/6.png"), caption: [Отрицательный параметр])
