@@ -44,9 +44,11 @@ endm
 .code
 
 PrintNL proc 
+    push RAX
     lea RAX, newLine
     push RAX
     call PrintString
+    pop RAX
     ret
 PrintNL endp
 
@@ -278,12 +280,40 @@ mainCRTStartup proc
 
         pop RBX 
         pop RAX
+        push RAX 
+        push RBX
 
         sub const, RBX
         add RAX, const
-        
+       
         push RAX
         call PrintNumber
+
+        call PrintNL
+
+        lea RAX, max 
+        push RAX
+        call PrintString
+
+        pop RBX 
+        pop RAX
+
+        push RAX 
+        push RBX
+        sub RAX, RBX 
+        cmp RAX, 0 
+        pop RBX 
+        pop RAX
+        jg bgreater
+
+        mov RAX, RBX
+        push RAX 
+        call PrintNumber
+        jmp exit
+
+        bgreater: 
+            push RAX 
+            call PrintNumber
 
     exit: 
     call PrintNL
