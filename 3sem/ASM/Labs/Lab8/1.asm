@@ -18,6 +18,7 @@ output1 db 'F = ', 0
 output2 db ' - a + b = ', 0
 max db 'max(a, b) = ', 0
 invalidChar db 'Invalid character', 0 
+overflowError db 'Value is out of range', 0
 pressAnyKey db 'Press any key to exit...', 0 
 newLine db 0Dh, 0Ah, 0
 
@@ -188,6 +189,24 @@ waitingForInput proc uses RAX RCX RDX R8 R9 R10 R11
 
 waitingForInput endp
 
+; Проверяет находится ли число в диапазоне word'а. 
+; Число должно находиться в RAX 
+; Сделает R11 = 0, если число не выходит за пределы
+; и R11 = 1 в противном случае
+checkForOverflow proc 
+    cmp RAX, 32767
+    jg overflow 
+    cmp RAX, -32768
+    jl overflow 
+    
+    mov R11, 0 
+    ret
+
+    overflow: 
+        mov R11, 1 
+        ret
+checkForOverflow endp
+
 mainCRTStartup proc
     STACKALLOC 0
 
@@ -211,6 +230,10 @@ mainCRTStartup proc
     cmp R10, 1
     je incorrect
 
+    call checkForOverflow
+    cmp R11, 1
+    je overflow
+
     lea RAX, bInput
     push RAX
     call PrintString
@@ -218,7 +241,18 @@ mainCRTStartup proc
     call ReadString
     cmp R10, 1
     je incorrect
-    jne correct
+
+    call checkForOverflow 
+    cmp R11, 1 
+    je overflow 
+
+    jmp correct 
+
+    overflow: 
+        lea RAX, overflowError 
+        push RAX 
+        call PrintString 
+        jmp exit
 
     incorrect:
         lea RAX, invalidChar
