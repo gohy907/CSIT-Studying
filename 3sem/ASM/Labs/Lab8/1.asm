@@ -24,25 +24,26 @@ newLine db 0Dh, 0Ah, 0
 
 STACKALLOC macro arg
     push R15
-    mov R15, RSP
-    sub RSP, 8*4
-    if arg
-        sub RSP, 8*arg
+    mov R15, RSP        ; Здесь будет храниться указатель на старый стек
+    sub RSP, 8*4        ; Освободим в стеке место под 4 обязательных аргумента 
+    if arg              ; Если число аргумента макроса не ноль, то
+        sub RSP, 8*arg  ; Освободим место и под них
     endif
-    and SPL, 0F0h
+    and SPL, 0F0h       ; Выровняем стек по 16-байтовой границе
 endm
 
 STACKFREE macro 
-    mov RSP, R15
-    pop R15
+    mov RSP, R15        ; Занесём в регистр RSP значение, сохранённое в R15 
+    pop R15             ; Извлечем из стека старое значение
 endm
 
 NULL_FIFTH_ARG macro
-    mov qword ptr [RSP + 32], 0
+    mov qword ptr [RSP + 32], 0 ; Устанавливает пятый аргумент для функций WinAPI в 0
 endm
 
 .code
 
+; Выводит новую строку на экран
 PrintNL proc 
     push RAX
     lea RAX, newLine
@@ -52,6 +53,7 @@ PrintNL proc
     ret
 PrintNL endp
 
+; Выводит строку
 ; адрес строки должен находиться в RAX
 PrintString proc uses RAX RCX RDX R8 R9, string: QWORD  
     local bytesWritten: qword 
@@ -71,117 +73,123 @@ PrintString proc uses RAX RCX RDX R8 R9, string: QWORD
     ret 8
 PrintString endp
 
+; Чтение знакового числа из консоли
+; Если в консоль ввели знаковое число, то оно запишется в RAX и R11 = 0 
+; Иначе RAX не изменится и R11 = 1
 ReadString proc uses RBX RCX RDX R8 R9
-    local ReadStr[64]: byte,
+    local ReadStr[64]: byte,  ; Локальный переменные
           bytesRead: dword
     STACKALLOC 2
-    mov RCX, hStdInput
-    lea RDX, readStr
+
+    mov RCX, hStdInput        ; Заполняем переменные
+    lea RDX, readStr          ; для вызова ReadConsoleA
     mov R8, 64
     lea R9, bytesRead
     NULL_FIFTH_ARG
     call ReadConsoleA
+
     xor RCX, RCX
-    mov ECX, bytesRead
-    sub ECX, 2
+    mov ECX, bytesRead        ; Количество прочитанных байт
+    sub ECX, 2                ; Вычитаем перенос строки и сдвиг каретки
 
     xor RBX, RBX
-    mov R8, 1
+    mov R8, 1                 ; Степень 10
 
-    stringloop:
-        dec RCX
-        cmp RCX, -1
-        je scanningComplete
+    stringloop:               ; Цикл записи цифр в строку
+        dec RCX               ; Уменьшим счётчик RCX на 1
+        cmp RCX, -1           ; Если прошли всю строку, то
+        je scanningComplete   ; Выходим из цикла
 
-        xor RAX, RAX
-        mov AL, readStr[RCX]
-        cmp AL, '-'
-        jne eval
-        neg RBX
-
-        cmp RCX, 0 
-        je scanningComplete 
-        jmp error
-
-    eval:
-        cmp AL, 30h
-        jl error
-        cmp AL, 39h
-        jg error
-
-        sub RAX, 30h
-        mul R8
-        add RBX, RAX
-        mov RAX, 10
-        mul R8
-        mov R8, RAX
-        jmp stringloop
+        xor RAX, RAX          
+        mov AL, readStr[RCX]  ; Получаем символ из строки 
+        cmp AL, '-'           ; Если это не '-', 
+        jne eval              ; то проверяем является ли символ числом в eval,
+        neg RBX               ; иначе меняем знак у RBX 
         
+        cmp RCX, 0            ; Если мы встретили минус на первом символе,
+        je scanningComplete   ; то всё хорошо, заканчиваем цикл
+        jmp error             ; Иначе это неправильно введённое число, ошибка
 
+        eval:                 ; Проверяем является ли символ числом
+            cmp AL, 30h       ; ASCII код числа должен находиться между 30h и 39h
+            jl error          ; Если это не так, то это ошибка
+            cmp AL, 39h
+            jg error
 
-    scanningComplete:
-        mov R10, 0
-        mov RAX, RBX
+            sub RAX, 30h      ; Если это всё-таки число, то умножаем его на соответствующую
+            mul R8            ; степень 10 и прибавляем к RBX
+            add RBX, RAX
+            mov RAX, 10       ; Увеличим RAX в 10 раз для записи следующей цифры
+            mul R8            ; в следующем разряде
+            mov R8, RAX
+            jmp stringloop    ; Затем продолжим выбирать цифры из строки
+
+    scanningComplete:         ; Успешное завершение программы
+        mov R10, 0            ; Ошибки нет, R10 = 0
+        mov RAX, RBX          ; Заносим полученное число в RAX
         STACKFREE
         ret
 
-
-    error:
-        mov R10, 1
+    error:                    ; Произошла какая-то ошибка
+        mov R10, 1            ; R10 = 1, RAX не перезаписываем
         STACKFREE
         ret
 
 ReadString endp
 
+; Выведет знаковое число в консоль
 PrintNumber proc uses RAX RCX RDX R8 R9 R10 R11, num: QWORD 
-    local numberStr[22]: byte 
+    local numberStr[22]: byte     ; Локальный переменные
     STACKALLOC 1
-    xor R8, R8 
+    xor R8, R8                    ; Индекс символа в строке
     mov RAX, num
-    cmp num, 0
-    jge positive
-    mov numberStr[R8], '-'
-    inc R8
-    neg RAX
+    cmp num, 0                    ; Сравниваем число с 0  
+    jge positive                  ; Если оно меньше 0,
+    mov numberStr[R8], '-'        ; то в строке сначала записываем '-'
+    inc R8                        ; Пропускаем индекс 0, в нём уже '-'
+    neg RAX                       ; Для упрощения работы сделаем RAX отрицательным
 
-    positive:
-    mov RBX, 10
-    xor RCX, RCX
+    positive:                     ; Если же число положительное, то всех предыдущих шагов делать не надо
+    mov RBX, 10                   ; RBX = 10 для последующего деления
+    xor RCX, RCX                  ; В RCX будем записывать длину строки
 
-    divisionloop:
+    divisionloop:                 ; Разбор числа на цифры
         xor RDX, RDX
-        div RBX
-        add RDX, 30h
-        push RDX
-        inc RCX
-        cmp RAX, 0 
-        jne divisionloop 
+        div RBX                   ; Делим RAX на RBX, остаток занесётся в RDX
+        add RDX, 30h              ; Делаем RDX цифрой для вывода на экран
+        push RDX                  ; И заносим в стек для дальнейшей записи в строку
+        inc RCX                   ; Увеличиваем длину строки
+        cmp RAX, 0                ; Если делимое не 0, 
+        jne divisionloop          ; то продолжаем делить
 
-    stack:
+    makeString:                   ; Записываем полученные ранее цифры из стека в строку
         pop RDX 
         mov numberStr[R8], DL 
         inc R8 
-        loop stack 
+        loop makeString           ; Делаем так RCX раз 
 
-    mov numberStr[R8], 0 
-    lea RAX, numberStr
+    mov numberStr[R8], 0          ; Добавляем в конец строки нуль-терминатор
+
+    lea RAX, numberStr            ; Выводим полученную строку на экран
     push RAX 
     call PrintString 
     STACKFREE
     ret 8 
 PrintNumber endp
 
+; Выводит сообщение о ожидании ввода одной клавишы
+; И ждёт ввода одной клавишы
 waitingForInput proc uses RAX RCX RDX R8 R9 R10 R11 
-    local readStr: byte, bytesRead: dword
+    local readStr: byte, bytesRead: dword ; Локальные переменные
     STACKALLOC 1
 
-    lea RAX, pressAnyKey
+    lea RAX, pressAnyKey                  ; Выводим строку с сообщением       
     push RAX
     call PrintString
 
     mov RCX, hStdInput
     lea RDX, readStr
-    mov R8, 1
+    mov R8, 1                             ; Читаем 1 байт с консоли
     lea R9, bytesRead
     NULL_FIFTH_ARG
     call ReadConsoleA
@@ -196,85 +204,82 @@ waitingForInput endp
 ; Сделает R11 = 0, если число не выходит за пределы
 ; и R11 = 1 в противном случае
 checkForOverflow proc 
-    cmp RAX, 32767
-    jg overflow 
-    cmp RAX, -32768
+    cmp RAX, 32767   ; Сравниваем число сначала по верхней границе,
+    jg overflow     
+    cmp RAX, -32768  ; а потом по нижней
     jl overflow 
     
-    mov R11, 0 
+    mov R11, 0       ; Если переполнения нет, то R11 = 0
     ret
 
     overflow: 
-        mov R11, 1 
+        mov R11, 1   ; Если переполнение есть, то R11 = 1
         ret
 checkForOverflow endp
 
 mainCRTStartup proc
     STACKALLOC 0
 
-    ; Получение дескрипторов для записи
-    mov RCX, STD_OUTPUT_HANDLE
+    mov RCX, STD_OUTPUT_HANDLE ; Получение дескрипторов для записи
     call GetStdHandle
     mov hStdOutput, RAX
 
-
-    ; Получение дескрипторов для чтения
-    mov RCX, STD_INPUT_HANDLE
+    mov RCX, STD_INPUT_HANDLE ; Получение дескрипторов для чтения
     call GetStdHandle
     mov hStdInput, RAX
 
-    lea RAX, aInput
+    lea RAX, aInput           ; Выводим строку 'a = '
     push RAX
     call PrintString
 
-    call ReadString
-    mov RBX, RAX
-    cmp R10, 1
-    je incorrect
+    call ReadString           ; Читаем с консоли число a
+    mov RBX, RAX  
+    cmp R10, 1                ; Если возникла ошибка, то
+    je incorrect              ; обрабатываем её
 
-    call checkForOverflow
-    cmp R11, 1
-    je overflow
+    call checkForOverflow     ; Проверяем число на соответствие диапазону
+    cmp R11, 1                ; Если превышает, то 
+    je overflow               ; обрабатываем ошибку
 
-    lea RAX, bInput
-    push RAX
-    call PrintString
-
-    call ReadString
-    cmp R10, 1
-    je incorrect
-
-    call checkForOverflow 
-    cmp R11, 1 
-    je overflow 
-
+    lea RAX, bInput           ; Выводим строку 'b = '
+    push RAX                                         
+    call PrintString                                 
+                                                     
+    call ReadString           ; Читаем с консоли число b
+    cmp R10, 1                                       
+    je incorrect              ; Если возникла ошибка, то
+                              ; обрабатываем её
+    call checkForOverflow                            
+    cmp R11, 1                ; Проверяем число на сооответствие диапазону
+    je overflow               ; Если превышает, то 
+                              ; обрабатываем ошибку
     jmp correct 
 
-    overflow: 
-        lea RAX, overflowError 
+    overflow:                  ; Обрабатываем переполнение 
+        lea RAX, overflowError ; Выводим сообщение о переполнении
         push RAX 
         call PrintString 
-        jmp exit
+        jmp exit               ; Выходим из программы
 
-    incorrect:
-        lea RAX, invalidChar
+    incorrect:                 ; Обрабатываем ошибку записи
+        lea RAX, invalidChar   ; Выводим сообщение об ошибке
         push RAX 
         call PrintString
-        jmp exit
+        jmp exit               ; Выходим из программы
 
-    correct:
-        push RAX 
-        push RBX
+    correct:                   ; Если всё хорошо, то печатаем информацию в консоль
+        push RAX               ; a находится в RBX  
+        push RBX               ; b находится в RAX
 
-        lea RAX, output1 
+        lea RAX, output1       ; Выводим первую часть строки вывода 
         push RAX
         call PrintString
 
-        mov RAX, const
+        mov RAX, const         ; Выводим константу
         push RAX 
         call PrintNumber
 
-        lea RAX, output2
+        lea RAX, output2       ; Выводим вторую часть строки вывода
         push RAX 
         call PrintString
 
@@ -283,15 +288,15 @@ mainCRTStartup proc
         push RAX 
         push RBX
 
-        sub const, RBX
+        sub const, RBX        ; Делаем арифметические действия
         add RAX, const
        
         push RAX
-        call PrintNumber
+        call PrintNumber      ; Выводим получившееся число
 
-        call PrintNL
+        call PrintNL          ; Выводим новую строку
 
-        lea RAX, max 
+        lea RAX, max          ; Вывод строки с максимумом
         push RAX
         call PrintString
 
@@ -300,13 +305,13 @@ mainCRTStartup proc
 
         push RAX 
         push RBX
-        sub RAX, RBX 
+        sub RAX, RBX          ; Если RAX - RBX > 0, то RAX максимум
         cmp RAX, 0 
         pop RBX 
         pop RAX
         jg bgreater
 
-        mov RAX, RBX
+        mov RAX, RBX         ; Иначе RBX максимум
         push RAX 
         call PrintNumber
         jmp exit
