@@ -13,7 +13,10 @@ hStdInput qword ?
 hStdOutput qword ?
 aInput db 'a = ', 0
 bInput db 'b = ', 0 
-output db 'a + b = ', 0 
+const dq 2C69h
+output1 db 'F = ', 0
+output2 db ' - a + b = ', 0
+max db 'max(a, b) = ', 0
 invalidChar db 'Invalid character', 0 
 pressAnyKey db 'Press any key to exit...', 0 
 newLine db 0Dh, 0Ah, 0
@@ -186,7 +189,7 @@ waitingForInput proc uses RAX RCX RDX R8 R9 R10 R11
 waitingForInput endp
 
 mainCRTStartup proc
-    STACKALLOC
+    STACKALLOC 0
 
     ; Получение дескрипторов для записи
     mov RCX, STD_OUTPUT_HANDLE
@@ -199,15 +202,14 @@ mainCRTStartup proc
     call GetStdHandle
     mov hStdInput, RAX
 
-
     lea RAX, aInput
     push RAX
     call PrintString
 
     call ReadString
+    mov RBX, RAX
     cmp R10, 1
     je incorrect
-    mov RBX, RAX
 
     lea RAX, bInput
     push RAX
@@ -226,12 +228,27 @@ mainCRTStartup proc
 
     correct:
         push RAX 
-        lea RAX, output 
+        push RBX
+
+        lea RAX, output1 
         push RAX
         call PrintString
-        pop RAX
-        add RAX, RBX
+
+        mov RAX, const
         push RAX 
+        call PrintNumber
+
+        lea RAX, output2
+        push RAX 
+        call PrintString
+
+        pop RBX 
+        pop RAX
+
+        sub const, RBX
+        add RAX, const
+        
+        push RAX
         call PrintNumber
 
     exit: 
