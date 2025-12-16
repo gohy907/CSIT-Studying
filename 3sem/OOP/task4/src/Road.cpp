@@ -92,15 +92,15 @@ void Road::update() {
         }),
         cars.end()
     );
-    
-    for (size_t i = 0; i < cars.size() - 1; ++i) {
+
+    for (size_t i = 0; cars.size() > i + 1; ++i) {
         Car &firstCar = cars[i];
         Car &secondCar = cars[i + 1];
-        
-        std::cout << firstCar.getPosition().x << " " << secondCar.getPosition().x << std::endl;
-        if (firstCar.getPosition().x - secondCar.getPosition().x <= CAR_WIDTH) {
-            firstCar.damage();
-            secondCar.damage();
+
+        // std::cout << firstCar.getPosition().x << " " << secondCar.getPosition().x << std::endl;
+        if (cars[i].getPosition().x - cars[i+1].getPosition().x <= CAR_WIDTH) {
+            cars[i].damage();
+            cars[i+1].damage();
         }
     }
 
