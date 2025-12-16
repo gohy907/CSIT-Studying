@@ -100,11 +100,11 @@ Vector2 Car::getPosition() {
 }
 
 void Car::setVelocity(Vector2 velocity){
-    this->activeVelocity = velocity;
+    activeVelocity = velocity;
 }
 
 Vector2 Car::getVelocity(){
-    return this->activeVelocity;
+    return activeVelocity;
 }
 
 void Car::update() {
@@ -115,7 +115,7 @@ void Car::update() {
 
 void Car::draw(bool isDamaged){
     Rectangle* texturePointer;
-    if (isDamaged) {
+    if (!isDamaged) {
         texturePointer = &texture;
     } else {
         texturePointer = &damagedTexture;
@@ -129,9 +129,13 @@ bool Car::isDamaged() {
 }
 
 void Car::damage() {
-    this->damaged = true;
+    previousVelocity = activeVelocity;
+    activeVelocity = Vector2(0, 0);
+    damaged = true;
 }
 
 void Car::repair() {
-    this->damaged = false;
+    activeVelocity = previousVelocity;
+    previousVelocity = Vector2(0, 0);
+    damaged = false;
 }
