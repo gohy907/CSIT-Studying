@@ -15,6 +15,11 @@ const float CAR_SPAWN_X = ROAD_X + ROAD_BORDER_WIDTH - CAR_WIDTH;
 const float CAR_SPAWN_Y = (ROAD_Y + ROAD_Y + ROAD_HEIGHT)/2 - CAR_HEIGHT/2;
 
 
+std::random_device rd; 
+std::mt19937 gen(rd());
+std::uniform_int_distribution<int> chanceDistribution(1, 30); 
+std::uniform_int_distribution<int> speedDistribution(5, 40);
+std::uniform_int_distribution<int> colorDistribution(0, 3);
 
 class Road {
 private:
@@ -88,17 +93,16 @@ void Road::update() {
     );
     
     if (this->isRandomMovementActive) {
-        if (cars.size() != 0) {
-            std::random_device rd; 
-            std::mt19937 gen(rd());
-            std::uniform_int_distribution<int> dist(1, 60); 
-            int chance = dist(gen);
-            if (chance == 1) {
-                Car randomCar = Car(Vector2(CAR_SPAWN_X, CAR_SPAWN_Y), Vector2(10, 0), BLUE_CAR_SPRITE, GetCarsAtlas());
+            int chance = chanceDistribution(gen);
+            if ((cars.size() != 0 && cars[cars.size() - 1].getPosition().x > CAR_WIDTH || cars.size() == 0) && chance == 1) {
+                Car randomCar = Car(
+                    Vector2(CAR_SPAWN_X, CAR_SPAWN_Y), 
+                    Vector2(speedDistribution(gen), 0), 
+                    COLORS[colorDistribution(gen)], 
+                    GetCarsAtlas()
+                );
                 this->cars.push_back(randomCar);
             }
-
-        }
     }
 }
 void Road::draw() {
