@@ -41,6 +41,8 @@ class Car {
         Texture2D atlas;
         float width = CAR_WIDTH;
         float height = CAR_HEIGHT;
+
+        bool damaged = false;
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
         Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
@@ -56,6 +58,10 @@ class Car {
         
         void update();
         void draw(bool isDamaged);
+
+        bool isDamaged();
+        void damage();
+        void repair();
 };
 
 Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas) {
@@ -115,4 +121,16 @@ void Car::draw(bool isDamaged){
     }
 
     DrawTexturePro(atlas, *texturePointer, Rectangle{position.x, position.y, width, height}, Vector2{0, 0}, 0, WHITE);
+}
+
+bool Car::isDamaged() {
+    return this->damaged;
+}
+
+void Car::damage() {
+    this->damaged = true;
+}
+
+void Car::repair() {
+    this->damaged = false;
 }

@@ -109,7 +109,7 @@ void Road::update() {
 }
 void Road::draw() {
     for (size_t i = 0; i < cars.size(); ++i) {
-        cars[i].draw(false);
+        cars[i].draw(cars[i].isDamaged());
     }
 
     DrawRectangleRec(this->top, this->borderColor);
