@@ -43,22 +43,13 @@ Font LoadRussianFontStatic(int fontSize) {
     return font;
 }
 
-Texture2D LoadCarTextureStatic() {
-    Image img = LoadImageFromMemory(".png", CARS_data, CARS_size);
-    Texture2D texture = LoadTextureFromImage(img);
-    UnloadImage(img);
-    return texture;
-}
-
-int main()
-{
+int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [core] example - basic window");
     GuiSetStyle(DEFAULT, TEXT_SIZE, FONT_SIZE);
     Font font = LoadRussianFontStatic(FONT_SIZE);
     GuiSetFont(font);
     Road mainRoad = Road(ROAD_X, ROAD_Y, ROAD_WIDTH, ROAD_HEIGHT, ROAD_BORDER_WIDTH, BLACK, BLACK, RAYWHITE);
-    Texture2D atlas = LoadCarTextureStatic();
-    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE, atlas);
+    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE);
     SetTargetFPS(60);
     mainRoad.addCar(car);
     int defaultSpeed = 10;

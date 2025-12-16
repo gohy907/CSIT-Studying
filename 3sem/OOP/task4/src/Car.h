@@ -15,7 +15,9 @@ class Car {
         float height = 85;
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source);
         Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Rectangle source);
         
         float getWidth();
         float getHeight();

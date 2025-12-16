@@ -1,8 +1,16 @@
 #include "raylib.h"
 #include "raymath.h"
+#include "resources.h"
 
 const float CAR_WIDTH = 120;
 const float CAR_HEIGHT = 85;
+
+Texture2D LoadCarTextureStatic() {
+    Image img = LoadImageFromMemory(".png", CARS_data, CARS_size);
+    Texture2D texture = LoadTextureFromImage(img);
+    UnloadImage(img);
+    return texture;
+}
 
 class Car {
     private:
@@ -15,8 +23,10 @@ class Car {
         float height = CAR_HEIGHT;
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source);
         Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);
-        
+        Car(Vector2 position, Vector2 velocity, Rectangle source);
+
         float getWidth();
         float getHeight();
 
@@ -40,12 +50,28 @@ Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle sou
     this->atlas = atlas;
 }
 
+Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source) {
+    this-> position = position;
+    this-> velocity = velocity;
+    this->acceleration = acceleration;
+    this->source = source;
+    this->atlas = LoadCarTextureStatic();
+}
+
 Car::Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas) {
     this-> position = position;
     this-> velocity = velocity;
     this->acceleration = Vector2{0.0, 0.0};
     this->source = source;
     this->atlas = atlas;
+}
+
+Car::Car(Vector2 position, Vector2 velocity, Rectangle source) {
+    this-> position = position;
+    this-> velocity = velocity;
+    this->acceleration = Vector2{0.0, 0.0};
+    this->source = source;
+    this->atlas = LoadCarTextureStatic();
 }
 
 float Car::getWidth() {
