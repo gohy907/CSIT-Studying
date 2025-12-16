@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include <vector>
-#include <iostream>
 #include "Car.h"
+#include "resourcesControl.h"
 const float ROAD_X = 50;
 const float ROAD_Y = 100;
 const float ROAD_WIDTH = 1820;

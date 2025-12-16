@@ -3,16 +3,12 @@
 #include "raygui.h"
 #include "Road.h"
 #include "resources.h"
+#include "resourcesControl.h"
 
 const float SCREEN_WIDTH = 1920;
 const float SCREEN_HEIGHT = 1080;
 
 const float FONT_SIZE = 30;
-
-const Rectangle RED_CAR_SPRITE = Rectangle{0, 0, CAR_WIDTH, CAR_HEIGHT};
-const Rectangle GREEN_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1), 0, CAR_WIDTH, CAR_HEIGHT}; 
-const Rectangle YELLOW_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1) * 2, 0, CAR_WIDTH, CAR_HEIGHT};
-const Rectangle BLUE_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1) * 3, 0, CAR_WIDTH, CAR_HEIGHT};
 
 const Rectangle SPEED_SLIDER = Rectangle{150, 300, 340, 70};
 
@@ -45,11 +41,12 @@ Font LoadRussianFontStatic(int fontSize) {
 
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [core] example - basic window");
+    InitResources();
     GuiSetStyle(DEFAULT, TEXT_SIZE, FONT_SIZE);
     Font font = LoadRussianFontStatic(FONT_SIZE);
     GuiSetFont(font);
     Road mainRoad = Road(ROAD_X, ROAD_Y, ROAD_WIDTH, ROAD_HEIGHT, ROAD_BORDER_WIDTH, BLACK, BLACK, RAYWHITE);
-    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE);
+    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE, GetCarsAtlas());
     SetTargetFPS(60);
     mainRoad.addCar(car);
     int defaultSpeed = 10;
@@ -67,7 +64,8 @@ int main() {
             ClearBackground(RAYWHITE);
         EndDrawing();
     }
-
+    
+    UnloadResources();
     CloseWindow();
 
     return 0;
