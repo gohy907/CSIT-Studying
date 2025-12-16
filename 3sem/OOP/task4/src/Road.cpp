@@ -3,6 +3,7 @@
 #include "Car.h"
 #include "resourcesControl.h"
 #include <random>
+#include <algorithm>
 
 const float ROAD_X = 50;
 const float ROAD_Y = 100;
@@ -74,12 +75,17 @@ void Road::addCar(Car car) {
 void Road::update() {
     for (size_t i = 0; i < cars.size(); ++i) {
         Car &car = cars[i];
-        if (car.getPosition().x  > top.x + top.width) {
-            cars.erase(cars.begin() + i);
-        } else {
-            car.update();
-        }
+        car.update();
     }
+
+    // Пу пу пу
+    cars.erase(
+        std::remove_if(cars.begin(), cars.end(),
+        [this](Car &car) {
+            return car.getPosition().x > top.x + top.width;
+        }),
+        cars.end()
+    );
     
     if (this->isRandomMovementActive) {
         if (cars.size() != 0) {

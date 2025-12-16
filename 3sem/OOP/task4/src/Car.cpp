@@ -92,8 +92,9 @@ void Car::setSource(Rectangle source){
 }
 
 void Car::update() {
-    position = Vector2Add(position, velocity);
-    velocity = Vector2Add(velocity, acceleration);
+    float dt = GetFrameTime() * 60;
+    position = Vector2Add(position, Vector2Scale(velocity, dt));
+    velocity = Vector2Add(velocity, Vector2Scale(acceleration, dt));
 }
 
 void Car::draw(){
