@@ -24,7 +24,8 @@ const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRI
 class Car {
     private:
         Vector2 position;
-        Vector2 velocity;
+        Vector2 previousVelocity;
+        Vector2 activeVelocity;
         Vector2 acceleration;
 
         Rectangle texture;

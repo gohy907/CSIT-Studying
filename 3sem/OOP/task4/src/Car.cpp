@@ -32,7 +32,8 @@ Texture2D LoadCarTextureStatic() {
 class Car {
     private:
         Vector2 position;
-        Vector2 velocity;
+        Vector2 previousVelocity;
+        Vector2 activeVelocity;
         Vector2 acceleration;
 
         Rectangle texture;
@@ -65,8 +66,8 @@ class Car {
 };
 
 Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas) {
-    this-> position = position;
-    this-> velocity = velocity;
+    this->position = position;
+    this->activeVelocity = velocity;
     this->acceleration = acceleration;
     this->texture = texture;
     this->damagedTexture = damagedTexture;
@@ -74,8 +75,8 @@ Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle tex
 }
 
 Car::Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas) {
-    this-> position = position;
-    this-> velocity = velocity;
+    this->position = position;
+    this->activeVelocity = velocity;
     this->acceleration = Vector2{0.0, 0.0};
     this->texture = texture;
     this->damagedTexture = damagedTexture;
@@ -99,17 +100,17 @@ Vector2 Car::getPosition() {
 }
 
 void Car::setVelocity(Vector2 velocity){
-    this->velocity = velocity;
+    this->activeVelocity = velocity;
 }
 
 Vector2 Car::getVelocity(){
-    return this->velocity;
+    return this->activeVelocity;
 }
 
 void Car::update() {
     float dt = GetFrameTime() * 60;
-    position = Vector2Add(position, Vector2Scale(velocity, dt));
-    velocity = Vector2Add(velocity, Vector2Scale(acceleration, dt));
+    position = Vector2Add(position, Vector2Scale(activeVelocity, dt));
+    activeVelocity = Vector2Add(activeVelocity, Vector2Scale(acceleration, dt));
 }
 
 void Car::draw(bool isDamaged){
