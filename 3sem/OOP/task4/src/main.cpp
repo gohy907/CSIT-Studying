@@ -26,7 +26,7 @@ Font LoadRussianFontStatic(int fontSize) {
         &charsCount
     );
 
-  Font font = LoadFontFromMemory(
+    Font font = LoadFontFromMemory(
         ".ttf",         
         HYWENHEI_data, 
         HYWENHEI_size,
@@ -34,7 +34,7 @@ Font LoadRussianFontStatic(int fontSize) {
         chars,          
         charsCount     
     );
-    
+
     UnloadCodepoints(chars);
     return font;
 }
