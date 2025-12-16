@@ -46,7 +46,7 @@ int main() {
     Font font = LoadRussianFontStatic(FONT_SIZE);
     GuiSetFont(font);
     Road mainRoad = Road(ROAD_X, ROAD_Y, ROAD_WIDTH, ROAD_HEIGHT, ROAD_BORDER_WIDTH, BLACK, BLACK, RAYWHITE);
-    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE, GetCarsAtlas());
+    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE, GetCarsAtlas());
     SetTargetFPS(60);
     mainRoad.addCar(car);
     int defaultSpeed = 10;

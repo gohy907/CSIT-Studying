@@ -24,7 +24,7 @@ file(GLOB_RECURSE PROJECT_SOURCES
 # Статические ресурсы
 set(STATIC_RESOURCES
     ${CMAKE_SOURCE_DIR}/static/cars.png
-    ${CMAKE_SOURCE_DIR}/static/carsDamaged.png
+    # ${CMAKE_SOURCE_DIR}/static/carsDamaged.png
     ${CMAKE_SOURCE_DIR}/static/HYWenHei.ttf
 )
 

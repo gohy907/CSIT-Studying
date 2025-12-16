@@ -95,10 +95,12 @@ void Road::update() {
     if (this->isRandomMovementActive) {
             int chance = chanceDistribution(gen);
             if ((cars.size() != 0 && cars[cars.size() - 1].getPosition().x > CAR_WIDTH || cars.size() == 0) && chance == 1) {
+                int index = colorDistribution(gen);
                 Car randomCar = Car(
                     Vector2(CAR_SPAWN_X, CAR_SPAWN_Y), 
                     Vector2(speedDistribution(gen), 0), 
-                    COLORS[colorDistribution(gen)], 
+                    COLORS[index],
+                    DAMAGED_COLORS[index],
                     GetCarsAtlas()
                 );
                 this->cars.push_back(randomCar);
@@ -107,7 +109,7 @@ void Road::update() {
 }
 void Road::draw() {
     for (size_t i = 0; i < cars.size(); ++i) {
-        cars[i].draw();
+        cars[i].draw(false);
     }
 
     DrawRectangleRec(this->top, this->borderColor);

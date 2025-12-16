@@ -15,9 +15,9 @@ const Rectangle BLUE_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1) * 3, 0, CAR_WIDTH, C
 const Rectangle COLORS[4]{RED_CAR_SPRITE, GREEN_CAR_SPRITE, YELLOW_CAR_SPRITE, BLUE_CAR_SPRITE};
 
 const Rectangle RED_DAMAGED_CAR_SPRITE = Rectangle{0, 0, DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
-const Rectangle GREEN_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1), 0, DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
-const Rectangle YELLOW_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 2, 0, DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
-const Rectangle BLUE_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 3, 0, DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
+const Rectangle GREEN_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1), (CAR_HEIGHT + 1), DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
+const Rectangle YELLOW_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 2, (CAR_HEIGHT + 1), DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
+const Rectangle BLUE_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 3, (CAR_HEIGHT + 1), DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
 
 const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRITE, YELLOW_DAMAGED_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE};
 
@@ -26,16 +26,17 @@ class Car {
         Vector2 position;
         Vector2 velocity;
         Vector2 acceleration;
-        Rectangle source;
+
+        Rectangle texture;
+        Rectangle damagedTexture;
+
         Texture2D atlas;
-        float width = 120;
-        float height = 85;
+        float width = CAR_WIDTH;
+        float height = CAR_HEIGHT;
     public:
-        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
-        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source);
-        Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);
-        Car(Vector2 position, Vector2 velocity, Rectangle source);
-        
+        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
+
         float getWidth();
         float getHeight();
 
@@ -44,9 +45,7 @@ class Car {
         
         void setVelocity(Vector2 velocity);
         Vector2 getVelocity();
-
-        void setSource(Rectangle source);
         
         void update();
-        void draw();
+        void draw(bool isDamaged);
 };
