@@ -2,6 +2,8 @@
 #include <vector>
 #include "Car.h"
 #include "resourcesControl.h"
+#include <random>
+
 const float ROAD_X = 50;
 const float ROAD_Y = 100;
 const float ROAD_WIDTH = 1820;
@@ -10,6 +12,8 @@ const float ROAD_BORDER_WIDTH = 5;
 
 const float CAR_SPAWN_X = ROAD_X + ROAD_BORDER_WIDTH - CAR_WIDTH;
 const float CAR_SPAWN_Y = (ROAD_Y + ROAD_Y + ROAD_HEIGHT)/2 - CAR_HEIGHT/2;
+
+
 
 class Road {
 private:
@@ -25,6 +29,8 @@ private:
     Color borderColor;
     Color boundsColor;
 
+    bool isRandomMovementActive;
+
     std::vector<Car> cars;
 public:
     Road(float x, float y, float width, float height, 
@@ -36,9 +42,12 @@ public:
     void update();
     void draw();
 
+    void startRandomMovement();
+    void endRandomMovement();
+
 };
 
-Road:: Road(float x, float y, float width, float height, 
+Road::Road(float x, float y, float width, float height, 
             float thickness, Color backgroundColor, Color borderColor, Color boundsColor) {
     this->top = Rectangle{x, y, width, thickness};
     this->bottom = Rectangle{x, y + height - thickness, width, thickness};
@@ -50,6 +59,8 @@ Road:: Road(float x, float y, float width, float height,
 
     this->borderColor = borderColor;
     this->boundsColor = boundsColor;
+
+    this->isRandomMovementActive = true;
 }
 
 void Road::setCarList(std::vector<Car> cars) {
@@ -69,6 +80,20 @@ void Road::update() {
             car.update();
         }
     }
+    
+    if (this->isRandomMovementActive) {
+        if (cars.size() != 0) {
+            std::random_device rd; 
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<int> dist(1, 60); 
+            int chance = dist(gen);
+            if (chance == 1) {
+                Car randomCar = Car(Vector2(CAR_SPAWN_X, CAR_SPAWN_Y), Vector2(10, 0), BLUE_CAR_SPRITE, GetCarsAtlas());
+                this->cars.push_back(randomCar);
+            }
+
+        }
+    }
 }
 void Road::draw() {
     for (size_t i = 0; i < cars.size(); ++i) {
@@ -84,4 +109,10 @@ void Road::draw() {
     DrawRectangleRec(this->rightBounds, this->boundsColor);
 }
 
+void Road::startRandomMovement() {
+    this->isRandomMovementActive = true;
+}
 
+void Road::endRandomMovement() {
+    this->isRandomMovementActive = false;
+}

@@ -27,6 +27,8 @@ private:
     Color borderColor;
     Color boundsColor;
 
+    bool isRandomMovementActive;
+
     std::vector<Car> cars;
 public:
     Road(float x, float y, float width, float height, 
@@ -37,5 +39,7 @@ public:
 
     void update();
     void draw();
-
+    
+    void startRandomMovement();
+    void endRandomMovement();
 };
