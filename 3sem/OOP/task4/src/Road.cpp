@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <iostream>
 #include <vector>
 #include "Car.h"
 #include "resourcesControl.h"
@@ -66,7 +67,7 @@ Road::Road(float x, float y, float width, float height,
     this->borderColor = borderColor;
     this->boundsColor = boundsColor;
 
-    this->isRandomMovementActive = true;
+    this->isRandomMovementActive = false;
 }
 
 void Road::setCarList(std::vector<Car> cars) {
@@ -92,6 +93,17 @@ void Road::update() {
         cars.end()
     );
     
+    for (size_t i = 0; i < cars.size() - 1; ++i) {
+        Car &firstCar = cars[i];
+        Car &secondCar = cars[i + 1];
+        
+        std::cout << firstCar.getPosition().x << " " << secondCar.getPosition().x << std::endl;
+        if (firstCar.getPosition().x - secondCar.getPosition().x <= CAR_WIDTH) {
+            firstCar.damage();
+            secondCar.damage();
+        }
+    }
+
     if (this->isRandomMovementActive) {
             int chance = chanceDistribution(gen);
             if ((cars.size() != 0 && cars[cars.size() - 1].getPosition().x > CAR_WIDTH || cars.size() == 0) && chance == 1) {

@@ -128,13 +128,9 @@ bool Car::isDamaged() {
 }
 
 void Car::damage() {
-    previousVelocity = activeVelocity;
-    activeVelocity = Vector2(0, 0);
     damaged = true;
 }
 
 void Car::repair() {
-    activeVelocity = previousVelocity;
-    previousVelocity = Vector2(0, 0);
     damaged = false;
 }
