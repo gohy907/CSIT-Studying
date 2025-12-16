@@ -2,6 +2,14 @@
 #include <vector>
 #include <iostream>
 #include "Car.h"
+const float ROAD_X = 50;
+const float ROAD_Y = 100;
+const float ROAD_WIDTH = 1820;
+const float ROAD_HEIGHT = 150;
+const float ROAD_BORDER_WIDTH = 5;
+
+const float CAR_SPAWN_X = ROAD_X + ROAD_BORDER_WIDTH - CAR_WIDTH;
+const float CAR_SPAWN_Y = (ROAD_Y + ROAD_Y + ROAD_HEIGHT)/2 - CAR_HEIGHT/2;
 
 class Road {
 private:

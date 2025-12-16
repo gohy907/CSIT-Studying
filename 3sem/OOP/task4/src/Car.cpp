@@ -1,6 +1,9 @@
 #include "raylib.h"
 #include "raymath.h"
 
+const float CAR_WIDTH = 120;
+const float CAR_HEIGHT = 85;
+
 class Car {
     private:
         Vector2 position;
@@ -8,8 +11,8 @@ class Car {
         Vector2 acceleration;
         Rectangle source;
         Texture2D atlas;
-        float width = 120;
-        float height = 85;
+        float width = CAR_WIDTH;
+        float height = CAR_HEIGHT;
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle source, Texture2D atlas);
         Car(Vector2 position, Vector2 velocity, Rectangle source, Texture2D atlas);

@@ -1,6 +1,9 @@
 #pragma once
 #include "raylib.h"
 
+const float CAR_WIDTH = 120;
+const float CAR_HEIGHT = 85;
+
 class Car {
     private:
         Vector2 position;

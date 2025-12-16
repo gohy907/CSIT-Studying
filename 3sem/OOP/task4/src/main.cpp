@@ -7,17 +7,6 @@
 const float SCREEN_WIDTH = 1920;
 const float SCREEN_HEIGHT = 1080;
 
-const float ROAD_X = 50;
-const float ROAD_Y = 100;
-const float ROAD_WIDTH = 1820;
-const float ROAD_HEIGHT = 150;
-const float ROAD_BORDER_WIDTH = 5;
-
-const float CAR_WIDTH = 120;
-const float CAR_HEIGHT = 85;
-const float CAR_SPAWN_X = ROAD_X + ROAD_BORDER_WIDTH - CAR_WIDTH;
-const float CAR_SPAWN_Y = (ROAD_Y + ROAD_Y + ROAD_HEIGHT)/2 - CAR_HEIGHT/2;
-
 const float FONT_SIZE = 30;
 
 const Rectangle RED_CAR_SPRITE = Rectangle{0, 0, CAR_WIDTH, CAR_HEIGHT};
@@ -42,12 +31,12 @@ Font LoadRussianFontStatic(int fontSize) {
     );
 
   Font font = LoadFontFromMemory(
-        ".ttf",           // fileType (расширение)
-        HYWENHEI_data,  // data
-        HYWENHEI_size,  // dataSize  
-        fontSize,         // fontSize
-        chars,            // codepoints
-        charsCount        // codepointCount
+        ".ttf",         
+        HYWENHEI_data, 
+        HYWENHEI_size,
+        fontSize,        
+        chars,          
+        charsCount     
     );
     
     UnloadCodepoints(chars);
