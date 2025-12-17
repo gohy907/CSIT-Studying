@@ -24,6 +24,12 @@ const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRI
 const float PAUSE_DURATION = 3;
 const float ACCELERATION_DURATION = 1;
 
+enum typeOfDamage {
+    front,
+    rear,
+    None
+};
+
 class Car {
     private:
         Vector2 position;
@@ -39,10 +45,11 @@ class Car {
         float height = CAR_HEIGHT;
 
         bool damaged = false;
+        typeOfDamage damageType;
 
-        float collisionTime = 0;  
-        float invincibilityTime = 0;
+        float collisionStartTime = 0;  
         float slowdownStartTime = 0;
+
 
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
@@ -72,4 +79,13 @@ class Car {
 
         void setCollisionTime(float time);
         float getCollisionTime();
+
+        void makeInvincible();
+        bool isInvincible();
+
+        enum typeOfDamage getDamageType();
+        void setDamageType(enum typeOfDamage type);
+
+        Vector2 getTargetVelocity();
+        void setTargetVelocity(Vector2 velocity);
 };

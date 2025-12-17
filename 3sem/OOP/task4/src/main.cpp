@@ -55,9 +55,11 @@ int main() {
         BeginDrawing();
             GuiValueBox(SPEED_SLIDER, "Скорость ", &defaultSpeed, 0, 40, true);
             if (GuiButton(CAR_SPAWN_BUTTON, "Создать новую машину")) {
-                mainRoad.addCar(car);
+                Car newCar = Car(Vector2{CAR_SPAWN_X, CAR_SPAWN_Y}, 
+                                 Vector2{(float)defaultSpeed, 0},
+                                 BLUE_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE, GetCarsAtlas());
+                mainRoad.addCar(newCar);
             }
-            car.setVelocity(Vector2{(float)defaultSpeed, 0});
             GuiButton(Rectangle{500, 500, 30, 30}, "<");
             mainRoad.draw();
             mainRoad.update();
