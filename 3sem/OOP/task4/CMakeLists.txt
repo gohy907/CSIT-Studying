@@ -13,7 +13,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Подключаем raylib
 add_subdirectory(external/raylib)
-add_compile_definitions(RAYGUI_IMPLEMENTATION)
 
 # Источники проекта
 file(GLOB_RECURSE PROJECT_SOURCES

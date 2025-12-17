@@ -1,18 +1,15 @@
+// main.cpp
 #include "raylib.h"
-#include "Car.h"
+
+#define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#undef RAYGUI_IMPLEMENTATION
+
+#include "Car.h"
 #include "Road.h"
 #include "resources.h"
 #include "resourcesControl.h"
-
-const float SCREEN_WIDTH = 1920;
-const float SCREEN_HEIGHT = 1080;
-
-const float FONT_SIZE = 30;
-
-const Rectangle SPEED_SLIDER = Rectangle{150, 300, 340, 70};
-
-const Rectangle CAR_SPAWN_BUTTON = Rectangle{500, 300, 340, 70};
+#include "constants.h"
 
 // В FontUtils.cpp или main.cpp
 

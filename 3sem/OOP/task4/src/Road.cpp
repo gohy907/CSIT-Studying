@@ -1,20 +1,14 @@
+// Road.cpp
 #include "raylib.h"
-#include <cstdlib>
-#include <vector>
+#include "raygui.h"      
 #include "Car.h"
 #include "resourcesControl.h"
+#include "constants.h"
+#include "raymath.h"
+#include <cstdlib>
+#include <vector>
 #include <random>
 #include <algorithm>
-
-const float ROAD_X = 50;
-const float ROAD_Y = 100;
-const float ROAD_WIDTH = 1820;
-const float ROAD_HEIGHT = 150;
-const float ROAD_BORDER_WIDTH = 5;
-
-const float CAR_SPAWN_X = ROAD_X + ROAD_BORDER_WIDTH - CAR_WIDTH;
-const float CAR_SPAWN_Y = (ROAD_Y + ROAD_Y + ROAD_HEIGHT)/2 - CAR_HEIGHT/2;
-
 
 std::random_device rd; 
 std::mt19937 gen(rd());

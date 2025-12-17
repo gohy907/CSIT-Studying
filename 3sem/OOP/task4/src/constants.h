@@ -1,0 +1,42 @@
+#pragma once
+#include "raylib.h"
+
+const float CAR_WIDTH = 120;
+const float CAR_HEIGHT = 85;
+
+const float DAMAGED_CAR_WIDTH = 130;
+const float DAMAGED_CAR_HEIGHT = 95;
+
+const Rectangle RED_CAR_SPRITE = Rectangle{0, 0, CAR_WIDTH, CAR_HEIGHT};
+const Rectangle GREEN_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1), 0, CAR_WIDTH, CAR_HEIGHT}; 
+const Rectangle YELLOW_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1) * 2, 0, CAR_WIDTH, CAR_HEIGHT};
+const Rectangle BLUE_CAR_SPRITE = Rectangle{(CAR_WIDTH + 1) * 3, 0, CAR_WIDTH, CAR_HEIGHT};
+
+const Rectangle COLORS[4]{RED_CAR_SPRITE, GREEN_CAR_SPRITE, YELLOW_CAR_SPRITE, BLUE_CAR_SPRITE};
+
+const Rectangle RED_DAMAGED_CAR_SPRITE = Rectangle{0, 0, DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
+const Rectangle GREEN_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1), (CAR_HEIGHT + 1), DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
+const Rectangle YELLOW_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 2, (CAR_HEIGHT + 1), DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
+const Rectangle BLUE_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 3, (CAR_HEIGHT + 1), DAMAGED_CAR_WIDTH, DAMAGED_CAR_HEIGHT};
+
+const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRITE, YELLOW_DAMAGED_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE};
+
+const float PAUSE_DURATION = 3;
+const float ACCELERATION_DURATION = 3;
+const float ROAD_X = 50;
+const float ROAD_Y = 100;
+const float ROAD_WIDTH = 1820;
+const float ROAD_HEIGHT = 150;
+const float ROAD_BORDER_WIDTH = 5;
+
+const float CAR_SPAWN_X = ROAD_X + ROAD_BORDER_WIDTH - CAR_WIDTH;
+const float CAR_SPAWN_Y = (ROAD_Y + ROAD_Y + ROAD_HEIGHT)/2 - CAR_HEIGHT/2;
+
+const float SCREEN_WIDTH = 1920;
+const float SCREEN_HEIGHT = 1080;
+
+const float FONT_SIZE = 30;
+
+const Rectangle SPEED_SLIDER = Rectangle{150, 300, 340, 70};
+
+const Rectangle CAR_SPAWN_BUTTON = Rectangle{500, 300, 340, 70};
