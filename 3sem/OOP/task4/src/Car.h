@@ -21,6 +21,8 @@ const Rectangle BLUE_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 3,
 
 const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRITE, YELLOW_DAMAGED_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE};
 
+const float PAUSE_DURATION = 3;
+
 class Car {
     private:
         Vector2 position;
@@ -35,6 +37,10 @@ class Car {
         float height = CAR_HEIGHT;
 
         bool damaged = false;
+
+        float collisionTime = 0;  
+        float invincibilityTime = 0;
+
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
         Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
@@ -48,10 +54,19 @@ class Car {
         void setVelocity(Vector2 velocity);
         Vector2 getVelocity();
         
+        void setAcceleration(Vector2 acceleration);
+        Vector2 getAcceleration();
+
         void update();
         void draw(bool isDamaged);
 
         bool isDamaged();
         void damage();
         void repair();
+
+        float getInvincibilityTime();
+        void setInvincibilityTime(float time);
+
+        void setCollisionTime(float time);
+        float getCollisionTime();
 };

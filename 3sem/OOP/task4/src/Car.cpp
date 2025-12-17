@@ -22,12 +22,7 @@ const Rectangle BLUE_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 3,
 
 const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRITE, YELLOW_DAMAGED_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE};
 
-Texture2D LoadCarTextureStatic() {
-    Image img = LoadImageFromMemory(".png", CARS_data, CARS_size);
-    Texture2D texture = LoadTextureFromImage(img);
-    UnloadImage(img);
-    return texture;
-}
+const float PAUSE_DURATION = 3;
 
 class Car {
     private:
@@ -43,6 +38,10 @@ class Car {
         float height = CAR_HEIGHT;
 
         bool damaged = false;
+
+        float collisionTime = 0;  
+        float invincibilityTime = 0;
+
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
         Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
@@ -56,12 +55,21 @@ class Car {
         void setVelocity(Vector2 velocity);
         Vector2 getVelocity();
         
+        void setAcceleration(Vector2 acceleration);
+        Vector2 getAcceleration();
+
         void update();
         void draw(bool isDamaged);
 
         bool isDamaged();
         void damage();
         void repair();
+
+        float getInvincibilityTime();
+        void setInvincibilityTime(float time);
+
+        void setCollisionTime(float time);
+        float getCollisionTime();
 };
 
 Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas) {
@@ -107,6 +115,21 @@ Vector2 Car::getVelocity(){
 }
 
 void Car::update() {
+    float currentTime = GetTime();
+    if (collisionTime > 0) {
+        if (currentTime - collisionTime < PAUSE_DURATION) {
+            return; 
+        }
+        collisionTime = 0;
+        damaged = false;
+    }
+    if (invincibilityTime > 0 && currentTime - invincibilityTime < 3) {
+        invincibilityTime = 0;
+    } 
+
+    if (damaged && invincibilityTime == 0) {
+        return;
+    }
     float dt = GetFrameTime() * 60;
     position = Vector2Add(position, Vector2Scale(velocity, dt));
     velocity = Vector2Add(velocity, Vector2Scale(acceleration, dt));
@@ -128,9 +151,35 @@ bool Car::isDamaged() {
 }
 
 void Car::damage() {
+    collisionTime = GetTime();
     damaged = true;
 }
 
 void Car::repair() {
+    collisionTime = 0;
     damaged = false;
+}
+
+float Car::getInvincibilityTime() {
+    return invincibilityTime;
+}
+
+void Car::setInvincibilityTime(float time) {
+    invincibilityTime = time;
+}
+
+void Car::setCollisionTime(float time) {
+    collisionTime = time;
+}
+
+float Car::getCollisionTime() {
+    return collisionTime;
+}
+
+Vector2 Car::getAcceleration() {
+    return acceleration;
+}
+
+void Car::setAcceleration(Vector2 acceleration) {
+    this->acceleration = acceleration;
 }

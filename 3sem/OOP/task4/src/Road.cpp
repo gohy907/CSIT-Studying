@@ -98,9 +98,16 @@ void Road::update() {
         Car &secondCar = cars[i + 1];
 
         // std::cout << firstCar.getPosition().x << " " << secondCar.getPosition().x << std::endl;
-        if (cars[i].getPosition().x - cars[i+1].getPosition().x <= CAR_WIDTH) {
-            cars[i].damage();
-            cars[i+1].damage();
+        if (firstCar.getPosition().x - secondCar.getPosition().x <= CAR_WIDTH) {
+            std::cout << firstCar.getCollisionTime() << " " << secondCar.getCollisionTime() << std::endl;
+            if (firstCar.isDamaged() && firstCar.getCollisionTime() == 0) {
+                firstCar.setInvincibilityTime(3);
+            }
+            else if (!firstCar.isDamaged() && !secondCar.isDamaged()) {
+                firstCar.damage();
+                secondCar.damage();
+                secondCar.setCollisionTime(secondCar.getCollisionTime() + 2);
+            }
         }
     }
 
