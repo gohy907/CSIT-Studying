@@ -112,6 +112,13 @@ void Road::update() {
             secondCar.setDamageType(typeOfDamage::None);
             secondCar.repair();
         }
+
+        if (firstCar.isDamaged() && secondCar.isDamaged()) {
+            Vector2 center = Vector2Add(
+                Vector2Subtract(firstCar.getPosition(), secondCar.getPosition()), Vector2(-CAR_WIDTH/2, CAR_HEIGHT)
+            );
+            GuiTextBox(Rectangle(center.x, center.y, CAR_WIDTH, CAR_HEIGHT), "dasd", 20, false);
+        }
     }
 
     if (this->isRandomMovementActive) {
