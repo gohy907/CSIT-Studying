@@ -104,9 +104,10 @@ void Road::update() {
                 firstCar.setInvincibilityTime(3);
             }
             else if (!firstCar.isDamaged() && !secondCar.isDamaged()) {
+                secondCar.setVelocity(firstCar.getVelocity());
                 firstCar.damage();
                 secondCar.damage();
-                secondCar.setCollisionTime(secondCar.getCollisionTime() + 2);
+                secondCar.setCollisionTime(secondCar.getCollisionTime() + 0.5);
             }
         }
     }

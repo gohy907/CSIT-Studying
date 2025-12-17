@@ -23,11 +23,13 @@ const Rectangle BLUE_DAMAGED_CAR_SPRITE = Rectangle{(DAMAGED_CAR_WIDTH + 1) * 3,
 const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRITE, YELLOW_DAMAGED_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE};
 
 const float PAUSE_DURATION = 3;
+const float ACCELERATION_DURATION = 3;
 
 class Car {
     private:
         Vector2 position;
         Vector2 velocity;
+        Vector2 targetVelocity;
         Vector2 acceleration;
 
         Rectangle texture;
@@ -41,6 +43,7 @@ class Car {
 
         float collisionTime = 0;  
         float invincibilityTime = 0;
+        float slowdownStartTime = 0;
 
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
@@ -116,12 +119,30 @@ Vector2 Car::getVelocity(){
 
 void Car::update() {
     float currentTime = GetTime();
+    float dt = GetFrameTime() * 60;
+
     if (collisionTime > 0) {
         if (currentTime - collisionTime < PAUSE_DURATION) {
             return; 
         }
+        slowdownStartTime = currentTime;
         collisionTime = 0;
         damaged = false;
+    }
+
+    if (slowdownStartTime > 0) {
+        float elapsed = currentTime - slowdownStartTime;
+
+        if (elapsed < ACCELERATION_DURATION) {
+            // Линейная интерполяция скорости
+            float t = elapsed / ACCELERATION_DURATION;  // 0.0 → 1.0
+            velocity = Vector2Lerp({0, 0}, targetVelocity, t);
+        }
+        else {
+        slowdownStartTime = 0;
+        velocity = targetVelocity;
+        }
+        // Разгон закончен
     }
     if (invincibilityTime > 0 && currentTime - invincibilityTime < 3) {
         invincibilityTime = 0;
@@ -130,7 +151,6 @@ void Car::update() {
     if (damaged && invincibilityTime == 0) {
         return;
     }
-    float dt = GetFrameTime() * 60;
     position = Vector2Add(position, Vector2Scale(velocity, dt));
     velocity = Vector2Add(velocity, Vector2Scale(acceleration, dt));
 }
@@ -152,6 +172,8 @@ bool Car::isDamaged() {
 
 void Car::damage() {
     collisionTime = GetTime();
+    targetVelocity = velocity;
+    velocity = Vector2(0, 0);
     damaged = true;
 }
 
