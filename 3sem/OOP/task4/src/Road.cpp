@@ -1,6 +1,5 @@
 #include "raylib.h"
 #include <cstdlib>
-#include <iostream>
 #include <vector>
 #include "Car.h"
 #include "resourcesControl.h"
@@ -98,40 +97,21 @@ void Road::update() {
         float currentTime = GetTime();
         Car &firstCar = cars[i];
         Car &secondCar = cars[i + 1];
-        std::cout << "adasdasdas: " << firstCar.getTargetVelocity().x << std::endl;
-        std::cout << firstCar.getDamageType() << " " << secondCar.getDamageType() << std::endl;
-        if (!firstCar.isDamaged() && !secondCar.isDamaged() && 
+
+        if (!secondCar.isDamaged() && 
             firstCar.getPosition().x - secondCar.getPosition().x < CAR_WIDTH) {
             firstCar.setDamageType(typeOfDamage::rear);
-            std::cout << firstCar.getDamageType();
             secondCar.setDamageType(typeOfDamage::front);
             secondCar.setTargetVelocity(firstCar.getTargetVelocity());
             firstCar.damage();
             secondCar.damage();
         }
 
-        if (secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x >= CAR_WIDTH) {
+        if (secondCar.getDamageType() == typeOfDamage::front && firstCar.getPosition().x - secondCar.getPosition().x >= CAR_WIDTH &&
+            firstCar.getPosition().x) {
             secondCar.setDamageType(typeOfDamage::None);
             secondCar.repair();
         }
-        // if (!firstCar.isDamaged() && !secondCar.isDamaged() &&
-        //     firstCar.getPosition().x - secondCar.getPosition().x <= CAR_WIDTH) {
-        //     firstCar.damage();
-        //     secondCar.setVelocity(firstCar.getVelocity());
-        //     secondCar.damage();
-        // }
-        //
-        // float collisionTime = firstCar.getCollisionTime(); 
-        // if (collisionTime > 0) {
-        //     if (currentTime - collisionTime >= PAUSE_DURATION) {
-        //         firstCar.repair();
-        //         firstCar.makeInvincible();
-        //     }
-        // }
-        //
-        // if (secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x > CAR_WIDTH) {
-        //     secondCar.repair();
-        // }
     }
 
     if (this->isRandomMovementActive) {

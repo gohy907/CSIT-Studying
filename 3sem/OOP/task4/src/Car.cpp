@@ -1,7 +1,5 @@
 #include "raylib.h"
-#include <iostream>
 #include "raymath.h"
-#include "resources.h"
 
 const float CAR_WIDTH = 120;
 const float CAR_HEIGHT = 85;
@@ -47,7 +45,7 @@ class Car {
         float height = CAR_HEIGHT;
 
         bool damaged = false;
-        typeOfDamage damageType;
+        typeOfDamage damageType = typeOfDamage::None;
 
         float collisionStartTime = 0;  
         float slowdownStartTime = 0;
@@ -75,15 +73,6 @@ class Car {
         bool isDamaged();
         void damage();
         void repair();
-
-        float getInvincibilityTime();
-        void setInvincibilityTime(float time);
-
-        void setCollisionTime(float time);
-        float getCollisionTime();
-
-        void makeInvincible();
-        bool isInvincible();
 
         enum typeOfDamage getDamageType();
         void setDamageType(enum typeOfDamage type);
@@ -140,7 +129,6 @@ void Car::update() {
     float currentTime = GetTime();
     float dt = GetFrameTime() * 60;
 
-    std::cout << collisionStartTime << std::endl;
 
     if (damageType == typeOfDamage::rear && currentTime - collisionStartTime >= PAUSE_DURATION) {
         this->repair();
@@ -159,20 +147,7 @@ void Car::update() {
         slowdownStartTime = 0;
         velocity = targetVelocity;
         }
-        // Разгон закончен
     }
-    // if (invincibilityTime > 0) {
-    //     float elapsed = currentTime - invincibilityStartTime;
-    //     if (elapsed < invincibilityTime) {
-    //     }
-    //     else {
-    //         invincibilityTime = 0;
-    //     }
-    // } 
-
-    // if (damaged && !invincible) {
-    //     return;
-    // }
     
     if (damaged) {
         return;
@@ -198,7 +173,6 @@ bool Car::isDamaged() {
 
 void Car::damage() {
     if (damageType == typeOfDamage::rear) {
-        std::cout << "ASDJASLDJLKASJD";
         collisionStartTime = GetTime();
     }
     velocity = Vector2(0, 0);
@@ -206,25 +180,10 @@ void Car::damage() {
 }
 
 void Car::repair() {
+    damageType = typeOfDamage::None;
     slowdownStartTime = GetTime();
     damaged = false;
 }
-
-// float Car::getInvincibilityTime() {
-//     return invincibilityTime;
-// }
-//
-// void Car::setInvincibilityTime(float time) {
-//     invincibilityTime = time;
-// }
-
-// void Car::setCollisionTime(float time) {
-//     collisionTime = time;
-// }
-//
-// float Car::getCollisionTime() {
-//     return collisionTime;
-// }
 
 Vector2 Car::getAcceleration() {
     return acceleration;
@@ -233,15 +192,6 @@ Vector2 Car::getAcceleration() {
 void Car::setAcceleration(Vector2 acceleration) {
     this->acceleration = acceleration;
 }
-
-// void Car::makeInvincible() {
-//     invincible = true;
-// }
-//
-// bool Car::isInvincible() {
-//     return invincible;
-// }
-//
 
 enum typeOfDamage Car::getDamageType() {
     return damageType;
