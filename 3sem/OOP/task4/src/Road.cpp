@@ -1,4 +1,5 @@
 // Road.cpp
+
 #include "raylib.h"
 #include "raygui.h"      
 #include "Car.h"
@@ -9,11 +10,12 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <iostream>
 
 std::random_device rd; 
 std::mt19937 gen(rd());
 std::uniform_int_distribution<int> chanceDistribution(1, 30); 
-std::uniform_int_distribution<int> speedDistribution(5, 40);
+std::uniform_int_distribution<int> speedDistribution(5, 20);
 std::uniform_int_distribution<int> colorDistribution(0, 3);
 
 class Road {
@@ -61,7 +63,7 @@ Road::Road(float x, float y, float width, float height,
     this->borderColor = borderColor;
     this->boundsColor = boundsColor;
 
-    this->isRandomMovementActive = false;
+    this->isRandomMovementActive = true;
 }
 
 void Road::setCarList(std::vector<Car> cars) {
@@ -91,6 +93,11 @@ void Road::update() {
         float currentTime = GetTime();
         Car &firstCar = cars[i];
         Car &secondCar = cars[i + 1];
+        std::cout << secondCar.getTargetVelocity().x << " " << secondCar.isSlowing << std::endl;
+        if (!secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x < 3 * CAR_WIDTH) {
+            secondCar.setTargetVelocity(firstCar.getTargetVelocity());
+            secondCar.slow();
+        }
 
         if (!secondCar.isDamaged() && 
             firstCar.getPosition().x - secondCar.getPosition().x < CAR_WIDTH) {
@@ -101,17 +108,24 @@ void Road::update() {
             secondCar.damage();
         }
 
-        if (secondCar.getDamageType() == typeOfDamage::front && firstCar.getPosition().x - secondCar.getPosition().x >= CAR_WIDTH &&
+        if (secondCar.getDamageType() == typeOfDamage::front && firstCar.getPosition().x - secondCar.getPosition().x >= 1.5 * CAR_WIDTH &&
             firstCar.getPosition().x) {
             secondCar.setDamageType(typeOfDamage::None);
+            secondCar.setTargetVelocity(firstCar.getTargetVelocity());
             secondCar.repair();
         }
 
-        if (firstCar.isDamaged() && secondCar.isDamaged()) {
-            Vector2 center = Vector2Add(
-                Vector2Subtract(firstCar.getPosition(), secondCar.getPosition()), Vector2(-CAR_WIDTH/2, CAR_HEIGHT)
-            );
-            GuiTextBox(Rectangle(center.x, center.y, CAR_WIDTH, CAR_HEIGHT), "dasd", 20, false);
+        if (firstCar.isDamaged() && secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x < CAR_WIDTH) {
+            Vector2 center = Vector2Add(firstCar.getPosition(), secondCar.getPosition());
+            center = Vector2Divide(center, Vector2(2, 2));
+            Rectangle box = Rectangle(center.x, center.y - CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT/2);
+            DrawRectangleRec(box, RED);
+            const char* text = "Авария!";
+            int textWidth = MeasureText(text, FONT_SIZE);
+            int textX = box.x + (box.width  - textWidth)/2 + 10;
+            int textY = box.y + (box.height - FONT_SIZE)/2;
+            DrawTextEx(GuiGetFont(), text, Vector2(textX, textY), FONT_SIZE, 0, BLACK);
+            // DrawTextEx(Font font, const char *text, Vector2 position, float fontSize, float spacing, Color tint)
         }
     }
 

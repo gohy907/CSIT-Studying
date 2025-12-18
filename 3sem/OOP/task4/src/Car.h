@@ -12,6 +12,7 @@ class Car {
     private:
         Vector2 position;
         Vector2 velocity;
+        Vector2 velocity2;
         Vector2 targetVelocity;
         Vector2 acceleration;
 
@@ -66,4 +67,7 @@ class Car {
 
         Vector2 getTargetVelocity();
         void setTargetVelocity(Vector2 velocity);
+
+        void slow();
+        bool isSlowing;
 };

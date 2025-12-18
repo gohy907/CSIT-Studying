@@ -1,4 +1,3 @@
-// main.cpp
 #include "raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
@@ -10,8 +9,6 @@
 #include "resources.h"
 #include "resourcesControl.h"
 #include "constants.h"
-
-// В FontUtils.cpp или main.cpp
 
 Font LoadRussianFontStatic(int fontSize) {
     int charsCount = 0;

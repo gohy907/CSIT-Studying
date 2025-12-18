@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <iostream>
 #include "raymath.h"
 #include "constants.h"
 
@@ -12,6 +13,7 @@ class Car {
     private:
         Vector2 position;
         Vector2 velocity;
+        Vector2 velocity2;
         Vector2 targetVelocity;
         Vector2 acceleration;
 
@@ -28,6 +30,8 @@ class Car {
         float collisionStartTime = 0;  
         float slowdownStartTime = 0;
 
+        bool isSlowing = false;
+        bool isAccelerating = false;
 
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
@@ -57,6 +61,8 @@ class Car {
 
         Vector2 getTargetVelocity();
         void setTargetVelocity(Vector2 velocity);
+
+        void slow();
 };
 
 Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas) {
@@ -116,14 +122,23 @@ void Car::update() {
     if (slowdownStartTime > 0) {
         float elapsed = currentTime - slowdownStartTime;
 
-        if (elapsed < ACCELERATION_DURATION) {
-            // Линейная интерполяция скорости
-            float t = elapsed / ACCELERATION_DURATION;  // 0.0 → 1.0
-            velocity = Vector2Lerp({0, 0}, targetVelocity, t);
+        float duration;
+        if (isSlowing && !isAccelerating) {
+            duration = SLOW_DURATION;
         }
         else {
-        slowdownStartTime = 0;
-        velocity = targetVelocity;
+            duration = ACCELERATION_DURATION;
+        }
+        if (elapsed < duration) {
+            // Линейная интерполяция скорости
+            float t = elapsed / duration;  // 0.0 → 1.0
+            velocity = Vector2Lerp(velocity2, targetVelocity, t);
+            std::cout << velocity.x << std::endl;
+        }
+        else {
+            slowdownStartTime = 0;
+            velocity = targetVelocity;
+            isAccelerating = false;
         }
     }
     
@@ -154,6 +169,9 @@ void Car::damage() {
         collisionStartTime = GetTime();
     }
     velocity = Vector2(0, 0);
+    // velocity2 = velocity;
+    velocity2 = Vector2(0, 0);
+    isSlowing = false;
     damaged = true;
 }
 
@@ -161,6 +179,7 @@ void Car::repair() {
     damageType = typeOfDamage::None;
     slowdownStartTime = GetTime();
     damaged = false;
+    isAccelerating = true;
 }
 
 Vector2 Car::getAcceleration() {
@@ -185,4 +204,10 @@ Vector2 Car::getTargetVelocity() {
 
 void Car::setTargetVelocity(Vector2 velocity) {
     targetVelocity = velocity;
+}
+
+void Car::slow(){
+    velocity2 = velocity;
+    slowdownStartTime = GetTime();
+    isSlowing = true;
 }
