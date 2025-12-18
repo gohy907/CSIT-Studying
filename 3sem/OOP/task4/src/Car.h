@@ -19,20 +19,27 @@ class Car {
         Rectangle texture;
         Rectangle damagedTexture;
 
-        Texture2D atlas;
+        Texture2D* atlas;
         float width = CAR_WIDTH;
         float height = CAR_HEIGHT;
 
         bool damaged = false;
-        typeOfDamage damageType;
+        typeOfDamage damageType = typeOfDamage::None;
 
         float collisionStartTime = 0;  
         float slowdownStartTime = 0;
 
+        bool isSlowing = false;
+        bool isAccelerating = false;
+        float slowUnnaturalStartTime = 0;
+        bool isSlowingUnnatural;
+        bool checkOnce = true;
 
     public:
-        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
-        Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Vector2 acceleration,
+            Rectangle texture, Rectangle damagedTexture, Texture2D* atlas);
+        Car(Vector2 position, Vector2 velocity,
+            Rectangle texture, Rectangle damagedTexture, Texture2D* atlas);
 
         float getWidth();
         float getHeight();
@@ -53,15 +60,6 @@ class Car {
         void damage();
         void repair();
 
-        float getInvincibilityTime();
-        void setInvincibilityTime(float time);
-
-        void setCollisionTime(float time);
-        float getCollisionTime();
-
-        void makeInvincible();
-        bool isInvincible();
-
         enum typeOfDamage getDamageType();
         void setDamageType(enum typeOfDamage type);
 
@@ -69,5 +67,6 @@ class Car {
         void setTargetVelocity(Vector2 velocity);
 
         void slow();
-        bool isSlowing;
+        void slowUnnatural();
+        bool isUnnaturalSlowing();
 };

@@ -23,7 +23,7 @@ const Rectangle DAMAGED_COLORS[4]{RED_DAMAGED_CAR_SPRITE, GREEN_DAMAGED_CAR_SPRI
 
 const float PAUSE_DURATION = 3;
 const float ACCELERATION_DURATION = 3;
-const float SLOW_DURATION = 0.5;
+const float SLOW_DURATION = 0.1;
 const float ROAD_X = 50;
 const float ROAD_Y = 100;
 const float ROAD_WIDTH = 1820;

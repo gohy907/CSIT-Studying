@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
+#include "raygui.h"
 #include "Car.h"
-#include "raylib.h"
 #include <vector>
 
 class Road {
@@ -30,7 +30,8 @@ public:
 
     void update();
     void draw();
-    
+
     void startRandomMovement();
     void endRandomMovement();
+
 };

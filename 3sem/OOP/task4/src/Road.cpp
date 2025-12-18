@@ -63,7 +63,7 @@ Road::Road(float x, float y, float width, float height,
     this->borderColor = borderColor;
     this->boundsColor = boundsColor;
 
-    this->isRandomMovementActive = true;
+    this->isRandomMovementActive = false;
 }
 
 void Road::setCarList(std::vector<Car> cars) {
@@ -89,12 +89,13 @@ void Road::update() {
         cars.end()
     );
 
+
     for (size_t i = 0; cars.size() > i + 1; ++i) {
         float currentTime = GetTime();
         Car &firstCar = cars[i];
         Car &secondCar = cars[i + 1];
-        std::cout << secondCar.getTargetVelocity().x << " " << secondCar.isSlowing << std::endl;
-        if (!secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x < 3 * CAR_WIDTH) {
+        // std::cout << secondCar.getTargetVelocity().x << " " << secondCar.isSlowing << std::endl;
+        if (!secondCar.isDamaged() && !secondCar.isUnnaturalSlowing() && firstCar.getPosition().x - secondCar.getPosition().x < 3 * CAR_WIDTH) {
             secondCar.setTargetVelocity(firstCar.getTargetVelocity());
             secondCar.slow();
         }
@@ -129,16 +130,32 @@ void Road::update() {
         }
     }
 
+    Vector2 mousePos = GetMousePosition();
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        for (size_t i = 0; i < cars.size(); ++i){
+            Car& car = cars[i];
+            if (!car.isDamaged()) {  // ← Только здоровые машины!
+                Rectangle carRect = {car.getPosition().x, car.getPosition().y, 
+                    car.getWidth(), car.getHeight()};
+                if (CheckCollisionPointRec(mousePos, carRect)) {
+
+                    car.slowUnnatural();  // ← Замедлить эту машину
+                    break;
+                }
+            }
+        }
+    }
     if (this->isRandomMovementActive) {
             int chance = chanceDistribution(gen);
             if ((cars.size() != 0 && cars[cars.size() - 1].getPosition().x > CAR_WIDTH || cars.size() == 0) && chance == 1) {
                 int index = colorDistribution(gen);
+                Texture2D carsAtlas = GetCarsAtlas();
                 Car randomCar = Car(
                     Vector2(CAR_SPAWN_X, CAR_SPAWN_Y), 
                     Vector2(speedDistribution(gen), 0), 
                     COLORS[index],
                     DAMAGED_COLORS[index],
-                    GetCarsAtlas()
+                    &carsAtlas
                 );
                 this->cars.push_back(randomCar);
             }

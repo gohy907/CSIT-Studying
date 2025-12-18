@@ -20,7 +20,7 @@ class Car {
         Rectangle texture;
         Rectangle damagedTexture;
 
-        Texture2D atlas;
+        Texture2D* atlas;
         float width = CAR_WIDTH;
         float height = CAR_HEIGHT;
 
@@ -32,10 +32,16 @@ class Car {
 
         bool isSlowing = false;
         bool isAccelerating = false;
+        float slowUnnaturalStartTime = 0;
+        bool isSlowingUnnatural;
+        bool checkOnce = true;
+
 
     public:
-        Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
-        Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas);
+        Car(Vector2 position, Vector2 velocity, Vector2 acceleration,
+            Rectangle texture, Rectangle damagedTexture, Texture2D* atlas);
+        Car(Vector2 position, Vector2 velocity,
+            Rectangle texture, Rectangle damagedTexture, Texture2D* atlas);
 
         float getWidth();
         float getHeight();
@@ -63,27 +69,34 @@ class Car {
         void setTargetVelocity(Vector2 velocity);
 
         void slow();
+        void slowUnnatural();
+        bool isUnnaturalSlowing();
 };
 
-Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration, Rectangle texture, Rectangle damagedTexture, Texture2D atlas) {
-    this-> position = position;
-    this-> velocity = velocity;
-    this->targetVelocity = velocity;
-    this->acceleration = acceleration;
-    this->texture = texture;
-    this->damagedTexture = damagedTexture;
-    this->atlas = atlas;
-}
+Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration,
+         Rectangle texture, Rectangle damagedTexture, Texture2D* atlas)
+    : position(position),
+      velocity(velocity),
+      velocity2(Vector2{0, 0}),
+      targetVelocity(velocity),
+      acceleration(acceleration),
+      texture(texture),
+      damagedTexture(damagedTexture),
+      atlas(atlas), 
+      damaged(false),
+      damageType(typeOfDamage::None),
+      collisionStartTime(0.0f),
+      slowdownStartTime(0.0f),
+      isSlowing(false),
+      isAccelerating(false),
+      slowUnnaturalStartTime(0.0f),
+      isSlowingUnnatural(false)
+{}
 
-Car::Car(Vector2 position, Vector2 velocity, Rectangle texture, Rectangle damagedTexture, Texture2D atlas) {
-    this-> position = position;
-    this-> velocity = velocity;
-    this->targetVelocity = velocity;
-    this->acceleration = Vector2{0.0, 0.0};
-    this->texture = texture;
-    this->damagedTexture = damagedTexture;
-    this->atlas = atlas;
-}
+Car::Car(Vector2 position, Vector2 velocity,
+         Rectangle texture, Rectangle damagedTexture, Texture2D* atlas)
+    : Car(position, velocity, Vector2{0.0f, 0.0f}, texture, damagedTexture, atlas)
+{}
 
 float Car::getWidth() {
     return width;
@@ -109,6 +122,9 @@ Vector2 Car::getVelocity(){
     return this->velocity;
 }
 
+const float DURATION_OF_UNNATURAL_SLOWDOWN = 1;
+const float ELAPSE_OF_UNNATURAL_SLOWDOWN = 1;
+
 void Car::update() {
     float currentTime = GetTime();
     float dt = GetFrameTime() * 60;
@@ -133,7 +149,6 @@ void Car::update() {
             // Линейная интерполяция скорости
             float t = elapsed / duration;  // 0.0 → 1.0
             velocity = Vector2Lerp(velocity2, targetVelocity, t);
-            std::cout << velocity.x << std::endl;
         }
         else {
             slowdownStartTime = 0;
@@ -141,7 +156,27 @@ void Car::update() {
             isAccelerating = false;
         }
     }
-    
+    if (isSlowingUnnatural && !damaged) {
+        float elapsed = currentTime - slowUnnaturalStartTime;
+        std::cout << elapsed << std::endl;
+        if (elapsed < DURATION_OF_UNNATURAL_SLOWDOWN) {
+            float t = elapsed / DURATION_OF_UNNATURAL_SLOWDOWN;  // 0.0 → 1.0
+            velocity = Vector2Lerp(velocity2, targetVelocity, t);
+        } else if (checkOnce && elapsed < DURATION_OF_UNNATURAL_SLOWDOWN + ELAPSE_OF_UNNATURAL_SLOWDOWN) {
+            checkOnce = false;
+            velocity = targetVelocity;
+            targetVelocity = velocity2;
+            velocity2 = velocity;
+        } else if (elapsed < 2 * DURATION_OF_UNNATURAL_SLOWDOWN + ELAPSE_OF_UNNATURAL_SLOWDOWN) {
+            float t = elapsed / DURATION_OF_UNNATURAL_SLOWDOWN - 1;  // 0.0 → 1.0
+            velocity = Vector2Lerp(velocity2, targetVelocity, t);
+        } else {
+            velocity = targetVelocity;
+            isSlowingUnnatural = false;
+        }
+
+
+    }
     if (damaged) {
         return;
     } 
@@ -157,7 +192,7 @@ void Car::draw(bool isDamaged){
         texturePointer = &damagedTexture;
     }
 
-    DrawTexturePro(atlas, *texturePointer, Rectangle{position.x, position.y, width, height}, Vector2{0, 0}, 0, WHITE);
+    DrawTexturePro(*atlas, *texturePointer, Rectangle{position.x, position.y, width, height}, Vector2{0, 0}, 0, WHITE);
 }
 
 bool Car::isDamaged() {
@@ -210,4 +245,20 @@ void Car::slow(){
     velocity2 = velocity;
     slowdownStartTime = GetTime();
     isSlowing = true;
+}
+
+void Car::slowUnnatural() {
+    if (isSlowingUnnatural && isAccelerating) {
+        return;
+    }
+    std::cout << "Начало: " << velocity.x << std::endl;
+    checkOnce = true;
+    velocity2 = velocity;
+    slowUnnaturalStartTime = GetTime();
+    isSlowingUnnatural = true;
+    targetVelocity = Vector2(2, 0);
+}
+
+bool Car::isUnnaturalSlowing() {
+    return isSlowingUnnatural;
 }

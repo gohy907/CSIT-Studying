@@ -36,11 +36,12 @@ Font LoadRussianFontStatic(int fontSize) {
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [core] example - basic window");
     InitResources();
+    Texture2D carsAtlas = GetCarsAtlas();
     GuiSetStyle(DEFAULT, TEXT_SIZE, FONT_SIZE);
     Font font = LoadRussianFontStatic(FONT_SIZE);
     GuiSetFont(font);
     Road mainRoad = Road(ROAD_X, ROAD_Y, ROAD_WIDTH, ROAD_HEIGHT, ROAD_BORDER_WIDTH, BLACK, BLACK, RAYWHITE);
-    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE, GetCarsAtlas());
+    Car car = Car(Vector2{CAR_SPAWN_X,CAR_SPAWN_Y}, Vector2{10, 0},  BLUE_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE, &carsAtlas);
     SetTargetFPS(60);
     mainRoad.addCar(car);
     int defaultSpeed = 10;
@@ -51,7 +52,7 @@ int main() {
             if (GuiButton(CAR_SPAWN_BUTTON, "Создать новую машину")) {
                 Car newCar = Car(Vector2{CAR_SPAWN_X, CAR_SPAWN_Y}, 
                                  Vector2{(float)defaultSpeed, 0},
-                                 BLUE_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE, GetCarsAtlas());
+                                 BLUE_CAR_SPRITE, BLUE_DAMAGED_CAR_SPRITE, &carsAtlas);
                 mainRoad.addCar(newCar);
             }
             GuiButton(Rectangle{500, 500, 30, 30}, "<");
