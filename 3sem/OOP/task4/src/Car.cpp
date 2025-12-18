@@ -34,6 +34,7 @@ class Car {
         bool isAccelerating = false;
         float slowUnnaturalStartTime = 0;
         bool isSlowingUnnatural;
+        bool isStalled = false;
         bool checkOnce = true;
 
 
@@ -170,6 +171,7 @@ void Car::update() {
         } else if (elapsed < 2 * DURATION_OF_UNNATURAL_SLOWDOWN + ELAPSE_OF_UNNATURAL_SLOWDOWN) {
             float t = elapsed / DURATION_OF_UNNATURAL_SLOWDOWN - 1;  // 0.0 → 1.0
             velocity = Vector2Lerp(velocity2, targetVelocity, t);
+            isStalled = false;
         } else {
             velocity = targetVelocity;
             isSlowingUnnatural = false;
@@ -182,14 +184,17 @@ void Car::update() {
     } 
     position = Vector2Add(position, Vector2Scale(velocity, dt));
     velocity = Vector2Add(velocity, Vector2Scale(acceleration, dt));
+
 }
 
 void Car::draw(bool isDamaged){
-    Rectangle* texturePointer;
-    if (!isDamaged) {
-        texturePointer = &texture;
-    } else {
+    const Rectangle* texturePointer;
+    if (isDamaged) {
         texturePointer = &damagedTexture;
+    } else if (isStalled){
+        texturePointer = &STALLED_CAR_SPRITE;
+    } else {
+        texturePointer = &texture;
     }
 
     DrawTexturePro(*atlas, *texturePointer, Rectangle{position.x, position.y, width, height}, Vector2{0, 0}, 0, WHITE);
@@ -253,6 +258,7 @@ void Car::slowUnnatural() {
     }
     std::cout << "Начало: " << velocity.x << std::endl;
     checkOnce = true;
+    isStalled = true;
     velocity2 = velocity;
     slowUnnaturalStartTime = GetTime();
     isSlowingUnnatural = true;
