@@ -10,10 +10,11 @@ void InitResources() {
     Image img = LoadImageFromMemory(".png", CARS_data, CARS_size);
     g_carsAtlas = LoadTextureFromImage(img);
     UnloadImage(img);
+    g_inited = true;                         // ← ОБЯЗАТЕЛЬНО
 }
 
-Texture2D GetCarsAtlas() {
-    return g_carsAtlas;
+Texture2D* GetCarsAtlas() {
+    return &g_carsAtlas;                     // ← возвращаем указатель
 }
 
 void UnloadResources() {

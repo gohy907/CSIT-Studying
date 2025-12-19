@@ -8,14 +8,20 @@ enum typeOfDamage {
     None
 };
 
+
 class Car {
     private:
         Vector2 position;
+
+
         Vector2 velocity;
-        Vector2 velocity2;
-        Vector2 targetVelocity;
+        Vector2 maxVelocity;
         Vector2 acceleration;
 
+        float targetTime;
+        float targetTimeStart;
+
+        int reason;
         Rectangle texture;
         Rectangle damagedTexture;
 
@@ -33,7 +39,9 @@ class Car {
         bool isAccelerating = false;
         float slowUnnaturalStartTime = 0;
         bool isSlowingUnnatural;
+        bool isStalled = false;
         bool checkOnce = true;
+
 
     public:
         Car(Vector2 position, Vector2 velocity, Vector2 acceleration,
@@ -69,4 +77,9 @@ class Car {
         void slow();
         void slowUnnatural();
         bool isUnnaturalSlowing();
+
+        Vector2 getMaximumVelocity();
+
+        void accelerate(float time, Vector2 targetVelocity, int reason);
+        void slowdown(float time, Vector2 targetVelocity, int reason);
 };

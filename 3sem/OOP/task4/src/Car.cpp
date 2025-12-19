@@ -12,10 +12,16 @@ enum typeOfDamage {
 class Car {
     private:
         Vector2 position;
+
+
         Vector2 velocity;
-        Vector2 velocity2;
-        Vector2 targetVelocity;
+        Vector2 maxVelocity;
         Vector2 acceleration;
+
+        float targetTime = 0;
+        float targetTimeStart = 0;
+        
+        int reason = 0;
 
         Rectangle texture;
         Rectangle damagedTexture;
@@ -72,14 +78,18 @@ class Car {
         void slow();
         void slowUnnatural();
         bool isUnnaturalSlowing();
+
+        Vector2 getMaximumVelocity();
+
+        void accelerate(float time, Vector2 targetVelocity, int reason);
+        void slowdown(float time, Vector2 targetVelocity, int reason);
 };
 
 Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration,
          Rectangle texture, Rectangle damagedTexture, Texture2D* atlas)
     : position(position),
       velocity(velocity),
-      velocity2(Vector2{0, 0}),
-      targetVelocity(velocity),
+      maxVelocity(velocity),
       acceleration(acceleration),
       texture(texture),
       damagedTexture(damagedTexture),
@@ -128,63 +138,36 @@ const float ELAPSE_OF_UNNATURAL_SLOWDOWN = 1;
 
 void Car::update() {
     float currentTime = GetTime();
-    float dt = GetFrameTime() * 60;
-
+    float dt = GetFrameTime();
 
     if (damageType == typeOfDamage::rear && currentTime - collisionStartTime >= PAUSE_DURATION) {
-        this->repair();
         damageType = typeOfDamage::None;
+        this->repair();
+        this->accelerate(ACCELERATION_DURATION, maxVelocity, 2);
     }
 
-    if (slowdownStartTime > 0) {
-        float elapsed = currentTime - slowdownStartTime;
-
-        float duration;
-        if (isSlowing && !isAccelerating) {
-            duration = SLOW_DURATION;
-        }
-        else {
-            duration = ACCELERATION_DURATION;
-        }
-        if (elapsed < duration) {
-            // Линейная интерполяция скорости
-            float t = elapsed / duration;  // 0.0 → 1.0
-            velocity = Vector2Lerp(velocity2, targetVelocity, t);
-        }
-        else {
-            slowdownStartTime = 0;
-            velocity = targetVelocity;
-            isAccelerating = false;
-        }
-    }
-    if (isSlowingUnnatural && !damaged) {
-        float elapsed = currentTime - slowUnnaturalStartTime;
-        std::cout << elapsed << std::endl;
-        if (elapsed < DURATION_OF_UNNATURAL_SLOWDOWN) {
-            float t = elapsed / DURATION_OF_UNNATURAL_SLOWDOWN;  // 0.0 → 1.0
-            velocity = Vector2Lerp(velocity2, targetVelocity, t);
-        } else if (checkOnce && elapsed < DURATION_OF_UNNATURAL_SLOWDOWN + ELAPSE_OF_UNNATURAL_SLOWDOWN) {
-            checkOnce = false;
-            velocity = targetVelocity;
-            targetVelocity = velocity2;
-            velocity2 = velocity;
-        } else if (elapsed < 2 * DURATION_OF_UNNATURAL_SLOWDOWN + ELAPSE_OF_UNNATURAL_SLOWDOWN) {
-            float t = elapsed / DURATION_OF_UNNATURAL_SLOWDOWN - 1;  // 0.0 → 1.0
-            velocity = Vector2Lerp(velocity2, targetVelocity, t);
+    std::cout << "Время сейчас: " << currentTime << " Время начала: " << targetTimeStart << " TargetTime: " << targetTime << "acc: " << acceleration.x << std::endl;
+    if ((currentTime - targetTimeStart) >= targetTime) {
+        if (reason == 5) {
             isStalled = false;
-        } else {
-            velocity = targetVelocity;
-            isSlowingUnnatural = false;
+            reason = 0;
+            this->accelerate(ACCELERATION_DURATION, maxVelocity, 2);
+        }
+        else {
+            // std::cout << acceleration.x << std::endl;
+            acceleration = Vector2Zeros;
         }
 
-
+    } else if (reason == 5) {
+        isStalled = true;
     }
+
     if (damaged) {
         return;
     } 
-    position = Vector2Add(position, Vector2Scale(velocity, dt));
-    velocity = Vector2Add(velocity, Vector2Scale(acceleration, dt));
 
+    velocity = Vector2Add(velocity, Vector2Scale(acceleration, dt));
+    position = Vector2Add(position, Vector2Scale(velocity, dt));
 }
 
 void Car::draw(bool isDamaged){
@@ -208,18 +191,15 @@ void Car::damage() {
     if (damageType == typeOfDamage::rear) {
         collisionStartTime = GetTime();
     }
-    velocity = Vector2(0, 0);
-    // velocity2 = velocity;
-    velocity2 = Vector2(0, 0);
-    isSlowing = false;
+    velocity = Vector2Zeros;
+    acceleration = Vector2Zeros;
     damaged = true;
 }
 
 void Car::repair() {
+    velocity = Vector2(1, 0);
     damageType = typeOfDamage::None;
-    slowdownStartTime = GetTime();
     damaged = false;
-    isAccelerating = true;
 }
 
 Vector2 Car::getAcceleration() {
@@ -238,16 +218,15 @@ void Car::setDamageType(enum typeOfDamage type) {
     this->damageType = type;
 }
 
-Vector2 Car::getTargetVelocity() {
-    return targetVelocity;
-}
-
-void Car::setTargetVelocity(Vector2 velocity) {
-    targetVelocity = velocity;
-}
+// Vector2 Car::getTargetVelocity() {
+//     return targetVelocity;
+// }
+//
+// void Car::setTargetVelocity(Vector2 velocity) {
+//     targetVelocity = velocity;
+// }
 
 void Car::slow(){
-    velocity2 = velocity;
     slowdownStartTime = GetTime();
     isSlowing = true;
 }
@@ -256,15 +235,48 @@ void Car::slowUnnatural() {
     if (isSlowingUnnatural && isAccelerating) {
         return;
     }
-    std::cout << "Начало: " << velocity.x << std::endl;
+    // std::cout << "Начало: " << velocity.x << std::endl;
     checkOnce = true;
     isStalled = true;
-    velocity2 = velocity;
     slowUnnaturalStartTime = GetTime();
     isSlowingUnnatural = true;
-    targetVelocity = Vector2(2, 0);
 }
 
 bool Car::isUnnaturalSlowing() {
     return isSlowingUnnatural;
 }
+
+Vector2 Car::getMaximumVelocity() {
+    return maxVelocity;
+}
+
+void Car::accelerate(float time, Vector2 targetVelocity, int reason) {
+    if (damaged || this->reason == reason) {
+        return;
+    }
+    std::cout << reason << std::endl;
+    this->reason = reason;
+
+    Vector2 targetAcceleration = Vector2Subtract(targetVelocity, velocity)/time;
+    std::cout << "Ускорение: " << targetAcceleration.x << std::endl;
+    targetTimeStart = GetTime();
+    targetTime = time;
+    acceleration = targetAcceleration;
+}
+
+
+void Car::slowdown(float time, Vector2 targetVelocity, int reason) {
+    // std::cout << this->reason;
+    if (damaged || this->reason == reason) {
+        return;
+    }
+
+    // std::cout << "ABOBA";
+    this->reason = reason;
+    Vector2 targetAcceleration = Vector2Subtract(targetVelocity, velocity)/time;
+    // std::cout << "avadasdsa";
+    targetTimeStart = GetTime();
+    targetTime = time;
+    acceleration = targetAcceleration;
+}
+

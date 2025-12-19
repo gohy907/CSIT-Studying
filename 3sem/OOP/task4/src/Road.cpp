@@ -6,16 +6,15 @@
 #include "resourcesControl.h"
 #include "constants.h"
 #include "raymath.h"
-#include <cstdlib>
 #include <vector>
 #include <random>
-#include <algorithm>
 #include <iostream>
+#include <algorithm>
 
 std::random_device rd; 
 std::mt19937 gen(rd());
 std::uniform_int_distribution<int> chanceDistribution(1, 30); 
-std::uniform_int_distribution<int> speedDistribution(5, 20);
+std::uniform_int_distribution<int> speedDistribution(5 * 60, 20 * 60);
 std::uniform_int_distribution<int> colorDistribution(0, 3);
 
 class Road {
@@ -63,7 +62,7 @@ Road::Road(float x, float y, float width, float height,
     this->borderColor = borderColor;
     this->boundsColor = boundsColor;
 
-    this->isRandomMovementActive = false;
+    this->isRandomMovementActive = true;
 }
 
 void Road::setCarList(std::vector<Car> cars) {
@@ -75,8 +74,11 @@ void Road::addCar(Car car) {
 }
 
 void Road::update() {
+    const char* text = "Авария!";
     for (size_t i = 0; i < cars.size(); ++i) {
         Car &car = cars[i];
+
+    // std::cout << car.getVelocity().x << " " << car.getTargetVelocity().x << std::endl;
         car.update();
     }
 
@@ -94,26 +96,44 @@ void Road::update() {
         float currentTime = GetTime();
         Car &firstCar = cars[i];
         Car &secondCar = cars[i + 1];
-        // std::cout << secondCar.getTargetVelocity().x << " " << secondCar.isSlowing << std::endl;
-        if (!secondCar.isDamaged() && !secondCar.isUnnaturalSlowing() && firstCar.getPosition().x - secondCar.getPosition().x < 3 * CAR_WIDTH) {
-            secondCar.setTargetVelocity(firstCar.getTargetVelocity());
-            secondCar.slow();
+
+        // if(!firstCar.isDamaged() && !firstCar.isUnnaturalSlowing()) {
+        //     firstCar.setTargetVelocity
+        // }
+
+        // std::cout << secondCar.getTargetVelocity().x << " " << secondCar.isSlowing << std::endl
+        
+        // if(i == 0 && !firstCar.isDamaged()) {
+        //     firstCar.accelerate(ACCELERATION_DURATION, firstCar.getMaximumVelocity(), 4);
+        // } 
+        //
+        // if (!secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x >= 3 * CAR_WIDTH && 
+        //     secondCar.getVelocity().x < firstCar.getVelocity().x) {
+        //     std::cout << "Зашёл в хуйню" << std::endl;
+        //     if (secondCar.getMaximumVelocity().x > firstCar.getVelocity().x) {
+        //         secondCar.accelerate(ACCELERATION_DURATION, firstCar.getVelocity(), 4);
+        //     } else {
+        //         secondCar.accelerate(ACCELERATION_DURATION, secondCar.getMaximumVelocity(), 4);
+        //     }
+        // }
+        
+        if (!secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x < 3 * CAR_WIDTH) {
+            // std::cout << secondCar.getAcceleration().x << std::endl;
+            secondCar.slowdown(BREAKES_DURATION, firstCar.getVelocity(), 1);
         }
 
         if (!secondCar.isDamaged() && 
             firstCar.getPosition().x - secondCar.getPosition().x < CAR_WIDTH) {
             firstCar.setDamageType(typeOfDamage::rear);
             secondCar.setDamageType(typeOfDamage::front);
-            secondCar.setTargetVelocity(firstCar.getTargetVelocity());
             firstCar.damage();
             secondCar.damage();
         }
 
-        if (secondCar.getDamageType() == typeOfDamage::front && firstCar.getPosition().x - secondCar.getPosition().x >= 1.5 * CAR_WIDTH &&
-            firstCar.getPosition().x) {
-            secondCar.setDamageType(typeOfDamage::None);
-            secondCar.setTargetVelocity(firstCar.getTargetVelocity());
+        if (secondCar.getDamageType() == typeOfDamage::front && firstCar.getPosition().x - secondCar.getPosition().x >= 1.5 * CAR_WIDTH) {
             secondCar.repair();
+            std::cout << secondCar.getVelocity().x << " " << firstCar.getVelocity().x << std::endl; 
+            secondCar.accelerate(ACCELERATION_DURATION, firstCar.getVelocity(), 3);
         }
 
         if (firstCar.isDamaged() && secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x < CAR_WIDTH) {
@@ -121,7 +141,6 @@ void Road::update() {
             center = Vector2Divide(center, Vector2(2, 2));
             Rectangle box = Rectangle(center.x, center.y - CAR_HEIGHT / 2, CAR_WIDTH, CAR_HEIGHT/2);
             DrawRectangleRec(box, RED);
-            const char* text = "Авария!";
             int textWidth = MeasureText(text, FONT_SIZE);
             int textX = box.x + (box.width  - textWidth)/2 + 10;
             int textY = box.y + (box.height - FONT_SIZE)/2;
@@ -134,12 +153,12 @@ void Road::update() {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         for (size_t i = 0; i < cars.size(); ++i){
             Car& car = cars[i];
-            if (!car.isDamaged()) {  // ← Только здоровые машины!
+            if (!car.isDamaged()) { 
                 Rectangle carRect = {car.getPosition().x, car.getPosition().y, 
                     car.getWidth(), car.getHeight()};
                 if (CheckCollisionPointRec(mousePos, carRect)) {
+                    car.slowdown(ACCELERATION_DURATION, Vector2(60, 0), 5);
 
-                    car.slowUnnatural();  // ← Замедлить эту машину
                     break;
                 }
             }
@@ -149,13 +168,13 @@ void Road::update() {
             int chance = chanceDistribution(gen);
             if ((cars.size() != 0 && cars[cars.size() - 1].getPosition().x > CAR_WIDTH || cars.size() == 0) && chance == 1) {
                 int index = colorDistribution(gen);
-                Texture2D carsAtlas = GetCarsAtlas();
+                Texture2D* carsAtlas = GetCarsAtlas();
                 Car randomCar = Car(
                     Vector2(CAR_SPAWN_X, CAR_SPAWN_Y), 
                     Vector2(speedDistribution(gen), 0), 
                     COLORS[index],
                     DAMAGED_COLORS[index],
-                    &carsAtlas
+                    carsAtlas
                 );
                 this->cars.push_back(randomCar);
             }
