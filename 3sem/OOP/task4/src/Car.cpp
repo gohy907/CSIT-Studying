@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <cstdlib>
 #include <iostream>
 #include "raymath.h"
 #include "constants.h"
@@ -15,6 +16,7 @@ class Car {
 
 
         Vector2 velocity;
+        Vector2 targetVelocity;
         Vector2 maxVelocity;
         Vector2 acceleration;
 
@@ -30,7 +32,7 @@ class Car {
         float width = CAR_WIDTH;
         float height = CAR_HEIGHT;
 
-        bool damaged = false;
+        bool damaged = false; // aboba
         typeOfDamage damageType = typeOfDamage::None;
 
         float collisionStartTime = 0;  
@@ -90,6 +92,7 @@ Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration,
     : position(position),
       velocity(velocity),
       maxVelocity(velocity),
+      targetVelocity(velocity),
       acceleration(acceleration),
       texture(texture),
       damagedTexture(damagedTexture),
@@ -101,7 +104,8 @@ Car::Car(Vector2 position, Vector2 velocity, Vector2 acceleration,
       isSlowing(false),
       isAccelerating(false),
       slowUnnaturalStartTime(0.0f),
-      isSlowingUnnatural(false)
+      isSlowingUnnatural(false),
+      isStalled(false)
 {}
 
 Car::Car(Vector2 position, Vector2 velocity,
@@ -148,13 +152,15 @@ void Car::update() {
 
     std::cout << "Время сейчас: " << currentTime << " Время начала: " << targetTimeStart << " TargetTime: " << targetTime << "acc: " << acceleration.x << std::endl;
     if ((currentTime - targetTimeStart) >= targetTime) {
+        std::cout << reason;
         if (reason == 5) {
             isStalled = false;
             reason = 0;
+            targetVelocity = maxVelocity;
             this->accelerate(ACCELERATION_DURATION, maxVelocity, 2);
         }
         else {
-            // std::cout << acceleration.x << std::endl;
+            targetVelocity = Vector2Zeros;
             acceleration = Vector2Zeros;
         }
 
@@ -231,17 +237,6 @@ void Car::slow(){
     isSlowing = true;
 }
 
-void Car::slowUnnatural() {
-    if (isSlowingUnnatural && isAccelerating) {
-        return;
-    }
-    // std::cout << "Начало: " << velocity.x << std::endl;
-    checkOnce = true;
-    isStalled = true;
-    slowUnnaturalStartTime = GetTime();
-    isSlowingUnnatural = true;
-}
-
 bool Car::isUnnaturalSlowing() {
     return isSlowingUnnatural;
 }
@@ -256,7 +251,7 @@ void Car::accelerate(float time, Vector2 targetVelocity, int reason) {
     }
     std::cout << reason << std::endl;
     this->reason = reason;
-
+    this->targetVelocity = targetVelocity;
     Vector2 targetAcceleration = Vector2Subtract(targetVelocity, velocity)/time;
     std::cout << "Ускорение: " << targetAcceleration.x << std::endl;
     targetTimeStart = GetTime();
@@ -271,6 +266,7 @@ void Car::slowdown(float time, Vector2 targetVelocity, int reason) {
         return;
     }
 
+    this->targetVelocity = targetVelocity;
     // std::cout << "ABOBA";
     this->reason = reason;
     Vector2 targetAcceleration = Vector2Subtract(targetVelocity, velocity)/time;
@@ -280,3 +276,6 @@ void Car::slowdown(float time, Vector2 targetVelocity, int reason) {
     acceleration = targetAcceleration;
 }
 
+Vector2 Car::getTargetVelocity() {
+    return targetVelocity;
+}

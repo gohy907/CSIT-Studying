@@ -133,7 +133,7 @@ void Road::update() {
         if (secondCar.getDamageType() == typeOfDamage::front && firstCar.getPosition().x - secondCar.getPosition().x >= 1.5 * CAR_WIDTH) {
             secondCar.repair();
             std::cout << secondCar.getVelocity().x << " " << firstCar.getVelocity().x << std::endl; 
-            secondCar.accelerate(ACCELERATION_DURATION, firstCar.getVelocity(), 3);
+            secondCar.accelerate(ACCELERATION_DURATION, firstCar.getTargetVelocity(), 3);
         }
 
         if (firstCar.isDamaged() && secondCar.isDamaged() && firstCar.getPosition().x - secondCar.getPosition().x < CAR_WIDTH) {

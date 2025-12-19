@@ -15,13 +15,15 @@ class Car {
 
 
         Vector2 velocity;
+        Vector2 targetVelocity;
         Vector2 maxVelocity;
         Vector2 acceleration;
 
-        float targetTime;
-        float targetTimeStart;
+        float targetTime = 0;
+        float targetTimeStart = 0;
+        
+        int reason = 0;
 
-        int reason;
         Rectangle texture;
         Rectangle damagedTexture;
 
@@ -29,7 +31,7 @@ class Car {
         float width = CAR_WIDTH;
         float height = CAR_HEIGHT;
 
-        bool damaged = false;
+        bool damaged = false; // aboba
         typeOfDamage damageType = typeOfDamage::None;
 
         float collisionStartTime = 0;  
