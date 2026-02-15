@@ -1,3 +1,9 @@
 [submodule "3sem/OOP/task4/external/raylib"]
 	path = 3sem/OOP/task4/external/raylib
 	url = git@github.com:raysan5/raylib.git
+[submodule "4sem/Graphics/Libraries/raylib"]
+	path = 4sem/Graphics/Libraries/raylib
+	url = git@github.com:raysan5/raylib.git
+[submodule "4sem/Graphics/Libraries/nfd"]
+	path = 4sem/Graphics/Libraries/nfd
+	url = git@github.com:btzy/nativefiledialog-extended.git
