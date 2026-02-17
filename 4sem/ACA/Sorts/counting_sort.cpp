@@ -52,4 +52,6 @@ int main() {
     for (std::size_t i = 0; i < length; ++i) {
         std::cin >> numbers[i];
     }
+    counting_sort(numbers);
+    print_vector(numbers);
 }
