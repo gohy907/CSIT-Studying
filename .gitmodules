@@ -7,3 +7,6 @@
 [submodule "4sem/Graphics/Libraries/nfd"]
 	path = 4sem/Graphics/Libraries/nfd
 	url = git@github.com:btzy/nativefiledialog-extended.git
+[submodule "4sem/ACA/Sorts/sort_tester"]
+	path = 4sem/ACA/Sorts/sort_tester
+	url = git@github.com:gohy907/sort_tester.git
