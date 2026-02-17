@@ -13,7 +13,6 @@ int number_of_digits(int number) {
 }
 
 void LSD_sort(std::vector<int> &vec) {
-    int base = 10;
     int max_digits = 1;
     for (size_t i = 0; i < vec.size(); ++i) {
         int digits = number_of_digits(vec[i]);
@@ -28,21 +27,21 @@ void LSD_sort(std::vector<int> &vec) {
     std::vector<std::vector<int>> vecs(19);
 
     for (int i = 0; i < max_digits; ++i) {
-        for (int j = 0; j < vec.size(); ++j) {
-            int m = vec[j] / pow(10, i);
-            if (m < 0) {
-                m = -m;
-                vecs[9 - m % 10].push_back(vec[j]);
+        for (size_t j = 0; j < vec.size(); ++j) {
+            int mod = vec[j] / pow(10, i);
+            if (mod < 0) {
+                mod = -mod;
+                vecs[9 - mod % 10].push_back(vec[j]);
                 continue;
             }
-            vecs[m % 10 + 9].push_back(vec[j]);
+            vecs[mod % 10 + 9].push_back(vec[j]);
         }
 
-        int l = 0;
+        size_t index = 0;
         for (int j = 0; j < 19; ++j) {
-            for (int h = 0; h < vecs[j].size(); ++h) {
-                vec[l] = vecs[j][h];
-                ++l;
+            for (size_t h = 0; h < vecs[j].size(); ++h) {
+                vec[index] = vecs[j][h];
+                ++index;
             }
         }
 
