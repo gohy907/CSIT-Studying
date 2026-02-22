@@ -1,34 +1,42 @@
 #include <iostream>
 #include <vector>
-void merge(std::vector<int> &numbers, size_t left, size_t right) {
+void merge(std::vector<int> &numbers, size_t left, size_t right,
+           size_t middle) {
+    std::vector<int> temp(right - left + 1, 0);
+    size_t cur = 0;
+    size_t i = left;
+    size_t j = middle + 1;
 
-    size_t middle, start, final, j;
-    std::vector<int> temp(right + left + 1, 0);
-    middle = (left + right) / 2;
-    start = left;
-    final = middle + 1;
-
-    for (j = left; j <= right; j++) {
-        if ((start <= middle) &&
-            ((final > right) || (numbers[start] < numbers[final]))) {
-            temp[j] = numbers[start];
-            start++;
+    while (i <= middle && j <= right) {
+        if (numbers[i] <= numbers[j]) {
+            temp[cur] = numbers[i];
+            ++i;
         } else {
-            temp[j] = numbers[final];
-            final++;
+            temp[cur] = numbers[j];
+            ++j;
         }
+        ++cur;
     }
 
-    for (j = left; j <= right; j++) {
-        numbers[j] = temp[j];
+    while (i <= middle) {
+        temp[cur] = numbers[i];
+        ++cur;
+        ++i;
+    }
+    while (j <= right) {
+        temp[cur] = numbers[j];
+        ++cur;
+        ++j;
+    }
+    for (size_t j = 0; j < temp.size(); ++j) {
+        numbers[left + j] = temp[j];
     }
 }
-
 void merge_sort(std::vector<int> &numbers, size_t left, size_t right) {
     if (left < right) {
         merge_sort(numbers, left, (left + right) / 2);
         merge_sort(numbers, (left + right) / 2 + 1, right);
-        merge(numbers, left, right);
+        merge(numbers, left, right, (left + right) / 2);
     }
 }
 
