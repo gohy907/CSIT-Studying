@@ -30,7 +30,10 @@ int main() {
         DrawLineEx(point3, point4, 5, LIME);
         DrawLineEx(point4, point1, 5, LIME);
 
-        DrawLineEx({0, 0}, {Wx, Wy}, 6, RED);
+        const float Ax = -100.0;
+        const float Ay = -200.0;
+
+        DrawLineEx({0, 0}, {Wx + Ax, Wy + Ay}, 6, RED);
         DrawLineEx({90, 50}, {Wx, 80}, 10, BLUE);
         DrawTextEx(f, "Всем привет", {40, 380}, 26, 0, BLACK);
         EndDrawing();
