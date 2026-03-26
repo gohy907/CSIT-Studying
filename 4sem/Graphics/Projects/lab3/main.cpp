@@ -31,8 +31,7 @@ int main() {
     Mat3 T = Mat3(1.f);
     Mat3 initT;
 
-    std::cout << "ABASPODP{AD:"
-                 "LASJLKDJASLKDJASLKDJASLKJDLKASJDLKASJDLKJASKLDJ}";
+    std::cout << "ВОТ ЭТА ХУЙНЯ ВЕЧНО ПОВТОРЯЕТСЯ\n";
     while (!WindowShouldClose()) {
         float figureAspect = currentFigure.Vx / currentFigure.Vy;
         BeginDrawing();
@@ -53,12 +52,11 @@ int main() {
         initT = translate(0, Ty) * scale(Sx, -Sy);
         Mat3 M = T * initT;
 
-        std::cout << "ABOBA";
         for (size_t i = 0; i < currentFigure.vertices.size(); i += 4) {
-            std::cout << "ABOBA";
-            Vec3 A = Vec3(currentFigure.vertices[i], figure.vertices[i + 1], 1);
-            Vec3 B =
-                Vec3(currentFigure.vertices[i + 2], figure.vertices[i + 3], 1);
+            Vec3 A = Vec3(currentFigure.vertices[i],
+                          currentFigure.vertices[i + 1], 1);
+            Vec3 B = Vec3(currentFigure.vertices[i + 2],
+                          currentFigure.vertices[i + 3], 1);
             Vec2 a = normalize(M * A);
             Vec2 b = normalize(M * B);
             DrawLineEx({a.x, a.y}, {b.x, b.y}, 2, BLACK);
