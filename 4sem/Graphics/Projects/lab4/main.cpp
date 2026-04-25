@@ -16,11 +16,21 @@ bool isIgnorableLine(const std::string &line) {
            line.front() == '#';
 }
 
-ssu::Figure readFromFile(const char *fileName) {
+float Vx;
+float Vy;
+std::vector<ssu::Model> models;
+
+void readFromFile(const char *fileName) {
     std::ifstream in(fileName);
-    ssu::Figure figure;
+    // ssu::Figure figure;
+    models.clear();
+    ssu::Model model;
     int r, g, b;
-    float thickness;
+    float thickness = 2;
+    Mat3 M = Mat3(1.f);
+    Mat3 initM;
+    std::vector<Mat3> transforms;
+    std::vector<ssu::Path> figure;
     std::string line; // временная переменная, в которую считываются строки
     while (in) {
         // считываем очередную строку
@@ -32,8 +42,8 @@ ssu::Figure readFromFile(const char *fileName) {
         std::string cmd;      // переменная для имени команды
         s >> cmd;             // считываем имя команды
         if (cmd == "frame") { // размеры изображения
-            s >> figure.Vx >> figure.Vy;
-            std::cout << figure.Vx << ' ' << figure.Vy << std::endl;
+            s >> Vx >> Vy;
+            std::cout << Vx << ' ' << Vy << std::endl;
         } else if (cmd == "color") {     // цвет линии
             s >> r >> g >> b;            // считываем три компоненты цвета
         } else if (cmd == "thickness") { // толщина линии
@@ -55,15 +65,34 @@ ssu::Figure readFromFile(const char *fileName) {
                 --n;
             }
             // все точки считаны, генерируем ломаную (path) и кладем ее в список
-            figure.paths.push_back(
+            figure.push_back(
                 ssu::Path(vertices,
                           Color{static_cast<unsigned char>(r),
                                 static_cast<unsigned char>(g),
                                 static_cast<unsigned char>(b), 255},
                           thickness));
+        } else if (cmd == "figure") {
+            models.push_back(ssu::Model(figure, M * initM));
+        } else if (cmd == "translate") {
+            float Tx, Ty;
+            s >> Tx >> Ty;
+            M = translate(Tx, Ty) * M;
+        } else if (cmd == "scale") {
+            float S;
+            s >> S;
+            M = scale(S) * M;
+        } else if (cmd == "rotate") {
+            float theta;
+            s >> theta;
+            M = rotate(-theta / 180.f * PI) * M;
+        } else if (cmd == "pushTransform") {
+            transforms.push_back(M);
+        } else if (cmd == "popTransform") {
+            M = transforms.back();
+            transforms.pop_back();
         }
     }
-    return figure;
+    // return figure;
 }
 
 int main() {
