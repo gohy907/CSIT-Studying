@@ -1,5 +1,7 @@
 #pragma once
-#include <cmath>
+#include <math.h>
+
+struct Vec3;
 
 struct Vec2 {
         float x = 0;
@@ -16,12 +18,15 @@ struct Vec2 {
         }
         const Vec2 operator*(const Vec2 &v) { return Vec2(*this) *= v; }
         float &operator[](int i) { return ((float *)this)[i]; }
+        Vec2(Vec3 v);
 };
 
 float dot(Vec2 &v1, Vec2 &v2) {
     Vec2 tmp = v1 * v2;
     return tmp.x + tmp.y;
 }
+
+struct Vec4;
 
 struct Vec3 {
         float x = 0;
@@ -49,6 +54,26 @@ struct Vec3 {
         const float &operator[](size_t i) const {
             return (reinterpret_cast<const float *>(this))[i];
         }
+        Vec3(Vec4 v);
+        Vec3 &operator+=(const Vec3 &v) {
+            x += v.x;
+            y += v.y;
+            z += v.z;
+            return *this;
+        }
+        const Vec3 operator+(const Vec3 &v) { return Vec3(*this) += v; }
+        Vec3 &operator-=(const Vec3 &v) {
+            x -= v.x;
+            y -= v.y;
+            z -= v.z;
+            return *this;
+        }
+        const Vec3 operator-(const Vec3 &v) { return Vec3(*this) -= v; }
+        Vec3 &operator*=(const float &n) {
+            (*this) *= Vec3(n, n, n);
+            return *this;
+        }
+        const Vec3 operator*(const float &n) { return Vec3(*this) *= n; }
 };
 
 inline float dot(const Vec3 &a, const Vec3 &b) {
@@ -186,6 +211,21 @@ struct Mat3 {
             row2 = Vec3(m.row2.x, m.row2.y, m.row2.z);
             row3 = Vec3(m.row3.x, m.row3.y, m.row3.z);
         }
+        Mat3 &operator+=(const Mat3 &m) {
+            Mat3 B(m);
+            for (int i = 0; i < 3; ++i) {
+                (*this)[i] += B[i];
+            }
+            return *this;
+        }
+        const Mat3 operator+(const Mat3 &m) { return Mat3(*this) += m; }
+        Mat3 &operator*=(const float &n) {
+            for (int i = 0; i < 3; ++i) {
+                (*this)[i] *= n;
+            }
+            return *this;
+        }
+        const Mat3 operator*(const float &n) { return Mat3(*this) *= n; }
 };
 
 inline Vec2 normalize(const Vec3 &v) { return Vec2(v.x / v.z, v.y / v.z); }
@@ -238,3 +278,23 @@ struct Mat2 {
             row2 = Vec2(m[0][0], m[0][1]);
         }
 };
+
+Vec2::Vec2(Vec3 v)
+    : x(v.x),
+      y(v.y) {}
+
+Vec3::Vec3(Vec4 v)
+    : x(v.x),
+      y(v.y),
+      z(v.z) {}
+
+Mat3 crossM(Vec3 p) {
+    return Mat3(Vec3(0.f, -p.z, p.y), Vec3(p.z, 0.f, -p.x),
+                Vec3(-p.y, p.x, 0.f));
+}
+
+Vec3 cross(Vec3 p, Vec3 q) { return crossM(p) * q; }
+
+float length(Vec3 p) { return sqrtf(dot(p, p)); }
+
+Vec3 norm(Vec3 p) { return normalize(Vec4(p, length(p))); }
