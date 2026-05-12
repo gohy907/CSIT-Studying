@@ -218,14 +218,14 @@ struct Mat3 {
             }
             return *this;
         }
-        const Mat3 operator+(const Mat3 &m) { return Mat3(*this) += m; }
+        const Mat3 operator+(const Mat3 &m) const { return Mat3(*this) += m; }
         Mat3 &operator*=(const float &n) {
             for (int i = 0; i < 3; ++i) {
                 (*this)[i] *= n;
             }
             return *this;
         }
-        const Mat3 operator*(const float &n) { return Mat3(*this) *= n; }
+        const Mat3 operator*(const float &n) const { return Mat3(*this) *= n; }
 };
 
 inline Vec2 normalize(const Vec3 &v) { return Vec2(v.x / v.z, v.y / v.z); }
