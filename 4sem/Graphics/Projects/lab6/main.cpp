@@ -32,7 +32,7 @@ int main() {
         float screen_height = static_cast<float>(GetScreenHeight());
         screen.calculate_borders(screen_width, screen_height);
         // std::cout << "max_y: " << screen.max_y << std::endl;
-        screen.key_handler();
+        // screen.key_handler();
 
         BeginDrawing();
         ClearBackground(SKYBLUE);
@@ -41,34 +41,37 @@ int main() {
                               screen.border_height},
                              2, BLACK);
 
-        // for (const auto &model : models) {
-        //     // std::cout << "dasdasd" << std::endl;
-        //     std::vector<ssu::Path> figure = model.figure;
-        //     Mat3 TM = screen.T * model.ModelM;
-        //     for (const auto &lines : figure) {
-        //         Vec2 start = normalize(TM * Vec3(lines.vertices[0], 1));
-        //         for (const auto &line : lines.vertices) {
-        //             Vec2 end = normalize(TM * Vec3(line, 1));
-        //             Vec2 tmp_end = end;
-        //             if (clip(start, end, screen.min_x, screen.min_y,
-        //                      screen.max_x, screen.max_y)) {
-        //                 std::cout << "x: " << start.x << " y: " << start.y
-        //                           << std::endl;
-        //                 DrawLineEx({start.x, start.y}, {end.x, end.y},
-        //                            lines.thickness, lines.color);
-        //             }
-        //             start = tmp_end;
-        //         }
-        //     }
-        // }
-
+        Mat4 proj; // матрица перехода в пространство отсечения
+        switch (screen.pType) {
+        case Screen::projType::Ortho: // прямоугольная проекция
+            proj = ortho(screen.l, screen.r, screen.b, screen.t, -screen.n,
+                         -screen.f);
+            break;
+        case Screen::projType::Frustum: // перспективная проекция с Frustum
+            proj = frustum(screen.l, screen.r, screen.b, screen.t, screen.n,
+                           screen.f);
+            break;
+        case Screen::projType::Perspective: // перспективная проекция с
+                                            // Perspective
+            proj = perspective(screen.fovy_work, screen.aspect_work, screen.n,
+                               screen.f);
+            break;
+        }
+        // WARNING: возможно тут жёсткие хихи хаха
+        Mat3 cdr = cadrRL(Vec2(-1.f, -1.f), Vec2(2.f, 2.f),
+                          Vec2(screen.Wcx, screen.Wcy),
+                          Vec2(screen.border_width, screen.border_height));
+        Mat4 C = proj * screen.T;
         for (const auto &model : models) {
-            Mat3 TM = screen.T * model.ModelM;
-            for (const auto &lines : model.figure) {
-                Vec2 start = normalize(TM * Vec3(lines.vertices[0], 1));
+            std::vector<ssu::Path> figure = model.figure;
+            Mat4 TM = C * model.ModelM;
+            for (const auto &lines : figure) {
+                Vec2 start_3D = normalize(TM * Vec4(lines.vertices[0], 1));
+                Vec2 start = normalize(cdr * Vec3(Vec2(start_3D), 1.f));
                 std::cout << lines.vertices.size() << std::endl;
                 for (const auto &line : lines.vertices) {
-                    Vec2 end = normalize(TM * Vec3(line, 1));
+                    Vec2 end_3D = normalize(TM * Vec4(line, 1));
+                    Vec2 end = normalize(cdr * Vec3(Vec2(end_3D), 1.f));
                     Vec2 tmpEnd = end;
 
                     std::cout << "x: " << start.x << " y: " << start.y

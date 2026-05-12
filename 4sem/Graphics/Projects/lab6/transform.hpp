@@ -15,7 +15,7 @@ inline Mat3 scale(float Sx, float Sy) {
     return res;
 }
 
-Mat4 translate(float Tx, float Ty, float Tz) {
+inline Mat4 translate(float Tx, float Ty, float Tz) {
     Mat4 *res = new Mat4(1.f); // создали единичную матрицу
     (*res)[0][3] = Tx;         // поменяли
     (*res)[1][3] = Ty;         // значения в последнем столбце
@@ -23,7 +23,7 @@ Mat4 translate(float Tx, float Ty, float Tz) {
     return *res;
 }
 
-Mat4 scale(float Sx, float Sy, float Sz) {
+inline Mat4 scale(float Sx, float Sy, float Sz) {
     Mat4 *res = new Mat4(1.f); // создали единичную матрицу
     (*res)[0][0] = Sx;         // поменяли
     (*res)[1][1] = Sy;         // значения на главной диагонали
@@ -56,7 +56,7 @@ inline Mat3 mirrorY() {
     return res;
 }
 
-Mat4 rotate(float theta, Vec3 n) {
+inline Mat4 rotate(float theta, Vec3 n) {
     Vec3 normalized = norm(n);
 
     Mat3 E(1.0f);
@@ -68,12 +68,12 @@ Mat4 rotate(float theta, Vec3 n) {
                 Vec4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
-Mat4 rotateP(float theta, Vec3 n, Vec3 P) {
+inline Mat4 rotateP(float theta, Vec3 n, Vec3 P) {
     return translate(P.x, P.y, P.z) *
            (rotate(theta, n) * translate(-P.x, -P.y, -P.z));
 }
 
-Mat4 lookAt(Vec3 S, Vec3 P, Vec3 u) {
+inline Mat4 lookAt(Vec3 S, Vec3 P, Vec3 u) {
     Mat4 T = Mat4(Vec4(1, 0, 0, -S.x), Vec4(0, 1, 0, -S.y), Vec4(0, 0, 1, -S.z),
                   Vec4(0, 0, 0, 1));
     Vec3 Ups = (S - P);
@@ -84,30 +84,30 @@ Mat4 lookAt(Vec3 S, Vec3 P, Vec3 u) {
     return R * T;
 }
 
-Mat4 ortho(float l, float r, float b, float t, float zn, float zf) {
+inline Mat4 ortho(float l, float r, float b, float t, float zn, float zf) {
     return Mat4(Vec4(2.f / (r - l), 0.f, 0.f, -(r + l) / (r - l)),
                 Vec4(0.f, 2.f / (t - b), 0.f, -(t + b) / (t - b)),
                 Vec4(0.f, 0.f, -2 / (zf - zn), -(zf + zn) / (zf - zn)),
                 Vec4(0.f, 0.f, 0.f, 1.f));
 }
 
-Mat4 frustum(float l, float r, float b, float t, float n, float f) {
+inline Mat4 frustum(float l, float r, float b, float t, float n, float f) {
     return Mat4(Vec4((2 * n) / (r - l), 0, (r + l) / (r - l), 0),
                 Vec4(0, (2 * n) / (t - b), (t + b) / (t - b), 0),
                 Vec4(0, 0, -(f + n) / (f - n), (-2 * f * n) / (f - n)),
                 Vec4(0, 0, -1, 0));
 }
 
-float cot(float rad) { return 1.0f / tanf(rad); }
+inline float cot(float rad) { return 1.0f / tanf(rad); }
 
-Mat4 perspective(float fovy, float aspect, float n, float f) {
+inline Mat4 perspective(float fovy, float aspect, float n, float f) {
     return Mat4(Vec4(1 / aspect * cot(fovy / 2), 0, 0, 0),
                 Vec4(0, cot(fovy / 2), 0, 0),
                 Vec4(0, 0, -(f + n) / (f - n), (-2 * f * n) / (f - n)),
                 Vec4(0, 0, -1, 0));
 }
 
-Mat3 cadrRL(Vec2 Vc, Vec2 V, Vec2 Wc, Vec2 W) {
+inline Mat3 cadrRL(Vec2 Vc, Vec2 V, Vec2 Wc, Vec2 W) {
     return translate(Wc.x, Wc.y) *
            (scale(W.x / V.x, -W.y / V.y) * translate(-Vc.x, -Vc.y));
 }

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "figure.hpp"
+#include "raylib.h"
 #include "transform.hpp"
 #include <iostream>
 
@@ -33,8 +34,22 @@ struct Screen {
 
         float rect_aspect;
 
-        Mat3 initT; // Матрица изначального преобразования
-        Mat3 T = Mat3(1.f);
+        enum projType { Ortho, Frustum, Perspective } pType;
+
+        Mat4 initT = Mat4(1.f); // Матрица изначального преобразования
+        Mat4 T = Mat4(1.f);
+
+        Vec3 S, P, u; // координаты точки наблюдения
+        // точки, в которую направлен вектор наблюдения
+        // вектора направления вверх
+        float dist; // вспомогательная переменная - расстояние между S и P
+        float fovy, aspect; // угол обзора и соотношение сторон окна наблюдения
+        float fovy_work, aspect_work; // рабочие переменные для fovy и aspect
+        float near, far;  // расстояния до окна наблюдения и до горизонта
+        float n, f;       // рабочие переменные для near и far
+        float l, r, t, b; // рабочие вспомогательные переменные
+                          // для значений координат левой, правой,
+                          // нижней и верхней координаты в СКН
 
         void calculate_borders(float screen_width, float screen_height) {
             border_width = screen_width - left - right;
@@ -58,6 +73,22 @@ struct Screen {
 
         std::vector<ssu::Model> get_models_from_file(const char *file_name);
         void key_handler();
+
+    private:
+        void initWorkPars() { // инициализация рабочих параметров камеры
+            n = near;
+            f = far;
+            fovy_work = fovy;
+            aspect_work = aspect;
+            float Vy = 2 * near * tan(fovy / 2);
+            float Vx = aspect * Vy;
+            l = -Vx / 2;
+            r = Vx / 2;
+            b = -Vy / 2;
+            t = Vy / 2;
+            dist = length(P - S);
+            T = lookAt(S, P, u);
+        }
 };
 
 std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
@@ -67,9 +98,9 @@ std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
     in.open(file_name);
 
     if (in.is_open()) {
-        Mat3 M = Mat3(1.f); // Модельная матрица
-        Mat3 initM;         // Матрица с начальным преобразованием каждой модели
-        std::vector<Mat3> transforms;  // Стек преобразований
+        Mat4 M = Mat4(1.f); // Модельная матрица
+        Mat4 initM;         // Матрица с начальным преобразованием каждой модели
+        std::vector<Mat4> transforms;  // Стек преобразований
         std::vector<ssu::Path> figure; // Ломаные, из которых состоит фигура
         float thickness = 2;
         int r = 0;
@@ -84,37 +115,17 @@ std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
             if (!is_ignorable_line(str)) {
                 std::stringstream s(str);
                 s >> cmd;
-                if (cmd == "frame") { // размеры изображения
-                    s >> Vx >> Vy;    // считываем глобальные значение Vx и Vy
-                    std::cout << Vx << " " << Vy << std::endl;
-                    float figure_aspect =
-                        Vx / Vy; // обновление соотношения сторон
-                    // смещение центра рисунка с началом координат
-                    Mat3 T1 = translate(-Vx / 2.0f, -Vy / 2.0f);
-                    // масштабирование остается прежним, меняется
-                    // только привязка
-                    // коэффициент увеличения при сохранении
-                    // исходного соотношения сторон
-                    float S = figure_aspect < rect_aspect ? (border_height / Vy)
-                                                          : (border_width / Vx);
-                    Mat3 S1 = scale(S, -S);
-                    // сдвиг точки привязки из начала координат в
-                    // нужную позицию
-                    Mat3 T2 = translate(Wcx + border_width / 2.0f,
-                                        Wcy - border_height / 2.0f);
+                if (cmd == "camera") {
+                    s >> S.x >> S.y >> S.z; // координаты точки наблюдения
+                    s >> P.x >> P.y >>
+                        P.z; // точка, в которую направлен вектор наблюдения
+                    s >> u.x >> u.y >> u.z; // вектор направления вверх
 
-                    // Mat3 T2 = translate(left, top);
-                    // В initT совмещаем эти три преобразования
-                    // (справа налево)
-                    initT = T2 * (S1 * T1);
-                    T = initT;
-                    std::cout << T.row1.x << " " << T.row1.y << " " << T.row1.z
-                              << std::endl;
-                    std::cout << T.row2.x << " " << T.row2.y << " " << T.row2.z
-                              << std::endl;
-                    std::cout << T.row3.x << " " << T.row3.y << " " << T.row3.z
-                              << std::endl;
-                    std::cout << std::endl;
+                } else if (cmd == "screen") {
+                    s >> fovy_work >> aspect >> near >>
+                        far; // параметры команды
+                    fovy = fovy_work / 180.f *
+                           PI; // перевод угла из градусов в радианты
 
                 } else if (cmd == "color") { // цвет линии
                     s >> r >> g >> b;        // считываем три составляющие цвета
@@ -123,7 +134,7 @@ std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
                     s >> thickness;              // считываем значение толщины
 
                 } else if (cmd == "path") {     // набор точек
-                    std::vector<Vec2> vertices; // список точек ломаной
+                    std::vector<Vec3> vertices; // список точек ломаной
                     int N;                      // количество точек
                     s >> N;
                     std::string str1; // дополнительная строка для
@@ -138,13 +149,12 @@ std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
                             // прочитанная строка не пуста и не
                             // комментарий
                             // значит в ней пара координат
-                            float x,
-                                y; // переменные для считывания
+                            float x, y, z; // переменные для считывания
                             std::stringstream s1(str1); // еще один строковый
                                                         // поток из строки str1
-                            s1 >> x >> y;
+                            s1 >> x >> y >> z;
                             vertices.push_back(
-                                Vec2(x, y)); // добавляем точку в список
+                                Vec3(x, y, z)); // добавляем точку в список
                             N--; // уменьшаем счетчик после успешного
                                  // считывания точки
                         }
@@ -156,37 +166,37 @@ std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
                                         static_cast<unsigned char>(b), 255};
                     figure.push_back(ssu::Path(vertices, color, thickness));
                 } else if (cmd == "model") { // начало описания нового рисунка
-                    float mVcx, mVcy, mVx,
-                        mVy; // параметры команды model
-                    s >> mVcx >> mVcy >> mVx >>
-                        mVy; // считываем значения переменных
+                    float mVcx, mVcy, mVx, mVy, mVcz,
+                        mVz; // параметры команды model
+                    s >> mVcx >> mVcy >> mVcz >> mVx >> mVy >>
+                        mVz; // считываем значения переменных
                     float S = mVx / mVy < 1 ? 2.f / mVy : 2.f / mVx;
                     // сдвиг точки привязки из начала координат в
                     // нужную позицию
                     // после которого проводим масштабирование
-                    initM = scale(S) * translate(-mVcx, -mVcy);
+                    initM = scale(S, S, S) * translate(-mVcx, -mVcy, -mVcz);
                     figure.clear();
 
                 } else if (cmd == "figure") { // формирование новой модели
                     models.push_back(ssu::Model(figure, M * initM));
 
                 } else if (cmd == "translate") { // перенос
-                    float Tx,
-                        Ty;        // параметры преобразования переноса
-                    s >> Tx >> Ty; // считываем параметры
-                    M = translate(Tx, Ty) *
+                    float Tx, Ty, Tz;    // параметры преобразования переноса
+                    s >> Tx >> Ty >> Tz; // считываем параметры
+                    M = translate(Tx, Ty, Tz) *
                         M; // добавляем перенос к общему преобразованию
 
                 } else if (cmd == "scale") { // масштабирование
                     float S;                 // параметр масштабирования
                     s >> S;                  // считываем параметр
-                    M = scale(S) * M;        // добавляем масштабирование к
+                    M = scale(S, S, S) * M;  // добавляем масштабирование к
                                              // общему преобразованию
 
                 } else if (cmd == "rotate") { // поворот
                     float theta;              // угол поворота в градусах
-                    s >> theta;               // считываем параметр
-                    M = rotate(-theta / 180.f * PI) *
+                    float nx, ny, nz;
+                    s >> theta >> nx >> ny >> nz; // считываем параметр
+                    M = rotate(theta / 180.f * PI, Vec3(nx, ny, nz)) *
                         M; // добавляем поворот к общему преобразованию
                 } else if (cmd == "pushTransform") { // сохранение
                                                      // матрицы в стек
@@ -201,86 +211,99 @@ std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
             // считываем очередную строку
             getline(in, str);
         }
+        initWorkPars();
     }
     return models;
 }
 
 void Screen::key_handler() {
     if (IsKeyDown(KEY_W)) {
-        T = translate(0, -1) * T;
+        T = lookAt(Vec3(0, 0, -1), Vec3(0, 0, -2), Vec3(0, 1, 0)) * T;
     }
 
     if (IsKeyDown(KEY_A)) {
-        T = translate(-1, 0) * T;
+        T = lookAt(Vec3(-1, 0, 0), Vec3(-1, 0, -1), Vec3(0, 1, 0)) * T;
     }
     if (IsKeyDown(KEY_S)) {
-        T = translate(0, 1) * T;
+        T = lookAt(Vec3(0, 0, 1), Vec3(0, 0, 0), Vec3(0, 1, 0)) * T;
     }
     if (IsKeyDown(KEY_D)) {
-        T = translate(1, 0) * T;
+        T = lookAt(Vec3(1, 0, 0), Vec3(0, 0, 0), Vec3(0, 1, 0)) * T;
     }
 
-    if (IsKeyDown(KEY_T))
-        T = translate(0, -10) * T;
-    if (IsKeyDown(KEY_G))
-        T = translate(0, 10) * T;
-    if (IsKeyDown(KEY_F))
-        T = translate(-10, 0) * T;
-    if (IsKeyDown(KEY_H))
-        T = translate(10, 0) * T;
-
-    if (IsKeyDown(KEY_Q)) {
-        T = translate(rect_center_x, rect_center_y) * rotate(-0.01f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyDown(KEY_E)) {
-        T = translate(rect_center_x, rect_center_y) * rotate(0.01f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyDown(KEY_Y)) {
-        T = translate(rect_center_x, rect_center_y) * rotate(-0.05f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyDown(KEY_R)) {
-        T = translate(rect_center_x, rect_center_y) * rotate(0.05f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-
-    if (IsKeyDown(KEY_Z)) {
-        T = translate(rect_center_x, rect_center_y) * scale(1.1f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyDown(KEY_X)) {
-        T = translate(rect_center_x, rect_center_y) * scale(1.0f / 1.1f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-
-    if (IsKeyDown(KEY_I)) {
-        T = translate(rect_center_x, rect_center_y) * scale(1.1f, 1.0f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyDown(KEY_K)) {
-        T = translate(rect_center_x, rect_center_y) * scale(1.0f / 1.1f, 1.0f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyDown(KEY_O)) {
-        T = translate(rect_center_x, rect_center_y) * scale(1.0f, 1.1f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyDown(KEY_L)) {
-        T = translate(rect_center_x, rect_center_y) * scale(1.0f, 1.0f / 1.1f) *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-
-    if (IsKeyPressed(KEY_U)) {
-        T = translate(rect_center_x, rect_center_y) * mirrorY() *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
-    if (IsKeyPressed(KEY_J)) {
-        T = translate(rect_center_x, rect_center_y) * mirrorX() *
-            translate(-rect_center_x, -rect_center_y) * T;
-    }
+    // if (IsKeyDown(KEY_T))
+    //     T = translate(0, -10) * T;
+    // if (IsKeyDown(KEY_G))
+    //     T = translate(0, 10) * T;
+    // if (IsKeyDown(KEY_F))
+    //     T = translate(-10, 0) * T;
+    // if (IsKeyDown(KEY_H))
+    //     T = translate(10, 0) * T;
+    //
+    // if (IsKeyDown(KEY_Q)) {
+    //     T = translate(rect_center_x, rect_center_y) * rotate(-0.01f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyDown(KEY_E)) {
+    //     T = translate(rect_center_x, rect_center_y) * rotate(0.01f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyDown(KEY_Y)) {
+    //     T = translate(rect_center_x, rect_center_y) * rotate(-0.05f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyDown(KEY_R)) {
+    //     T = translate(rect_center_x, rect_center_y) * rotate(0.05f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    //
+    // if (IsKeyDown(KEY_Z)) {
+    //     T = translate(rect_center_x, rect_center_y) * scale(1.1f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyDown(KEY_X)) {
+    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f / 1.1f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    //
+    // if (IsKeyDown(KEY_I)) {
+    //     T = translate(rect_center_x, rect_center_y) * scale(1.1f, 1.0f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyDown(KEY_K)) {
+    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f
+    //     / 1.1f, 1.0f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyDown(KEY_O)) {
+    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f, 1.1f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyDown(KEY_L)) {
+    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f, 1.0f
+    //     / 1.1f) *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    //
+    // if (IsKeyPressed(KEY_U)) {
+    //     T = translate(rect_center_x, rect_center_y) * mirrorY() *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
+    // if (IsKeyPressed(KEY_J)) {
+    //     T = translate(rect_center_x, rect_center_y) * mirrorX() *
+    //         translate(-rect_center_x, -rect_center_y) * T;
+    // }
     if (IsKeyPressed(KEY_ESCAPE)) {
+        initWorkPars();
         T = initT;
     }
+    if (IsKeyPressed(KEY_THREE)) {
+        pType = Perspective;
+    }
+
+    if (IsKeyPressed(KEY_ONE)) {
+        pType = Ortho;
+    }
 }
+
+// enum projType { Ortho, Frustum, Perspective } pType;
