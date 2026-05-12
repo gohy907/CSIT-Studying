@@ -7,10 +7,10 @@
 namespace ssu {
 
 struct Path {
-        std::vector<Vec2> vertices;
+        std::vector<Vec3> vertices;
         Color color;
         float thickness;
-        Path(std::vector<Vec2> vertices, Color color, float thickness)
+        Path(std::vector<Vec3> vertices, Color color, float thickness)
             : vertices(vertices),
               color(color),
               thickness(thickness) {}
@@ -30,9 +30,9 @@ struct Figure {
 class Model {
     public:
         std::vector<Path> figure;
-        Mat3 ModelM;
+        Mat4 ModelM;
         Model() = default;
-        Model(std::vector<Path> paths, Mat3 mat)
+        Model(std::vector<Path> paths, Mat4 mat)
             : figure(paths),
               ModelM(mat) {}
 };
