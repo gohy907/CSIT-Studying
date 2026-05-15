@@ -220,7 +220,7 @@ inline void Screen::key_handler() {
     if (IsKeyDown(KEY_W)) {
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
 
-            T = lookAt(Vec3(0, 0, -0.1), Vec3(0, 0, -0.2), Vec3(0, 0.1, 0)) * T;
+            T = lookAt(Vec3(0, 0, -0.1), Vec3(0, 0, -0.2), Vec3(0, 1, 0)) * T;
         } else {
             T = lookAt(Vec3(0, 0, -1), Vec3(0, 0, -2), Vec3(0, 1, 0)) * T;
         }
@@ -228,7 +228,7 @@ inline void Screen::key_handler() {
 
     if (IsKeyDown(KEY_A)) {
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-            T = lookAt(Vec3(-0.1, 0, 0), Vec3(-0.1, 0, -0.1), Vec3(0, 0.1, 0)) *
+            T = lookAt(Vec3(-0.1, 0, 0), Vec3(-0.1, 0, -0.1), Vec3(0, 1, 0)) *
                 T;
         } else {
             T = lookAt(Vec3(-1, 0, 0), Vec3(-1, 0, -1), Vec3(0, 1, 0)) * T;
@@ -265,7 +265,7 @@ inline void Screen::key_handler() {
     }
     if (IsKeyPressed(KEY_TWO)) {
         pType = Frustum;
-        T = frustum(l, r, b, t, n, f) * T;
+        // T = frustum(l, r, b, t, n, f) * T;
     }
     if (IsKeyPressed(KEY_THREE)) {
         pType = Perspective;
@@ -319,6 +319,90 @@ inline void Screen::key_handler() {
         } else {
             ++l;
         }
+    }
+
+    if (IsKeyDown(KEY_G)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            T = rotateP(0.1f, Vec3(1, 0, 0), P) * T;
+        } else {
+            T = rotate(0.1f, Vec3(1, 0, 0)) * T;
+        }
+    }
+    if (IsKeyDown(KEY_F)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            T = rotateP(-0.1f, Vec3(0, 1, 0), P) * T;
+        } else {
+            T = rotate(-0.1f, Vec3(0, 1, 0)) * T;
+        }
+    }
+    if (IsKeyDown(KEY_H)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            T = rotateP(0.1f, Vec3(0, 1, 0), P) * T;
+        } else {
+            T = rotate(0.1f, Vec3(0, 1, 0)) * T;
+        }
+    }
+
+    if (IsKeyDown(KEY_K)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            b -= 1.0f;
+        } else {
+            b += 1.0f;
+        }
+    }
+    if (IsKeyDown(KEY_L)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            r -= 1.0f;
+        } else {
+            r += 1.0f;
+        }
+    }
+    if (IsKeyDown(KEY_U)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            n -= 0.2f;
+        } else {
+            n += 0.2f;
+        }
+        n = std::max(0.1f, n);
+        n = std::min(n, f - 0.1f);
+    }
+    if (IsKeyDown(KEY_O)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            f -= 0.2f;
+        } else {
+            f += 0.2f;
+        }
+        f = std::max(n + 0.1f, f);
+    }
+    if (IsKeyDown(KEY_B)) {
+        Vec3 view_dir = norm(P - S);
+        float step = 0.2f;
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            if (length(P - S) - step >= 0.1f) {
+                S += view_dir * step;
+                initWorkPars();
+            }
+        } else {
+            S -= view_dir * step;
+            initWorkPars();
+        }
+    }
+    if (IsKeyDown(KEY_Z)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            fovy_work -= 0.1f;
+        } else {
+            fovy_work += 0.1f;
+        }
+        fovy_work = std::max(0.3f, fovy_work);
+        fovy_work = std::min(3.0f, fovy_work);
+    }
+    if (IsKeyDown(KEY_X)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            aspect_work -= 0.05f;
+        } else {
+            aspect_work += 0.05f;
+        }
+        aspect_work = std::max(0.01f, aspect_work);
     }
 }
 
