@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <math.h>
 
 struct Vec3;
@@ -46,7 +47,11 @@ struct Vec3 {
             this->z *= v.z;
             return *this;
         }
-        const Vec3 operator*(const Vec3 &v) const { return Vec3(*this) *= v; }
+        const Vec3 operator*(const Vec3 &v) const {
+            // std::cout << "boasskjdklasjd" << std::endl;
+            return Vec3(*this) *= v;
+        }
+
         float &operator[](size_t i) {
             return (reinterpret_cast<float *>(this))[i];
         }
@@ -82,7 +87,7 @@ inline float dot(const Vec3 &a, const Vec3 &b) {
 }
 
 struct Vec4 {
-        float x, y, z, a;
+        float x = 0, y = 0, z = 0, a = 0;
         Vec4() {}
         Vec4(float a, float b, float c, float d)
             : x(a),
@@ -143,11 +148,11 @@ struct Mat4 {
         }
 
         const Vec4 operator*(const Vec4 &v) {
-            Vec4 *res = new (Vec4);
+            Vec4 res;
             for (int i = 0; i < 4; ++i) {
-                (*res)[i] = dot((*this)[i], v);
+                res[i] = dot((*this)[i], v);
             }
-            return *res;
+            return res;
         }
 
         Mat4 operator*=(const Mat4 &m) {
@@ -205,7 +210,7 @@ struct Mat3 {
             return this->transpose();
         }
         const Mat3 operator*(const Mat3 &m) const { return Mat3(*this) *= m; }
-        Mat3(Mat4 &m) {
+        Mat3(Mat4 m) {
 
             row1 = Vec3(m.row1.x, m.row1.y, m.row1.z);
             row2 = Vec3(m.row2.x, m.row2.y, m.row2.z);
@@ -256,11 +261,11 @@ struct Mat2 {
         }
 
         const Vec2 operator*(Vec2 &v) {
-            Vec2 *res = new (Vec2);
+            Vec2 res;
             for (int i = 0; i < 2; ++i) {
-                (*res)[i] = dot((*this)[i], v);
+                res[i] = dot((*this)[i], v);
             }
-            return *res;
+            return res;
         }
 
         Mat2 operator*=(const Mat2 &m) {
@@ -275,7 +280,7 @@ struct Mat2 {
         }
         Mat2(Mat3 m) {
             row1 = Vec2(m[0][0], m[0][1]);
-            row2 = Vec2(m[0][0], m[0][1]);
+            row2 = Vec2(m[1][0], m[1][1]);
         }
 };
 

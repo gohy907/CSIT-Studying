@@ -34,7 +34,7 @@ struct Screen {
 
         float rect_aspect;
 
-        enum projType { Ortho, Frustum, Perspective } pType;
+        enum projType { Ortho, Frustum, Perspective } pType = Perspective;
 
         Mat4 initT = Mat4(1.f); // Матрица изначального преобразования
         Mat4 T = Mat4(1.f);
@@ -216,86 +216,45 @@ std::vector<ssu::Model> Screen::get_models_from_file(const char *file_name) {
     return models;
 }
 
-void Screen::key_handler() {
+inline void Screen::key_handler() {
     if (IsKeyDown(KEY_W)) {
-        T = lookAt(Vec3(0, 0, -1), Vec3(0, 0, -2), Vec3(0, 1, 0)) * T;
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+
+            T = lookAt(Vec3(0, 0, -0.1), Vec3(0, 0, -0.2), Vec3(0, 0.1, 0)) * T;
+        } else {
+            T = lookAt(Vec3(0, 0, -1), Vec3(0, 0, -2), Vec3(0, 1, 0)) * T;
+        }
     }
 
     if (IsKeyDown(KEY_A)) {
-        T = lookAt(Vec3(-1, 0, 0), Vec3(-1, 0, -1), Vec3(0, 1, 0)) * T;
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            T = lookAt(Vec3(-0.1, 0, 0), Vec3(-0.1, 0, -0.1), Vec3(0, 0.1, 0)) *
+                T;
+        } else {
+            T = lookAt(Vec3(-1, 0, 0), Vec3(-1, 0, -1), Vec3(0, 1, 0)) * T;
+        }
     }
     if (IsKeyDown(KEY_S)) {
-        T = lookAt(Vec3(0, 0, 1), Vec3(0, 0, 0), Vec3(0, 1, 0)) * T;
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+
+            T = lookAt(Vec3(0, 0, 0.1), Vec3(0, 0, 0), Vec3(0, 0.1, 0)) * T;
+        } else {
+            T = lookAt(Vec3(0, 0, 1), Vec3(0, 0, 0), Vec3(0, 1, 0)) * T;
+        }
     }
     if (IsKeyDown(KEY_D)) {
-        T = lookAt(Vec3(1, 0, 0), Vec3(0, 0, 0), Vec3(0, 1, 0)) * T;
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+
+            T = lookAt(Vec3(0.1, 0, 0), Vec3(0.1, 0, -0.1), Vec3(0, 0.1, 0)) *
+                T;
+        } else {
+            T = lookAt(Vec3(1, 0, 0), Vec3(1, 0, -1), Vec3(0, 1, 0)) * T;
+        }
     }
 
-    // if (IsKeyDown(KEY_T))
-    //     T = translate(0, -10) * T;
-    // if (IsKeyDown(KEY_G))
-    //     T = translate(0, 10) * T;
-    // if (IsKeyDown(KEY_F))
-    //     T = translate(-10, 0) * T;
-    // if (IsKeyDown(KEY_H))
-    //     T = translate(10, 0) * T;
-    //
-    // if (IsKeyDown(KEY_Q)) {
-    //     T = translate(rect_center_x, rect_center_y) * rotate(-0.01f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyDown(KEY_E)) {
-    //     T = translate(rect_center_x, rect_center_y) * rotate(0.01f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyDown(KEY_Y)) {
-    //     T = translate(rect_center_x, rect_center_y) * rotate(-0.05f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyDown(KEY_R)) {
-    //     T = translate(rect_center_x, rect_center_y) * rotate(0.05f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    //
-    // if (IsKeyDown(KEY_Z)) {
-    //     T = translate(rect_center_x, rect_center_y) * scale(1.1f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyDown(KEY_X)) {
-    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f / 1.1f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    //
-    // if (IsKeyDown(KEY_I)) {
-    //     T = translate(rect_center_x, rect_center_y) * scale(1.1f, 1.0f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyDown(KEY_K)) {
-    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f
-    //     / 1.1f, 1.0f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyDown(KEY_O)) {
-    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f, 1.1f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyDown(KEY_L)) {
-    //     T = translate(rect_center_x, rect_center_y) * scale(1.0f, 1.0f
-    //     / 1.1f) *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    //
-    // if (IsKeyPressed(KEY_U)) {
-    //     T = translate(rect_center_x, rect_center_y) * mirrorY() *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    // if (IsKeyPressed(KEY_J)) {
-    //     T = translate(rect_center_x, rect_center_y) * mirrorX() *
-    //         translate(-rect_center_x, -rect_center_y) * T;
-    // }
-    if (IsKeyPressed(KEY_ESCAPE)) {
+    if (IsKeyDown(KEY_ESCAPE)) {
         initWorkPars();
-        T = initT;
+        // T = initT;
     }
     if (IsKeyPressed(KEY_THREE)) {
         pType = Perspective;
@@ -303,6 +262,63 @@ void Screen::key_handler() {
 
     if (IsKeyPressed(KEY_ONE)) {
         pType = Ortho;
+    }
+    if (IsKeyPressed(KEY_TWO)) {
+        pType = Frustum;
+        T = frustum(l, r, b, t, n, f) * T;
+    }
+    if (IsKeyPressed(KEY_THREE)) {
+        pType = Perspective;
+    }
+
+    if (IsKeyDown(KEY_R)) {
+
+        Vec3 u_new = Mat3(rotate(0.1, Vec3(0, 0, 1))) * Vec3(0, 1, 0);
+        T = lookAt(Vec3(0, 0, 0), Vec3(0, 0, -1), u_new) * T;
+    }
+
+    if (IsKeyDown(KEY_Y)) {
+
+        Vec3 u_new = Mat3(rotate(-0.1, Vec3(0, 0, 1))) * Vec3(0, 1, 0);
+        T = lookAt(Vec3(0, 0, 0), Vec3(0, 0, -1), u_new) * T;
+    }
+    if (IsKeyDown(KEY_T)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            Mat4 M = rotateP(
+                0.1, Vec3(1, 0, 0),
+                Vec3(0, 0, -dist)); // матрица вращения относительно точки P
+            Vec3 u_new = Mat3(M) * Vec3(0, 1, 0); // вращение направления вверх
+            Vec3 S_new =
+                normalize(M * Vec4(0, 0, 0, 1)); // вращение начала координат
+            // переход к СКН в которой начало координат в новой точке, а
+            // направление наблюдения - в точку P
+            T = lookAt(S_new, Vec3(0, 0, -dist), u_new) * T;
+        } else {
+            Mat4 M =
+                rotate(0.1, Vec3(1, 0, 0)); // матрица вращения относительно Ox
+            Vec3 u_new = Mat3(M) * Vec3(0, 1, 0); // вращение направления вверх
+            Vec3 P_new = normalize(
+                M * Vec4(0, 0, -1,
+                         1)); // вращение точки, в которую смотрит наблюдатель
+            T = lookAt(Vec3(0, 0, 0), P_new, u_new) * T;
+        }
+    }
+
+    if (IsKeyDown(KEY_I)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            --t;
+        } else {
+            ++t;
+        }
+    }
+
+    if (IsKeyDown(KEY_J)) {
+        if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            --l;
+            ;
+        } else {
+            ++l;
+        }
     }
 }
 

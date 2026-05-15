@@ -31,8 +31,6 @@ int main() {
         float screen_width = static_cast<float>(GetScreenWidth());
         float screen_height = static_cast<float>(GetScreenHeight());
         screen.calculate_borders(screen_width, screen_height);
-        // std::cout << "max_y: " << screen.max_y << std::endl;
-        // screen.key_handler();
 
         BeginDrawing();
         ClearBackground(SKYBLUE);
@@ -40,8 +38,9 @@ int main() {
         DrawRectangleLinesEx({screen.left, screen.top, screen.border_width,
                               screen.border_height},
                              2, BLACK);
+        screen.key_handler();
 
-        Mat4 proj; // матрица перехода в пространство отсечения
+        Mat4 proj = Mat4(1.f);
         switch (screen.pType) {
         case Screen::projType::Ortho: // прямоугольная проекция
             proj = ortho(screen.l, screen.r, screen.b, screen.t, -screen.n,
@@ -66,22 +65,32 @@ int main() {
             std::vector<ssu::Path> figure = model.figure;
             Mat4 TM = C * model.ModelM;
             for (const auto &lines : figure) {
-                Vec2 start_3D = normalize(TM * Vec4(lines.vertices[0], 1));
-                Vec2 start = normalize(cdr * Vec3(Vec2(start_3D), 1.f));
-                std::cout << lines.vertices.size() << std::endl;
-                for (const auto &line : lines.vertices) {
-                    Vec2 end_3D = normalize(TM * Vec4(line, 1));
-                    Vec2 end = normalize(cdr * Vec3(Vec2(end_3D), 1.f));
-                    Vec2 tmpEnd = end;
+                Vec3 start_ndc = normalize(TM * Vec4(lines.vertices[0], 1));
+                Vec3 tmp_s = cdr * Vec3(start_ndc.x, start_ndc.y, 1.f);
+                Vec2 start = {tmp_s.x, tmp_s.y};
+                // std::cout << "x: " << tmp_s.x << ", y: " << tmp_s.y
+                //           << std::endl;
 
-                    std::cout << "x: " << start.x << " y: " << start.y
-                              << std::endl;
-                    if (clip(start, end, screen.min_x, screen.min_y,
+                for (size_t i = 1; i < lines.vertices.size(); ++i) {
+                    const auto &vertex = lines.vertices[i];
+
+                    Vec3 end_ndc = normalize(TM * Vec4(vertex, 1));
+                    Vec3 tmp_e = cdr * Vec3(end_ndc.x, end_ndc.y, 1.f);
+                    Vec2 end = {tmp_e.x, tmp_e.y};
+
+                    Vec2 next_start = end;
+                    Vec3 next_start_ndc = end_ndc;
+
+                    Vec2 s_copy = start;
+                    Vec2 e_copy = end;
+                    if (clip(s_copy, e_copy, screen.min_x, screen.min_y,
                              screen.max_x, screen.max_y)) {
-                        DrawLineEx({start.x, start.y}, {end.x, end.y},
+                        DrawLineEx({s_copy.x, s_copy.y}, {e_copy.x, e_copy.y},
                                    lines.thickness, lines.color);
                     }
-                    start = tmpEnd;
+
+                    start = next_start;
+                    start_ndc = next_start_ndc;
                 }
             }
         }
