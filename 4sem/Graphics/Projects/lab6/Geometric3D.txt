@@ -100,39 +100,30 @@ path 4
 2.25 2. 0 # нос слева 
 2. 2.5 0
 
+# Большой заяц
+pushTransform
 scale 0.5
 pushTransform
 scale 2
-
-# Большой заяц
-rotate 90 0 0 1
-pushTransform
-translate 3 5 0
+translate 3 5 0 
 figure
 
-
-# Зайцы поменьше
-# Зайцы слева
 popTransform
-popTransform
-
-pushTransform
 rotate -90 0 0 1
 translate 4 0 0
-# pushTransform
-
-popTransform
 pushTransform
+
 rotate -90 0 0 1
-translate 3 5 0
+translate 3 5 0 
 figure
 
 popTransform
 pushTransform
 rotate -30 0 0 1
 translate 3 5 0
+figure
 
-figure 
+
 popTransform
 pushTransform
 rotate 30 0 0 1
@@ -142,7 +133,7 @@ figure
 popTransform
 pushTransform
 rotate 90 0 0 1
-translate 3 5 0 
+translate 3 5 0
 figure
 
 popTransform
@@ -154,26 +145,29 @@ figure
 popTransform
 pushTransform
 rotate 120 0 0 1
-translate 17 5 0 
+translate 17 5 0
 figure
 
 popTransform
 pushTransform
 rotate 180 0 0 1
-translate 17 5 0 
-figure
-
-popTransform
-pushTransform
-rotate 240 0 0 1
-translate 17 5 0 
+translate 17 5 0
 figure 
 
 popTransform
 pushTransform
-rotate 300 0 0 1
+rotate 240 0 0 1
 translate 17 5 0
 figure
+
+popTransform
+pushTransform
+rotate 300 0 0 1 
+translate 17 5 0
+figure 
+
+popTransform
+popTransform
 
 model 8 5.5 0 16.0 11.0 0
 # Голова и левое ухо
@@ -426,15 +420,79 @@ path 3
 3.5 0.5 0
 2.5 0.5 0
 
-popTransform
-popTransform
+pushTransform
+scale 0.5
+pushTransform
+scale 2
 # Большой слоу
 pushTransform
 rotate -90 0 0 1
-# scale 2.6
-# scale 1.454
-#   translate 17 5
-#   figure
+pushTransform
+translate 17 5 0
+figure
+
+popTransform
+popTransform
+popTransform
+
+rotate 90 0 0 1
+translate 4 0 0
+pushTransform
+
+rotate 90
+translate 17 5 0
+figure
+
+popTransform
+pushTransform
+rotate 150
+translate 17 5 0
+figure
+
+popTransform
+pushTransform
+rotate 210
+translate 17 5 0
+figure
+
+
+popTransform
+pushTransform
+rotate 270
+translate 17 5 0
+figure
+
+popTransform
+pushTransform
+rotate 120
+translate 3 5 0
+figure
+
+popTransform
+pushTransform
+rotate 60
+translate 3 5 0
+figure
+
+popTransform
+pushTransform
+rotate 0
+translate 3 5 0
+figure
+
+popTransform
+pushTransform
+rotate -60
+translate 3 5 0
+figure
+
+popTransform
+pushTransform
+rotate -120
+translate 3 5 0
+figure
+
+
 #
 #   popTransform
 #
